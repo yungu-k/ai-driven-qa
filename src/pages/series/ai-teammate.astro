@@ -1,0 +1,91 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Card from "@/components/Card.astro";
+import config from "@/config";
+
+const SERIES_ORDER = [
+  "ai-planner-teammate",
+  "ai-qa-engineer-teammate",
+  "ai-developer-teammate",
+];
+
+const ROLES = [
+  { no: "①", name: "기획자", question: "무엇을 만들까" },
+  { no: "②", name: "QA 엔지니어", question: "무엇이 깨질까" },
+  { no: "③", name: "개발자", question: "어떻게 구현하고 배포하나" },
+];
+
+const posts = await getCollection("posts", ({ id }) =>
+  SERIES_ORDER.includes(id)
+);
+const seriesPosts = SERIES_ORDER.map(slug =>
+  posts.find(p => p.id === slug)
+).filter(p => p !== undefined);
+---
+
+<Layout
+  title={`AI 팀원 만들기 3부작 | ${config.site.title}`}
+  description="기획자·QA·개발자 — AI 팀원 셋을 만들어 핸드오프로 연결하고 서로 검수하게 한 시리즈."
+>
+  <Header />
+  <main id="main-content" class="app-layout pb-12">
+    <section class="pt-10 pb-8">
+      <p
+        class="mb-3 inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium tracking-wide text-muted-foreground"
+      >
+        <span class="inline-block h-1.5 w-1.5 rounded-full bg-accent"></span>
+        시리즈
+      </p>
+      <h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">
+        AI 팀원 만들기 <span class="text-accent">3부작</span>
+      </h1>
+      <p class="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
+        AI 팀원 셋을 만들었다 — <strong class="text-foreground"
+          >기획자(무엇을 만들까) · QA 엔지니어(무엇이 깨질까) · 개발자(어떻게
+          구현하고 배포하나)</strong
+        >. 사람 팀이 역할을 나누는 것과 같은 이유다: 한 명이 기획하고 구현하고
+        검증까지 하면, 자기 산출물의 허점을 자기가 못 본다.
+      </p>
+      <p class="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
+        셋은 핸드오프(일감 인계 문서)로 연결된다. 기획자가 명세를 쓰고, 개발자가
+        구현하고, 그 결과를 다른 팀원이 다시 검수한다 — 서로의 "됐다"를 그냥
+        믿지 않는 구조. 사람은 그 사이의 결정과 최종 승인을 맡는다.
+      </p>
+    </section>
+
+    <section class="pb-8">
+      <h2
+        class="text-sm font-semibold tracking-widest text-muted-foreground uppercase"
+      >
+        팀 구조
+      </h2>
+      <ul class="mt-4 grid gap-3 sm:grid-cols-3">
+        {
+          ROLES.map(({ no, name, question }) => (
+            <li class="rounded-xl border border-border bg-muted/40 px-4 py-3">
+              <p class="text-lg font-bold text-accent">
+                {no} {name}
+              </p>
+              <p class="mt-0.5 text-sm text-muted-foreground">"{question}"</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="pb-6">
+      <h2
+        class="text-sm font-semibold tracking-widest text-muted-foreground uppercase"
+      >
+        순서대로 읽기
+      </h2>
+      <ul class="mt-4 grid gap-4">
+        {seriesPosts.map(post => <Card variant="h3" {...post} />)}
+      </ul>
+    </section>
+  </main>
+  <Footer />
+</Layout>
