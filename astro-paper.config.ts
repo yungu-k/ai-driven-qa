@@ -30,9 +30,12 @@ export default defineAstroPaperConfig({
     search: "pagefind",
   },
   socials: [
-    // TODO: 개인 계정으로 교체
+    // TODO: GitHub 개인 계정으로 교체
     { name: "github", url: "https://github.com/yourname" },
-    { name: "mail", url: "mailto:your@mail.com" },
+    {
+      name: "linkedin",
+      url: "https://www.linkedin.com/in/%EC%9C%A4%EA%B5%AC-%EA%B3%B5-400641308",
+    },
   ],
   shareLinks: [
     { name: "x", url: "https://x.com/intent/post?url=" },
