@@ -19,6 +19,15 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: var(--font-code), ui-monospace, monospace;
+  }
+  body {
+    letter-spacing: -0.011em;
+  }
 }
 
 @utility max-w-app {
@@ -30,7 +39,7 @@
 }
 
 @utility active-nav {
-  @apply underline decoration-wavy decoration-2 underline-offset-8;
+  @apply text-accent font-semibold;
 }
 
 :target {
