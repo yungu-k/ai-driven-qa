@@ -9,10 +9,10 @@ tags:
   - qa-automation
   - test-case
   - figma
-description: 규격 문서 기반으로 AI가 디자인 시안을 분석해 스프레드시트에 TC를 자동 생성하는 워크플로우 구축기.
+description: 규격 문서 기반으로 AI가 Figma 시안을 분석해 Google Sheets에 TC를 자동 생성하는 워크플로우 구축기.
 ---
 
-> 디자인 시안을 분석하여 스프레드시트에 TC를 자동 생성하는 핵심 스킬.
+> Figma 시안을 분석하여 Google Sheets에 TC를 자동 생성하는 핵심 스킬.
 
 ## 무엇을 만들었나
 
