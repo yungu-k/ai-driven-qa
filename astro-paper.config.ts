@@ -2,7 +2,7 @@ import { defineAstroPaperConfig } from "./src/types/config";
 
 export default defineAstroPaperConfig({
   site: {
-    url: "https://example.vercel.app/", // TODO: Vercel 배포 후 실제 URL로 교체
+    url: "https://ai-driven-qa.vercel.app/",
     title: "AI-Driven QA",
     description:
       "반복은 AI에게, 판단은 사람에게 — QA 자동화와 AI 협업의 실전 기록",
