@@ -23,6 +23,13 @@ const sortedPosts = getSortedPosts(posts);
 const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
 const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 const homePath = getRelativeLocaleUrl(locale, "");
+
+const stats = [
+  { value: "10년차", label: "QA 엔지니어" },
+  { value: "1,100+", label: "자동화 green baseline" },
+  { value: `${sortedPosts.length}편`, label: "실전 기록" },
+  { value: "2종", label: "AI 팀원 (기획자·QA)" },
+];
 ---
 
 <Layout>
@@ -65,6 +72,23 @@ const homePath = getRelativeLocaleUrl(locale, "");
           <span class="sr-only">RSS Feed</span>
         </a>
       </div>
+    </section>
+
+    <section id="stats" class="pb-10">
+      <ul class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {
+          stats.map(({ value, label }) => (
+            <li class="rounded-xl border border-border bg-muted/40 px-4 py-3">
+              <p class="text-xl font-bold tracking-tight text-accent">
+                {value}
+              </p>
+              <p class="mt-0.5 text-xs leading-snug text-muted-foreground">
+                {label}
+              </p>
+            </li>
+          ))
+        }
+      </ul>
     </section>
 
     {

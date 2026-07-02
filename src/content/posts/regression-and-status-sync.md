@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-04-10T09:20:00.000Z
-title: Regression TC 추출 + 이슈 트래커 양방향 동기화
+title: Regression TC 추출 + Jira 상태를 TC 시트로 자동 반영
 slug: regression-and-status-sync
 featured: false
 draft: false
@@ -12,7 +12,7 @@ tags:
 description: P0 기반 리그레션 스위트 자동 추출과, 이슈 상태 변화를 TC 시트에 자동 반영하는 상태 전이 규칙 설계.
 ---
 
-> P0 TC 기반 리그레션 추출과 이슈 트래커 ↔ TC 양방향 상태 동기화.
+> P0 TC 기반 리그레션 추출과 Jira → TC 상태 자동 동기화. (TC → Jira 방향의 버그 생성은 [Bug Report 자동화](/posts/bug-report-automation)가 담당 — 둘을 합치면 왕복이 닫힌다.)
 
 ## Regression TC 추출
 
@@ -23,9 +23,9 @@ Full TC에서 P0(Blocker) 항목을 자동 추출하고, 플로우 완전성을 
 - 대분류에 소스 접두사 자동 부여
 - 어떤 프로젝트의 TC 시트에든 적용 가능
 
-## 이슈 트래커 ↔ TC 동기화
+## Jira → TC 상태 동기화
 
-이슈 상태 변경을 TC 시트에 자동 반영하는 역방향 동기화 워크플로우.
+Jira 이슈 상태 변경을 TC 시트에 자동 반영하는 워크플로우.
 
 ### 동기화 규칙
 
@@ -46,6 +46,6 @@ Full TC에서 P0(Blocker) 항목을 자동 추출하고, 플로우 완전성을 
 
 ## 핵심 교훈
 
-> 양방향 동기화에서 가장 중요한 건 '상태 전이 규칙'을 명확히 정의하는 것이다. 모호한 규칙은 데이터 불일치로 이어진다.
+> 상태 동기화에서 가장 중요한 건 '상태 전이 규칙'을 명확히 정의하는 것이다. 모호한 규칙은 데이터 불일치로 이어진다.
 
 - Regression TC는 'P0만 추출'이 아니라 'P0 + 플로우 보완'이 실질적. 빠진 선행 단계가 있으면 테스트가 불가능하다.

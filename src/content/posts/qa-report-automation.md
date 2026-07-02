@@ -8,10 +8,10 @@ draft: false
 tags:
   - qa-automation
   - report
-description: 이슈 트래커와 TC 데이터를 자동 수집해 QA Result(Sign-off)와 QA Status(진행현황) 리포트를 생성하는 체계.
+description: Jira와 TC 데이터를 자동 수집해 QA Result(Sign-off)와 QA Status(진행현황) 리포트를 생성하는 체계.
 ---
 
-> 이슈 트래커 + TC 데이터를 자동 수집하여 QA Result(Sign-off)와 QA Status(진행현황) 리포트를 생성하는 워크플로우.
+> Jira + TC 데이터를 자동 수집하여 QA Result(Sign-off)와 QA Status(진행현황) 리포트를 생성하는 워크플로우.
 
 ## 무엇을 만들었나
 
@@ -38,7 +38,7 @@ description: 이슈 트래커와 TC 데이터를 자동 수집해 QA Result(Sign
 
 - **해결:** '서식 적용 필수 규칙' 6개항 신설. 특히 '머지 순서'와 '데이터 범위 시작 행' 규칙이 핵심이었다.
 
-### 2. off-by-one 에러의 반복
+### 2. off-by-one(참조가 한 행씩 밀리는) 에러의 반복
 
 수식의 행 참조가 헤더 행을 포함하거나, 범위 끝이 exclusive라서 마지막 행이 빠지는 문제가 5회 이상 반복되었다. 규칙으로 명시하여 해결했다.
 
@@ -46,9 +46,9 @@ description: 이슈 트래커와 TC 데이터를 자동 수집해 QA Result(Sign
 
 섹션 구분용 빈 행이 매번 수동 삭제를 유발했다. 전면 제거하고 Section Header 자체가 시각적 구분 역할을 하도록 변경했다.
 
-### 4. 이슈 트래커 페이지네이션 누락
+### 4. Jira 페이지네이션 누락
 
-검색 결과가 50건을 넘으면 첫 페이지만 가져와 결함 수가 불일치했다. 페이지네이션을 모든 쿼리에 적용하여 해결했다.
+검색 결과가 기본 페이지 한도(50건)를 넘으면 첫 페이지만 가져와 결함 수가 불일치했다. 페이지네이션을 모든 쿼리에 적용하여 해결했다.
 
 ## 핵심 교훈
 
