@@ -44,3 +44,7 @@ Jira의 environment 필드는 특수 문서 포맷을 요구해 직접 사용이
 
 - 라벨 상속 규칙(Epic에서 라벨 자동 상속)처럼, 팀 규칙을 코드화하면 휴먼 에러가 사라진다.
 - TC ↔ Jira 양방향 연동이 핵심. 버그 생성 시 TC 업데이트, 이슈 상태 변경 시 TC 동기화.
+
+---
+
+→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 2

@@ -56,3 +56,7 @@ description: Jira와 TC 데이터를 자동 수집해 QA Result(Sign-off)와 QA 
 
 - 실패 패턴을 규칙으로 문서화하면 AI가 같은 실수를 반복하지 않는다.
 - 사용자 관점에서 불필요한 요소는 과감히 제거해야 한다. AI는 관성적으로 넣으려 한다.
+
+---
+
+→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 3

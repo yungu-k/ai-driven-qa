@@ -50,3 +50,7 @@ Google Sheets API로는 드롭다운 칩(pill)의 색상을 설정할 수 없다
 
 - TC 작성 규칙도 '주니어 QA가 바로 수행 가능한 수준'을 기준으로 명시해야 한다. 추상적 표현을 쓰면 AI도 추상적으로 쓴다.
 - API 한계를 빨리 파악하고 '수동 영역'으로 명확히 분리하면 시간 낭비가 줄어든다.
+
+---
+
+→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 1
