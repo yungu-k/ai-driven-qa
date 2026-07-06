@@ -14,10 +14,10 @@ description: "10년차 QA 엔지니어 공윤구 — AI를 팀원으로 쓰는 Q
 글로벌 B2B 카지노 고객 대상 무인 키오스크(현금↔칩 교환)와 관리 플랫폼의 QA 전담.
 
 - QA 프로세스·릴리스 트레인 수립, 고객 대응 Incident 체계 설계
-- **UI/API 이중 트랙 자동화 인프라 구축** — Playwright + vitest, 1,100건 green baseline
-- 운영 알람 분류 자동화 → **실시간 관제 대시보드**(FastAPI+HTMX) 직접 구축
+- **[UI/API 이중 트랙 자동화 인프라](/posts/kiosk-automation-infra/) 구축** — Playwright + vitest, 1,100건 green baseline
+- 운영 알람 분류 자동화 → **[실시간 관제 대시보드](/posts/realtime-kiosk-monitoring/)**(FastAPI+HTMX) 직접 구축
 - 외부 파트너용 **기술지원 이력 시스템**(Jira 양방향 동기화) 구축·운영 오픈
-- AI 기획자·AI QA 엔지니어 팀원 설계 — 이 블로그의 주제
+- **[AI 팀원 3인(기획자·QA 엔지니어·개발자) 설계](/series/ai-teammate/)** — 이 블로그의 주제. 전체 이야기는 [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/)에
 
 ### 넷마블 웹QA팀 · QA Manager <small>(2020.08 ~ 2024.04)</small>
 
@@ -47,7 +47,7 @@ description: "10년차 QA 엔지니어 공윤구 — AI를 팀원으로 쓰는 Q
 1. **프로세스를 만드는 QA** — 조직의 SDLC에 맞는 QA 프로세스를 수립·개선하고, 배포 시나리오를 주도적으로 컨트롤합니다
 2. **도메인 전환력** — 교육 → 핀테크(결제) → 게임 플랫폼(블록체인 포함) → 하드웨어 연동 키오스크까지, 도메인마다 품질 기준을 재정의
 3. **경계를 넘는 커뮤니케이션** — 사업·정책·기획·개발·운영 부서, 외주·해외 파트너와의 협업
-4. **AI-Driven** — 자동화 '운영 협업'에서 출발해, 지금은 자동화 인프라와 AI 팀원을 직접 만드는 단계로
+4. **AI-Driven** — 자동화 '운영 협업'에서 출발해, 지금은 자동화 인프라와 AI 팀원 3인(기획자·QA·개발자)을 직접 만드는 단계로
 
 ## 일하는 원칙
 
@@ -59,4 +59,5 @@ description: "10년차 QA 엔지니어 공윤구 — AI를 팀원으로 쓰는 Q
 
 ## Contact
 
+- [GitHub](https://github.com/yungu-k)
 - [LinkedIn](https://www.linkedin.com/in/%EC%9C%A4%EA%B5%AC-%EA%B3%B5-400641308)

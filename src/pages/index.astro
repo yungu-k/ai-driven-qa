@@ -28,7 +28,11 @@ const stats = [
   { value: "10년차", label: "QA 엔지니어" },
   { value: "1,100+", label: "통과한 자동화 테스트" },
   { value: `${sortedPosts.length}편`, label: "실전 기록" },
-  { value: "3인", label: "AI 팀원 (기획자·QA·개발자)" },
+  {
+    value: "3인",
+    label: "AI 팀원 (기획자·QA·개발자)",
+    href: "/series/ai-teammate/",
+  },
 ];
 ---
 
@@ -56,15 +60,15 @@ const stats = [
       <p
         class="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg"
       >
-        TC 설계부터 실시간 운영 모니터링, AI 팀원 구축까지 — QA 업무 전체를 AI
-        협업 워크플로우로 전환한 실전 기록을 남깁니다.
+        키오스크 QA 현장에서 TC 설계·운영 관제·AI 팀원까지 직접 굴려본 것만
+        씁니다 — 과장 없이, 실측으로.
       </p>
       <div class="mt-5">
         <LinkButton
           href="/posts/repetition-to-ai-judgment-to-human/"
           class="text-accent font-semibold"
         >
-          이 블로그를 관통하는 이야기
+          이 블로그를 관통하는 이야기 — QA 자동화 7단계 여정
           <IconArrowRight class="inline-block transition-transform group-hover:translate-x-0.5 rtl:-rotate-180" />
         </LinkButton>
       </div>
@@ -86,16 +90,38 @@ const stats = [
     <section id="stats" class="pb-10">
       <ul class="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {
-          stats.map(({ value, label }) => (
-            <li class="rounded-xl border border-border bg-muted/40 px-4 py-3">
-              <p class="text-xl font-bold tracking-tight text-accent">
-                {value}
-              </p>
-              <p class="mt-0.5 text-xs leading-snug text-muted-foreground">
-                {label}
-              </p>
-            </li>
-          ))
+          stats.map(({ value, label, href }) =>
+            href ? (
+              <li>
+                <a
+                  href={href}
+                  class="group block h-full rounded-xl border border-border bg-muted/40 px-4 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:bg-muted/70"
+                >
+                  <p class="text-xl font-bold tracking-tight text-accent">
+                    {value}
+                  </p>
+                  <p class="mt-0.5 text-xs leading-snug text-muted-foreground">
+                    {label}
+                    <span
+                      aria-hidden="true"
+                      class="inline-block transition-transform group-hover:translate-x-0.5"
+                    >
+                      →
+                    </span>
+                  </p>
+                </a>
+              </li>
+            ) : (
+              <li class="rounded-xl border border-border bg-muted/40 px-4 py-3">
+                <p class="text-xl font-bold tracking-tight text-accent">
+                  {value}
+                </p>
+                <p class="mt-0.5 text-xs leading-snug text-muted-foreground">
+                  {label}
+                </p>
+              </li>
+            )
+          )
         }
       </ul>
     </section>
