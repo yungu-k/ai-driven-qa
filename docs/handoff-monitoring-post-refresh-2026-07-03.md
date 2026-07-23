@@ -64,3 +64,14 @@
 - 글: `src/content/posts/realtime-kiosk-monitoring.md`
 - 이미지: `public/images/monitor-analysis.png`(교체 대상), `monitor-status.png`, `monitor-downtime.png`(정상 — 톤 기준 참고)
 - 실제 대시보드: 사내 Kiosk Monitor (Status / Analysis / Issues / Downtime)
+
+---
+
+## ✅ 구현 결과 (개발 세션, 2026-07-23)
+
+- **M1 완료** — 사내 대시보드 /analysis 를 virtual-time 25초로 렌더 완료 후 재캡처(SSE 없는 페이지임을 먼저 확인). Top Alarm Codes(빨강/파랑 비교 막대)·By Machine 막대·Daily Trend 선 전부 그려진 상태 눈검증. 1600×1000 다크 — 기존 두 이미지와 톤 일관. 고객사명·IP·티켓 없음(머신명·알람코드는 기존 이미지들과 동일 수준). 동일 파일명 교체라 본문 무변경.
+- **M2 완료** — "세 개의 화면"→"네 개의 화면", 이슈(Issues) 뷰 항목 추가(배포 시점 기준 에러 증감 추적 — 실제 기능만 서술, 근거: 커밋 b3ad0ee "top errors since deploy, per-machine, trend w/ deploy flag"), "세 화면에 동시 반영" 본문+코드 주석 모두 "네 화면(상태·분석·이슈·가용성)"으로.
+- **M3 완료 (배포 확인 근거)** — ① 기능 커밋 eb0e548 "ACK audit trail: record who/why on acknowledge" 존재 ② 소스 핸들러가 ack_by/ack_reason 수신 ③ **라이브 /status/grid 에 `s-acked` 상태 패널 실존**(CDK4 — 실사용 중) → 배포 판정. 상태 월보드 항목에 담당자·사유·이력 한 문장 추가. ai-developer-teammate 글의 파일럿 서술과 정합.
+- **M4 확인 → 유지** — 실제 config 는 `CASH-RECYCLER-0001` 계열, 본문 발췌는 `-0003` 등 번호 각색판 = 의도적 각색 확인. 사내 실코드 비노출 원칙대로 무변경.
+- **범위 외 1건** — 여정기 Phase 6에 동일한 "세 화면" 사실 오류 발견 → "네 화면(상태·분석·이슈·가용성)"으로 최소 정정(한 구절).
+- **돌린 확인**: "세 화면" 전 포스트 grep 0 / 빌드 green / 이미지 경로 dead 0 / dist·라이브 이미지 바이트 일치(131,227B = 새 캡처, 캐시 아님) / 라이브 HTML에서 신규 문구 4종 각 1회 확인.
