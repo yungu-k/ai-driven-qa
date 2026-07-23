@@ -39,23 +39,23 @@ description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3
 
 | 스프린트 | 총 작업일 | 개발 | QA |
 | --- | --- | --- | --- |
-| 2주 | 10일 | 6일 | 4일 (신규·변경 3 + 회귀 1) |
-| 3주 | 15일 | 9일 | 6일 (신규·변경 4 + 회귀 2) |
+| 2주 | 10일 | 6일 | 4일 (신규·변경 3 + Regression 1) |
+| 3주 | 15일 | 9일 | 6일 (신규·변경 4 + Regression 2) |
 
 <style>
   .rtviz { --c-dev: #4f46e5; --c-new: #0d9488; --c-reg: #d97706; }
   [data-theme="dark"] .rtviz { --c-dev: #6366f1; --c-new: #0d9488; --c-reg: #d97706; }
 </style>
 
-<figure class="rtviz not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="스프린트 타임라인. 2주 스프린트는 총 10일 중 개발 6일, QA 4일이며 QA는 신규·변경 3일 뒤 회귀 1일 순서. 3주 스프린트는 총 15일 중 개발 9일, QA 6일이며 신규·변경 4일 뒤 회귀 2일. 개발과 QA의 경계가 Code Freeze 지점이다">
-  <figcaption class="text-xs font-semibold text-muted-foreground">스프린트 타임라인 — 폭 = 실제 작업일 비율 · 회귀는 항상 마지막</figcaption>
+<figure class="rtviz not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="스프린트 타임라인. 2주 스프린트는 총 10일 중 개발 6일, QA 4일이며 QA는 신규·변경 3일 뒤 Regression 1일 순서. 3주 스프린트는 총 15일 중 개발 9일, QA 6일이며 신규·변경 4일 뒤 Regression 2일. 개발과 QA의 경계가 Code Freeze 지점이다">
+  <figcaption class="text-xs font-semibold text-muted-foreground">스프린트 타임라인 — 폭 = 실제 작업일 비율 · Regression은 항상 마지막</figcaption>
   <div class="mt-4 space-y-5 text-xs">
     <div>
       <p class="mb-1 text-muted-foreground">2주 스프린트 (10일)</p>
       <div class="relative flex h-[22px] gap-[2px]">
-        <div class="flex items-center justify-center rounded-l-[4px] text-white" style="width:60%; background:var(--c-dev)">개발 6일</div>
-        <div class="flex items-center justify-center text-white" style="width:30%; background:var(--c-new)">신규·변경 3일</div>
-        <div class="flex items-center justify-center rounded-r-[4px] text-white" style="width:10%; background:var(--c-reg)">회귀 1일</div>
+        <div class="flex items-center justify-center rounded-l-[4px] text-white" style="width:60%; background:var(--c-dev)">6일</div>
+        <div class="flex items-center justify-center text-white" style="width:30%; background:var(--c-new)">3일</div>
+        <div class="flex items-center justify-center rounded-r-[4px] text-white" style="width:10%; background:var(--c-reg)">1일</div>
         <div class="absolute -top-1 bottom-[-4px] border-l border-dashed border-foreground/60" style="left:60%"></div>
       </div>
       <p class="mt-1.5 text-muted-foreground" style="margin-left:60%">↑ Code Freeze(개발 마감) = QA 착수일</p>
@@ -63,22 +63,22 @@ description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3
     <div>
       <p class="mb-1 text-muted-foreground">3주 스프린트 (15일)</p>
       <div class="relative flex h-[22px] gap-[2px]">
-        <div class="flex items-center justify-center rounded-l-[4px] text-white" style="width:60%; background:var(--c-dev)">개발 9일</div>
-        <div class="flex items-center justify-center text-white" style="width:26.667%; background:var(--c-new)">신규·변경 4일</div>
-        <div class="flex items-center justify-center rounded-r-[4px] text-white" style="width:13.333%; background:var(--c-reg)">회귀 2일</div>
+        <div class="flex items-center justify-center rounded-l-[4px] text-white" style="width:60%; background:var(--c-dev)">9일</div>
+        <div class="flex items-center justify-center text-white" style="width:26.667%; background:var(--c-new)">4일</div>
+        <div class="flex items-center justify-center rounded-r-[4px] text-white" style="width:13.333%; background:var(--c-reg)">2일</div>
         <div class="absolute -top-1 bottom-[-4px] border-l border-dashed border-foreground/60" style="left:60%"></div>
       </div>
     </div>
-    <div class="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-muted-foreground">
-      <span><span class="mr-1.5 inline-block h-2.5 w-2.5 rounded-sm align-[-1px]" style="background:var(--c-dev)"></span>개발</span>
-      <span><span class="mr-1.5 inline-block h-2.5 w-2.5 rounded-sm align-[-1px]" style="background:var(--c-new)"></span>QA — 신규·변경</span>
-      <span><span class="mr-1.5 inline-block h-2.5 w-2.5 rounded-sm align-[-1px]" style="background:var(--c-reg)"></span>QA — 회귀</span>
+    <div class="pt-1 text-muted-foreground">막대 왼쪽부터 이 순서 —
+      <span class="whitespace-nowrap">① <span class="mx-1 inline-block h-2.5 w-2.5 rounded-sm align-[-1px]" style="background:var(--c-dev)"></span>개발</span>
+      <span class="whitespace-nowrap">② <span class="mx-1 inline-block h-2.5 w-2.5 rounded-sm align-[-1px]" style="background:var(--c-new)"></span>QA — 신규·변경</span>
+      <span class="whitespace-nowrap">③ <span class="mx-1 inline-block h-2.5 w-2.5 rounded-sm align-[-1px]" style="background:var(--c-reg)"></span>QA — Regression</span>
     </div>
   </div>
 </figure>
 
 - **Code Freeze(개발 마감) = QA 착수일.** 이후 신규 기능 머지는 중단, 버그 수정만 받는다.
-- **QA는 신규/변경 테스트를 먼저, 회귀는 마지막에.** 모든 수정이 들어온 상태에서 마지막 회귀를 돌려야 통합 영향도가 확인되기 때문이다.
+- **QA는 신규/변경 테스트를 먼저, Regression(회귀) 테스트는 마지막에.** 모든 수정이 들어온 상태에서 마지막 Regression을 돌려야 통합 영향도가 확인되기 때문이다.
 - **범위 잠금(Scope Lock)** — 스프린트 시작 후 범위 추가 금지. 고객 긴급 건은 다음 스프린트나 급행(Hotfix) 트랙으로 보낸다.
 
 그리고 이 설계의 성격을 규정하는 두 원칙:
@@ -119,7 +119,7 @@ Train 14  =  이름표 (배포 단위)
 
 ## 급행 트랙
 
-운영에서 터진 심각 장애는 2~3주 주기를 기다릴 수 없다. 그래서 급행(Hotfix) 경로를 따로 뒀다 — 라이브 버전 기준으로 분기하고, 최소 변경만 하고, 영향 범위를 한정한 회귀를 돌리고, 긴급 배포한다. 그리고 **반드시 본류로 되돌려 병합한다.** 이걸 빼먹으면 급행으로 고친 것이 다음 열차에서 사라진다.
+운영에서 터진 심각 장애는 2~3주 주기를 기다릴 수 없다. 그래서 급행(Hotfix) 경로를 따로 뒀다 — 라이브 버전 기준으로 분기하고, 최소 변경만 하고, 영향 범위를 한정한 Regression을 돌리고, 긴급 배포한다. 그리고 **반드시 본류로 되돌려 병합한다.** 이걸 빼먹으면 급행으로 고친 것이 다음 열차에서 사라진다.
 
 ## 도구에 앉히기 — Jira에서 바로잡은 것들
 
@@ -149,7 +149,7 @@ Train 14  =  이름표 (배포 단위)
     <span aria-hidden="true" class="px-1.5 text-muted-foreground">→</span>
     <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-foreground">QA<span class="mt-0.5 block text-[10px] leading-tight text-muted-foreground">각 작업의 완료 조건</span></span>
     <span aria-hidden="true" class="px-1.5 text-muted-foreground">→</span>
-    <span class="rounded-lg border-2 border-accent bg-accent/10 px-3 py-2 font-bold text-accent">완료<span class="mt-0.5 block text-[10px] font-normal leading-tight text-muted-foreground">여기부터가 '됨'</span></span>
+    <span class="rounded-lg border-2 border-accent bg-accent/10 px-3 py-2 font-bold text-accent">완료<span class="mt-0.5 block text-[10px] font-normal leading-tight text-muted-foreground">검증까지 끝남</span></span>
   </div>
 </figure>
 
