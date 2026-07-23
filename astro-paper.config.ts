@@ -8,7 +8,7 @@ export default defineAstroPaperConfig({
       "반복은 AI에게, 판단은 사람에게 — QA 자동화와 AI 협업의 실전 기록",
     author: "공윤구",
     profile: "",
-    ogImage: "default-og.jpg",
+    ogImage: "default-og.png",
     lang: "ko",
     timezone: "Asia/Seoul",
     dir: "ltr",
