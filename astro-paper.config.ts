@@ -33,7 +33,7 @@ export default defineAstroPaperConfig({
     { name: "github", url: "https://github.com/yungu-k" },
     {
       name: "linkedin",
-      url: "https://www.linkedin.com/in/%EC%9C%A4%EA%B5%AC-%EA%B3%B5-400641308",
+      url: "https://www.linkedin.com/in/yungu-k/",
     },
   ],
   shareLinks: [

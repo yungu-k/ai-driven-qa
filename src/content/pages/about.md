@@ -60,4 +60,4 @@ description: "10년차 QA 엔지니어 공윤구 — AI를 팀원으로 쓰는 Q
 ## Contact
 
 - [GitHub](https://github.com/yungu-k)
-- [LinkedIn](https://www.linkedin.com/in/%EC%9C%A4%EA%B5%AC-%EA%B3%B5-400641308)
+- [LinkedIn](https://www.linkedin.com/in/yungu-k/)
