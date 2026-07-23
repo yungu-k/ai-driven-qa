@@ -9,10 +9,10 @@ tags:
   - qa-automation
   - regression
   - jira
-description: P0 기반 리그레션 스위트 자동 추출과, 이슈 상태 변화를 TC 시트에 자동 반영하는 상태 전이 규칙 설계.
+description: P0 기반 Regression 스위트 자동 추출과, 이슈 상태 변화를 TC 시트에 자동 반영하는 상태 전이 규칙 설계.
 ---
 
-> P0 TC 기반 리그레션 추출과 Jira → TC 상태 자동 동기화. (TC → Jira 방향의 버그 생성은 [Bug Report 자동화](/posts/bug-report-automation)가 담당 — 둘을 합치면 왕복이 닫힌다.)
+> P0 TC 기반 Regression 추출과 Jira → TC 상태 자동 동기화. (TC → Jira 방향의 버그 생성은 [Bug Report 자동화](/posts/bug-report-automation)가 담당 — 둘을 합치면 왕복이 닫힌다.)
 
 ## Regression TC 추출
 
