@@ -37,10 +37,45 @@ description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3
 
 작업일 배분은 이렇게 잡았다:
 
-| 스프린트 | 총 작업일 | 개발 | QA | └ 신규/변경 | └ 회귀 |
-| --- | --- | --- | --- | --- | --- |
-| 2주 | 10일 | 6일 | 4일 | 3일 | 1일 |
-| 3주 | 15일 | 9일 | 6일 | 4일 | 2일 |
+| 스프린트 | 총 작업일 | 개발 | QA |
+| --- | --- | --- | --- |
+| 2주 | 10일 | 6일 | 4일 (신규·변경 3 + 회귀 1) |
+| 3주 | 15일 | 9일 | 6일 (신규·변경 4 + 회귀 2) |
+
+<style>
+  .rtviz { --c-dev: #4f46e5; --c-new: #0d9488; --c-reg: #d97706; }
+  [data-theme="dark"] .rtviz { --c-dev: #6366f1; --c-new: #0d9488; --c-reg: #d97706; }
+</style>
+
+<figure class="rtviz not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="스프린트 타임라인. 2주 스프린트는 총 10일 중 개발 6일, QA 4일이며 QA는 신규·변경 3일 뒤 회귀 1일 순서. 3주 스프린트는 총 15일 중 개발 9일, QA 6일이며 신규·변경 4일 뒤 회귀 2일. 개발과 QA의 경계가 Code Freeze 지점이다">
+  <figcaption class="text-xs font-semibold text-muted-foreground">스프린트 타임라인 — 폭 = 실제 작업일 비율 · 회귀는 항상 마지막</figcaption>
+  <div class="mt-4 space-y-5 text-xs">
+    <div>
+      <p class="mb-1 text-muted-foreground">2주 스프린트 (10일)</p>
+      <div class="relative flex h-[22px] gap-[2px]">
+        <div class="flex items-center justify-center rounded-l-[4px] text-white" style="width:60%; background:var(--c-dev)">개발 6일</div>
+        <div class="flex items-center justify-center text-white" style="width:30%; background:var(--c-new)">신규·변경 3일</div>
+        <div class="flex items-center justify-center rounded-r-[4px] text-white" style="width:10%; background:var(--c-reg)">회귀 1일</div>
+        <div class="absolute -top-1 bottom-[-4px] border-l border-dashed border-foreground/60" style="left:60%"></div>
+      </div>
+      <p class="mt-1.5 text-muted-foreground" style="margin-left:60%">↑ Code Freeze(개발 마감) = QA 착수일</p>
+    </div>
+    <div>
+      <p class="mb-1 text-muted-foreground">3주 스프린트 (15일)</p>
+      <div class="relative flex h-[22px] gap-[2px]">
+        <div class="flex items-center justify-center rounded-l-[4px] text-white" style="width:60%; background:var(--c-dev)">개발 9일</div>
+        <div class="flex items-center justify-center text-white" style="width:26.667%; background:var(--c-new)">신규·변경 4일</div>
+        <div class="flex items-center justify-center rounded-r-[4px] text-white" style="width:13.333%; background:var(--c-reg)">회귀 2일</div>
+        <div class="absolute -top-1 bottom-[-4px] border-l border-dashed border-foreground/60" style="left:60%"></div>
+      </div>
+    </div>
+    <div class="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-muted-foreground">
+      <span><span class="mr-1.5 inline-block h-2.5 w-2.5 rounded-sm align-[-1px]" style="background:var(--c-dev)"></span>개발</span>
+      <span><span class="mr-1.5 inline-block h-2.5 w-2.5 rounded-sm align-[-1px]" style="background:var(--c-new)"></span>QA — 신규·변경</span>
+      <span><span class="mr-1.5 inline-block h-2.5 w-2.5 rounded-sm align-[-1px]" style="background:var(--c-reg)"></span>QA — 회귀</span>
+    </div>
+  </div>
+</figure>
 
 - **Code Freeze(개발 마감) = QA 착수일.** 이후 신규 기능 머지는 중단, 버그 수정만 받는다.
 - **QA는 신규/변경 테스트를 먼저, 회귀는 마지막에.** 모든 수정이 들어온 상태에서 마지막 회귀를 돌려야 통합 영향도가 확인되기 때문이다.
@@ -102,6 +137,21 @@ Train 14  =  이름표 (배포 단위)
 **"에픽은 스프린트를 담는 그릇이 아니다."** 에픽과 스프린트는 N:M 관계다 — 한 에픽이 여러 스프린트에 걸치고, 한 스프린트에 여러 에픽의 조각이 실린다. 1:1로 묶는 순간 에픽은 '이번에 할 일 폴더'로 전락한다.
 
 **"QA는 별도 단계가 아니라 각 작업의 완료 조건이다."** QA를 옆 라인에 빼두면, 스프린트 안에 미니 워터폴이 생긴다. 그래서 보드의 상태 흐름(개발 완료 → QA → 완료) 안에 넣었다.
+
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="보드 상태 흐름 도식. 백로그, 진행 중, 개발 완료, QA, 완료 다섯 상태가 한 줄로 이어진다. QA는 옆 라인이 아니라 흐름 안에 있고, 완료만 강조되어 있으며 개발 완료는 아직 완료가 아니다">
+  <figcaption class="text-xs font-semibold text-muted-foreground">보드 상태 흐름 — QA는 흐름 안에 있고, '개발 완료'는 완료가 아니다</figcaption>
+  <div class="mt-4 flex flex-wrap items-center gap-y-3 text-xs">
+    <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-muted-foreground">백로그</span>
+    <span aria-hidden="true" class="px-1.5 text-muted-foreground">→</span>
+    <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-muted-foreground">진행 중</span>
+    <span aria-hidden="true" class="px-1.5 text-muted-foreground">→</span>
+    <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-foreground">개발 완료<span class="mt-0.5 block text-[10px] leading-tight text-muted-foreground">아직 검증 전</span></span>
+    <span aria-hidden="true" class="px-1.5 text-muted-foreground">→</span>
+    <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-foreground">QA<span class="mt-0.5 block text-[10px] leading-tight text-muted-foreground">각 작업의 완료 조건</span></span>
+    <span aria-hidden="true" class="px-1.5 text-muted-foreground">→</span>
+    <span class="rounded-lg border-2 border-accent bg-accent/10 px-3 py-2 font-bold text-accent">완료<span class="mt-0.5 block text-[10px] font-normal leading-tight text-muted-foreground">여기부터가 '됨'</span></span>
+  </div>
+</figure>
 
 세부 결정 몇 가지 — 전부 "왜"가 있다:
 
