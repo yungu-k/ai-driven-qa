@@ -45,6 +45,18 @@ const CAREER = [
     ],
   },
   {
+    company: "경력 휴식기",
+    roles: [
+      {
+        title: "여행 · 재충전",
+        period: "2024.04 ~ 2025.07",
+        context:
+          "7년의 연속 근무를 마치고 프랑스, 스위스, 태국, 일본, 괌 등을 여행하며 재충전한 기간입니다. 충분히 쉬면서 다음 도전을 고민했고, 스타트업행을 결정했습니다.",
+        bullets: [],
+      },
+    ],
+  },
+  {
     company: "넷마블",
     roles: [
       {
@@ -214,16 +226,18 @@ const PRINCIPLES = [
                         {role.context}
                       </p>
                     )}
-                    <ul class="about-bullets mt-2 space-y-1.5 text-sm leading-relaxed">
-                      {role.bullets.map(b => (
-                        <li class="flex gap-2">
-                          <span aria-hidden="true" class="mt-[2px] text-accent">
-                            •
-                          </span>
-                          <span set:html={b} />
-                        </li>
-                      ))}
-                    </ul>
+                    {role.bullets.length > 0 && (
+                      <ul class="about-bullets mt-2 space-y-1.5 text-sm leading-relaxed">
+                        {role.bullets.map(b => (
+                          <li class="flex gap-2">
+                            <span aria-hidden="true" class="mt-[2px] text-accent">
+                              •
+                            </span>
+                            <span set:html={b} />
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 ))}
               </div>
