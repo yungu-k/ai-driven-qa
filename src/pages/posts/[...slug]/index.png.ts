@@ -1,9 +1,8 @@
+import { readFile } from "node:fs/promises";
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
-import { fontData, experimental_getFontFileURL } from "astro:assets";
 import satori from "satori";
 import sharp from "sharp";
-import { getFontPathByWeight } from "@/utils/getFontPathByWeight";
 import { getPostSlug } from "@/utils/getPostPaths";
 import config from "@/config";
 
@@ -22,146 +21,110 @@ export async function getStaticPaths() {
   }));
 }
 
-export const GET: APIRoute = async ({ props, url }) => {
+// 한글 글리프가 필요해 Pretendard 정적 폰트를 로컬 번들로 로드한다.
+// (기존 Google Sans Code는 라틴 전용이라 한글이 전부 □로 렌더되던 문제)
+const fontRegular = readFile(
+  new URL("src/assets/fonts/Pretendard-Regular.otf", `file://${process.cwd().replaceAll("\\", "/")}/`)
+);
+const fontBold = readFile(
+  new URL("src/assets/fonts/Pretendard-Bold.otf", `file://${process.cwd().replaceAll("\\", "/")}/`)
+);
+
+export const GET: APIRoute = async ({ props }) => {
   if (!config.features.dynamicOgImage) {
     return new Response(null, { status: 404, statusText: "Not found" });
   }
 
-  const fonts = fontData["--font-google-sans-code"];
-  const regularFontPath = getFontPathByWeight(fonts, 400);
-  const boldFontPath = getFontPathByWeight(fonts, 700);
-
-  if (regularFontPath === undefined || boldFontPath === undefined) {
-    throw new Error("Cannot find the font path.");
-  }
-
-  const [regularData, boldData] = await Promise.all([
-    fetch(experimental_getFontFileURL(regularFontPath, url)).then(res =>
-      res.arrayBuffer()
-    ),
-    fetch(experimental_getFontFileURL(boldFontPath, url)).then(res =>
-      res.arrayBuffer()
-    ),
-  ]);
+  const [regularData, boldData] = await Promise.all([fontRegular, fontBold]);
 
   const svg = await satori(
     {
       type: "div",
       props: {
         style: {
-          background: "#fefbfb",
           width: "100%",
           height: "100%",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          background: "#0b0e14",
+          color: "#e6e8ee",
+          padding: "64px 72px 52px",
+          fontFamily: "Pretendard",
         },
         children: [
           {
             type: "div",
             props: {
               style: {
-                position: "absolute",
-                top: "-1px",
-                right: "-1px",
-                border: "4px solid #000",
-                background: "#ecebeb",
-                opacity: "0.9",
-                borderRadius: "4px",
                 display: "flex",
-                justifyContent: "center",
-                margin: "2.5rem",
-                width: "88%",
-                height: "80%",
+                alignItems: "center",
+                gap: "10px",
+                border: "1px solid #222a3a",
+                background: "rgba(22,27,38,0.6)",
+                borderRadius: "999px",
+                padding: "10px 22px",
+                fontSize: 22,
+                color: "#9aa3b5",
+                alignSelf: "flex-start",
               },
+              children: [
+                {
+                  type: "div",
+                  props: {
+                    style: {
+                      width: "10px",
+                      height: "10px",
+                      borderRadius: "50%",
+                      background: "#8b93ff",
+                    },
+                  },
+                },
+                { type: "span", props: { children: "QA Engineer × AI Agent" } },
+              ],
+            },
+          },
+          {
+            type: "p",
+            props: {
+              style: {
+                fontSize: 58,
+                fontWeight: 700,
+                lineHeight: 1.3,
+                letterSpacing: "-0.02em",
+                maxHeight: "320px",
+                overflow: "hidden",
+                wordBreak: "keep-all",
+              },
+              children: props.data.title,
             },
           },
           {
             type: "div",
             props: {
               style: {
-                border: "4px solid #000",
-                background: "#fefbfb",
-                borderRadius: "4px",
                 display: "flex",
-                justifyContent: "center",
-                margin: "2rem",
-                width: "88%",
-                height: "80%",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+                width: "100%",
+                fontSize: 26,
               },
-              children: {
-                type: "div",
-                props: {
-                  style: {
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    margin: "20px",
-                    width: "90%",
-                    height: "90%",
+              children: [
+                {
+                  type: "span",
+                  props: {
+                    style: { fontWeight: 700, color: "#e6e8ee", fontSize: 30 },
+                    children: config.site.title,
                   },
-                  children: [
-                    {
-                      type: "p",
-                      props: {
-                        style: {
-                          fontSize: 72,
-                          fontWeight: "bold",
-                          maxHeight: "84%",
-                          overflow: "hidden",
-                        },
-                        children: props.data.title,
-                      },
-                    },
-                    {
-                      type: "div",
-                      props: {
-                        style: {
-                          display: "flex",
-                          justifyContent: "space-between",
-                          width: "100%",
-                          marginBottom: "8px",
-                          fontSize: 28,
-                        },
-                        children: [
-                          {
-                            type: "span",
-                            props: {
-                              children: [
-                                "by ",
-                                {
-                                  type: "span",
-                                  props: {
-                                    style: { color: "transparent" },
-                                    children: '"',
-                                  },
-                                },
-                                {
-                                  type: "span",
-                                  props: {
-                                    style: {
-                                      overflow: "hidden",
-                                      fontWeight: "bold",
-                                    },
-                                    children: props.data.author,
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                          {
-                            type: "span",
-                            props: {
-                              style: { overflow: "hidden", fontWeight: "bold" },
-                              children: config.site.title,
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
                 },
-              },
+                {
+                  type: "span",
+                  props: {
+                    style: { color: "#6f7280", fontSize: 24 },
+                    children: "ai-driven-qa.vercel.app",
+                  },
+                },
+              ],
             },
           },
         ],
@@ -172,18 +135,8 @@ export const GET: APIRoute = async ({ props, url }) => {
       height: 630,
       embedFont: true,
       fonts: [
-        {
-          name: "Google Sans Code",
-          data: regularData,
-          weight: 400,
-          style: "normal",
-        },
-        {
-          name: "Google Sans Code",
-          data: boldData,
-          weight: 700,
-          style: "normal",
-        },
+        { name: "Pretendard", data: regularData, weight: 400, style: "normal" },
+        { name: "Pretendard", data: boldData, weight: 700, style: "normal" },
       ],
     }
   );
