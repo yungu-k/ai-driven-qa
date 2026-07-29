@@ -16,28 +16,46 @@ description: QA 리포팅을 데이터 수집→집계→시트→PDF→메일 �
 
 ## QA 결과를 메일 본문에 쓰던 시절
 
-예전엔 QA가 끝나면 결과를 **메일 본문에 서술**해서 보냈다. "TC 몇 건 중 몇 건 Pass, 결함은 몇 건…"을 매번 손으로 풀어 썼다. 이력이 안 남는 건 아니다 — 메일함엔 남는다. 진짜 함정은 다른 데 있었다. **한 통 쓰는 데 반나절이 걸리고**, 표준 보관처 없이 메일함 여기저기 흩어져 검색·비교가 어렵고, 릴리스마다 형태가 제각각이었다.
+예전엔 QA가 끝나면 결과를 **메일 본문에 서술**해서 보냈다. "TC 몇 건 중 몇 건 Pass, 결함은 몇 건…"을 매번 손으로 풀어 썼다. 이력이 안 남는 건 아니다 — 메일함엔 남는다. 진짜 함정은 다른 데 있었다.
+
+- **한 통 쓰는 데 반나절**이 걸렸다.
+- 표준 보관처가 없어 메일함 여기저기 흩어져 검색·비교가 어려웠다.
+- 릴리스마다 리포트 형태가 제각각이었다.
 
 내용은 이미 데이터에 다 있는데(TC 시트에 Pass/Fail, Jira에 결함) 사람이 그걸 세어서 문장으로 옮기고 있었다. 세고, 계산하고, 서식 입히는 건 전부 규칙이다. 규칙이면 파이프라인으로 만들 수 있다.
 
 ## 배경 — AX(AI Transformation)로서의 QA 리포팅
 
-이건 개인 취미가 아니라 사내 AX 과제의 일부였다. 방향을 유관 부서에 공식 공지로 선언했다 — **QA 산출물을 표준화된 PDF 리포트로 발행하고, 공식 보관처를 Drive로 일원화한다. 리포트 작성은 AI가 대체하고, QA 엔지니어는 검수·최종 승인(Sign-off)을 담당한다.** 한 정기 릴리스에 처음 적용했다.
-
-즉 "AI가 리포트를 쓰되, 품질 보증 책임은 사람의 서명에 남긴다"가 설계의 뼈대였다.
+이건 개인 취미가 아니라 사내 AX 과제의 일부였다. 방향을 유관 부서에 공식 공지로 선언했다 — **QA 산출물을 표준화된 PDF 리포트로 발행하고, 공식 보관처를 Drive로 일원화한다. 리포트 작성은 AI가 대체하고, QA 엔지니어는 검수·최종 승인(Sign-off)을 담당한다.** "AI가 쓰되 품질 보증 책임은 사람의 서명에 남긴다"가 설계의 뼈대였고, 한 정기 릴리스에 처음 적용했다.
 
 ## 접근 — 규격이 곧 AI의 작업 지시서
 
 핵심 발상은 이거다. **파이프라인의 각 단계에 문서화된 규격을 붙이고, 그 규격을 AI의 작업 지시서로 쓴다.** AI에게 "리포트 잘 써줘"가 아니라 "이 규격대로 이 데이터를 조립하라"고 시킨다. 그러면 어떤 세션이 돌려도 같은 리포트가 나온다.
 
-산출물 체인은 이렇게 생겼다:
+산출물 체인은 이렇게 생겼다. 파란 두 칸이 사람이 개입하는 유일한 지점이고, 나머지는 규격을 따라 자동으로 흐른다:
 
-```
-티켓 분석 → QA Plan → TC 설계 → [사람: 실장비 실행·결과 기입]
-→ QA Result → PDF 리포트 → Drive 업로드 → 알림 메일
-```
-
-사람이 개입하는 지점은 딱 둘 — **실장비에서 직접 실행해 결과를 기입하는 것**, 그리고 맨 끝에서 **판정하고 서명하는 것**. 나머지는 규격을 따라 흐른다.
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="QA 리포트 파이프라인. 티켓 분석, QA Plan, TC 설계까지 자동으로 흐른 뒤 사람이 실장비에서 실행해 결과를 기입한다. 이어 QA Result 집계, PDF 생성, Drive 업로드, 알림 메일이 자동으로 흐르고, 마지막에 사람이 Verdict를 판정하고 서명한다. 사람 개입은 결과 기입과 판정·서명 두 지점뿐이다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">산출물 체인 — 파란 칸(사람) 2곳 외에는 규격이 흘린다</figcaption>
+  <div class="mt-4 flex flex-wrap items-center gap-x-1.5 gap-y-2 text-xs">
+    <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">티켓 분석</span>
+    <span aria-hidden="true" class="text-muted-foreground">→</span>
+    <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">QA Plan</span>
+    <span aria-hidden="true" class="text-muted-foreground">→</span>
+    <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">TC 설계</span>
+    <span aria-hidden="true" class="text-accent">→</span>
+    <span class="rounded-md border-2 border-accent bg-accent/10 px-2 py-1 font-semibold text-accent">🧑 실장비 실행·결과 기입</span>
+    <span aria-hidden="true" class="text-accent">→</span>
+    <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">QA Result 집계</span>
+    <span aria-hidden="true" class="text-muted-foreground">→</span>
+    <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">PDF</span>
+    <span aria-hidden="true" class="text-muted-foreground">→</span>
+    <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">Drive</span>
+    <span aria-hidden="true" class="text-muted-foreground">→</span>
+    <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">알림 메일</span>
+    <span aria-hidden="true" class="text-accent">→</span>
+    <span class="rounded-md border-2 border-accent bg-accent/10 px-2 py-1 font-semibold text-accent">🧑 판정·서명</span>
+  </div>
+</figure>
 
 ## 구현 — 단계마다 규격을 박는다
 
@@ -68,6 +86,12 @@ description: QA 리포팅을 데이터 수집→집계→시트→PDF→메일 �
 - **통합 리포트:** TC 38건(Pass 37 / N/A 1, Success Rate 100%), Verdict PASS, 결함 1건(기존 잠복). AI가 TC 시트 + Jira를 집계해 시트·PDF를 만들고, 사람은 Verdict 판정과 발행 승인만.
 - **현장(UAT) Sign-off:** 현장 결과 27건 전건 PASS + RFID 리딩 성능(실칩 **2,040개 인식 100%**)을 별도 시트로 통합.
 - 반나절짜리 메일 서술이 **규격을 따라 계산돼 나오는 PDF 리포트 + 5분짜리 알림 메일**로 바뀌었다. 이력은 Drive에 표준 파일명으로 쌓인다.
+
+| | 예전 (메일 서술) | 지금 (규격 파이프라인) |
+| --- | --- | --- |
+| 작성 시간 | 한 통에 반나절 | 5분짜리 알림 메일 |
+| 보관처 | 메일함 여기저기 | Drive 표준 파일명 일원화 |
+| 형태 | 릴리스마다 제각각 | 규격 고정, 세션 무관 동일 |
 
 ## 교훈 — AI는 쓰고, 사람은 책임진다
 

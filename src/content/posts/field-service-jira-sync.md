@@ -26,6 +26,23 @@ description: 외부 파트너가 기술지원 히스토리를 직접 적재하�
 - 작업 프로토콜 고정: 구현 → md 문서화 → 테스트 페이지 오픈 → 사용자 확인 → feature 브랜치 push.
 - 단일 출처 문서 2개: 로드맵(북극성·P0~P7·미결정 목록)과 시간순 진행기록. AI 세션이 바뀌어도 이 둘만 읽으면 맥락이 복원된다.
 
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="아키텍처와 소유권 경계 도식. 외부 파트너의 React 웹앱이 서버리스 Edge Function을 거쳐 내부 Jira와 연결된다. 소유권은 둘로 갈린다 — 기록 본문(현상·조치·교체부품)은 앱이 소유해 Jira로 역동기화하지 않아 원본이 보존되고, 진행 상태는 Jira가 소유해 앱과 완전 양방향으로 동기화된다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">아키텍처 + 소유권 경계 — 누가 주인인지가 동기화 방향을 정한다</figcaption>
+  <div class="mt-4 space-y-3 text-xs">
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1.5 text-muted-foreground">파트너 웹앱<span class="text-[10px]"> (React/TS · 무료 호스팅)</span></span>
+      <span aria-hidden="true" class="text-muted-foreground">⇄</span>
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1.5 text-muted-foreground">Edge Function<span class="text-[10px]"> (서버리스)</span></span>
+      <span aria-hidden="true" class="text-muted-foreground">⇄</span>
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1.5 text-muted-foreground">내부 Jira</span>
+    </div>
+    <div class="flex flex-col gap-1.5 border-t border-border pt-2">
+      <span class="flex flex-wrap items-center gap-x-2"><span class="rounded-md border-2 border-accent bg-accent/10 px-2 py-1 font-semibold text-accent">기록 본문</span><span class="text-muted-foreground">→ 앱 소유 · Jira로 역동기화 안 함 (원본 보존)</span></span>
+      <span class="flex flex-wrap items-center gap-x-2"><span class="rounded-md border border-border bg-background/60 px-2 py-1 text-foreground">진행 상태</span><span class="text-muted-foreground">⇄ Jira 소유 · 완전 양방향</span></span>
+    </div>
+  </div>
+</figure>
+
 ## 로드맵 P0~P7
 
 | Phase | 내용 | 핵심 결정 |

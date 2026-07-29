@@ -24,6 +24,18 @@ description: 글로벌 B2B 고객의 장애를 표준 프로세스로 대응하�
 - **내부 추적 (Jira):** 고객 비노출. 장애 분석·회고를 워크플로우로 관리.
 - **알림 입력:** 현장 알림을 분류해 위 두 채널로 연결.
 
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="2채널 분기 도식. 현장 알림이 들어오면 분류를 거쳐 두 채널로 갈린다. 고객 공유 채널은 Google Sheets로 결과 중심(원인·조치·배포 계획)만 담고, 내부 추적 채널은 Jira로 회고와 진행 상태를 담는다. 같은 장애를 목적이 다른 두 문서로 분리해 둘 다 각자 목적에 맞게 굴러간다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">2채널 분리 — 고객은 결과만, 내부는 회고까지</figcaption>
+  <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
+    <span class="rounded-md border border-border bg-background/60 px-2.5 py-1.5 text-muted-foreground">현장 알림</span>
+    <span aria-hidden="true" class="text-muted-foreground">→ 분류 →</span>
+    <span class="flex flex-col gap-1.5">
+      <span class="rounded-md border-2 border-accent bg-accent/10 px-2.5 py-1.5 text-accent">고객 채널 · Google Sheets<span class="block text-[10px] text-muted-foreground">결과 중심 (원인·조치·배포 계획)</span></span>
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1.5 text-foreground">내부 추적 · Jira<span class="block text-[10px] text-muted-foreground">회고·진행 상태 (고객 비노출)</span></span>
+    </span>
+  </div>
+</figure>
+
 ## 고객 공유 리포트 — 5섹션 템플릿
 
 1. Incident Summary — ID/감지시각/장비/심각도/상태/담당
@@ -68,6 +80,12 @@ Postmortem(사후 회고)을 별도 이슈가 아닌 **워크플로우 상태로
 - 고객 채널(결과 중심)과 내부 추적(회고·상태)을 **분리**해, 둘 다 각자 목적에 맞게 굴러간다. 고객은 한눈에 보고, 내부는 깊게 판다.
 - 회고를 별도 산출물이 아니라 **워크플로우 상태**(Postmortem → Try → 재발 방지 티켓)로 녹여, 리포트 밖으로 새지 않고 안에서 닫힌다.
 - 도입 후 **3개월간 매달 표준 리포트를 발행**했고, 그 사이 같은 유형의 "follow-up 없음" 컴플레인은 **재발 0건**이다.
+
+| | 전 | 후 |
+| --- | --- | --- |
+| 장애 후 follow-up | "없다"는 공식 컴플레인 | 장애마다 원인·조치·배포 계획 표준 리포트 |
+| 문서 | 고객·내부용이 한 곳에 뒤섞임 | 고객(Sheets)/내부(Jira) 2채널 분리 |
+| 동일 컴플레인 | — | 3개월간 재발 0건 |
 
 ## 남은 것
 

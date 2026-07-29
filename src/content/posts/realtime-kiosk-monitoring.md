@@ -43,6 +43,20 @@ _가용성 뷰. 장비별 가동률과 다운타임을 한눈에 — 막대를 �
 
 핵심은 **분류 기준을 코드 한 곳에 모은 것**. 새 알람 유형이 생기면 그 한 파일만 고치면 상태·분석·이슈·가용성 네 화면에 동시에 반영된다. '규칙은 한 곳에' 원칙이 여기서도 그대로 통했다.
 
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="분류 기준 단일 출처 부챗살 도식. 가운데 config.py 한 파일에 알람 분류 기준이 모여 있고, 거기서 상태 상황판·분석 뷰·이슈 뷰·가용성 뷰 네 화면으로 뻗는다. 기준을 바꾸면 한 파일만 고쳐도 네 화면에 동시 반영된다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">단일 출처 — config.py 한 곳을 고치면 네 화면이 함께 바뀐다</figcaption>
+  <div class="mt-4 flex flex-col items-center gap-2 text-xs">
+    <span class="rounded-lg border-2 border-accent bg-accent/10 px-4 py-2 font-bold text-accent">config.py<span class="block text-[10px] font-normal text-muted-foreground">알람 분류 기준 (단일 출처)</span></span>
+    <span aria-hidden="true" class="text-muted-foreground">┌───┬───┬───┐</span>
+    <div class="flex flex-wrap justify-center gap-2">
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">상태 상황판</span>
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">분석 뷰</span>
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">이슈 뷰</span>
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">가용성 뷰</span>
+    </div>
+  </div>
+</figure>
+
 ```python
 # app/config.py — 알람 분류의 단일 출처 (발췌)
 # 이 파일 하나만 고치면 상태·분석·이슈·가용성 네 화면에 동시 반영된다.
@@ -81,6 +95,13 @@ def classify(alarm: Alarm) -> Severity:
 ## 결과
 
 같은 데이터라도 쓰임이 바뀌었다 — 사후 정리에서 상시 관제로. 분류 리포트(미팅용)와 실시간 상황판(관제용)이 하나의 분류 기준을 공유하며 나란히 돌아간다.
+
+| | 분류 리포트 | 실시간 상황판 |
+| --- | --- | --- |
+| 주기 | 배포 주기마다 1회 | 상시 (수십 초 갱신) |
+| 독자 | 미팅 참석자 | 관제실 |
+| 답하는 질문 | "지난 주기에 뭐가 터졌나" | "지금 몇 번 장비가 어떤가" |
+| 산출물 | 슬라이드 리포트 | 웹 대시보드 4화면 |
 
 > 모니터링의 완성은 수집이 아니라 '누가 언제 보는가'다. 미팅에서 보는 리포트와 벽에 걸린 상황판은 같은 데이터의 다른 제품이다.
 

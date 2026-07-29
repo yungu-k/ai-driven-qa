@@ -30,6 +30,28 @@ QA를 하다 보면 결함 자체를 찾는 시간보다 **결함을 리포트�
 
 **둘째, TC 시트를 단일 원천(SSOT)으로 삼는다.** 환경·사전조건·재현 절차·기대 결과는 새로 쓰지 않고 TC 시트의 해당 컬럼에서 그대로 끌어온다. 사람이 하는 건 "이 Fail을 버그로 만들어라" 지목뿐.
 
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="TC와 Jira의 왕복 순환도. 수동에서는 TC 시트에서 Fail을 확인하고, 사람이 Jira로 건너가 버그를 손으로 작성하고, 다시 TC 시트로 돌아와 결과와 링크를 채우는 왕복이 반복된다. 자동에서는 TC 시트에서 Fail을 지목하면 규칙이 Jira 버그를 생성하고 곧바로 TC 시트에 Fail과 이슈 URL을 되쓴다 — 사람의 왕복이 지목 한 번으로 닫힌다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">TC ↔ Jira 왕복 — 사람이 오가던 경로를 규칙이 한 방향으로 닫는다</figcaption>
+  <div class="mt-4 space-y-3 text-xs">
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <span class="w-14 shrink-0 font-semibold text-muted-foreground">수동</span>
+      <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">TC 시트 Fail</span>
+      <span aria-hidden="true" class="text-muted-foreground">→ 사람 →</span>
+      <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">Jira 손입력 6섹션</span>
+      <span aria-hidden="true" class="text-muted-foreground">→ 사람 →</span>
+      <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">TC 시트에 결과·링크</span>
+    </div>
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <span class="w-14 shrink-0 font-semibold text-accent">자동</span>
+      <span class="rounded-md border border-accent/60 bg-accent/5 px-2 py-1 text-foreground">Fail 지목 (사람)</span>
+      <span aria-hidden="true" class="text-accent">→ 규칙 →</span>
+      <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">Jira 버그 생성</span>
+      <span aria-hidden="true" class="text-accent">→ 규칙 →</span>
+      <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">TC에 Fail·URL 되쓰기</span>
+    </div>
+  </div>
+</figure>
+
 ## 구현 — 시트에서 읽고, 규격대로 쓰고, 시트에 되쓴다
 
 **① 시트 상단에서 메타데이터를 자동 파싱.** TC 시트 고정 셀(`D2`·`D3`·`D4`)에 Epic·라벨·테스트 버전을 적어두면, 버그 생성 시 이걸 읽어 Jira `parent`(Epic), `labels`, 그리고 Summary 접두사와 환경 섹션에 자동으로 꽂는다. Epic에 붙은 추가 라벨도 상속한다. 프로젝트가 바뀌어도 이 세 셀만 갈아끼우면 된다.
@@ -71,6 +93,12 @@ QA를 하다 보면 결함 자체를 찾는 시간보다 **결함을 리포트�
 ## 결과
 
 - 버그 한 건 작성이 "Jira 열고 6섹션 손입력"에서 "Fail 지목 + 실제 결과 한 줄 확인"으로 줄었다. 손으로 평균 5분 걸리던 게 자동 생성은 1분 이내 — 정식 벤치마크를 돌린 건 아니지만 체감 효율이 컸다.
+
+| | 수동 | 자동 |
+| --- | --- | --- |
+| 건당 작성 | 평균 5분 | 1분 이내 |
+| 포맷 일관성 | 뒤로 갈수록 흐트러짐 | 마지막 1건까지 동일 |
+| TC↔Jira 왕복 | 사람이 두 번 오감 | 지목 한 번 |
 - 더 큰 이득은 시간이 아니라 **일관성**이다. 몇 건을 만들든 Summary 형식·Description 6섹션·라벨·버전이 동일하게 나온다. 검색·필터·집계가 처음부터 맞는다.
 - 라벨/Epic만 바꾸면 **다른 프로젝트에도 그대로** 붙는다 — 규칙이 시트 상단 세 셀에 외부화돼 있기 때문이다.
 

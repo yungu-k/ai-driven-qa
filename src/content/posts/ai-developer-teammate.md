@@ -56,6 +56,19 @@ description: 기획자·QA와 대칭인 세 번째 팀원. 핸드오프 명세�
 - **배포 승인은 사람** — 구현·검증까지가 경계다. "나가도 되는가"의 최종 판단은 사람이 쥔다.
 - **도메인 규칙은 저장소에 의존한다** — 개발자 본체엔 '일하는 방식'만 있다. '이 저장소의 규칙'이 CLAUDE.md에 없으면, 개발자도 그 맥락을 모른다.
 
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="AI 팀원 3종의 핸드오프 루프. 기획자가 무엇을 만들지 명세를 쓰면 개발자가 어떻게 구현·배포할지 맡고, QA가 무엇이 깨질지 검수한다. 세 팀원의 산출은 다시 서로의 검수를 받고, 사람은 그 사이의 결정과 최종 승인 자리에 선다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">핸드오프 루프 — 서로의 "됐다"를 그냥 믿지 않는 구조</figcaption>
+  <div class="mt-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-xs">
+    <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-foreground">기획자<span class="mt-0.5 block text-[10px] text-muted-foreground">무엇을</span></span>
+    <span aria-hidden="true" class="text-muted-foreground">→ 명세 →</span>
+    <span class="rounded-lg border-2 border-accent bg-accent/10 px-3 py-2 font-semibold text-accent">개발자<span class="mt-0.5 block text-[10px] font-normal text-muted-foreground">어떻게 구현·배포</span></span>
+    <span aria-hidden="true" class="text-muted-foreground">→ 산출 →</span>
+    <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-foreground">QA<span class="mt-0.5 block text-[10px] text-muted-foreground">무엇이 깨질까</span></span>
+    <span aria-hidden="true" class="text-muted-foreground">↻ 상호 검수</span>
+    <span class="w-full text-center text-[11px] text-muted-foreground">그 사이의 결정·최종 승인 = <strong class="text-foreground">사람</strong></span>
+  </div>
+</figure>
+
 ## 결과
 
 기획자·QA·개발자 3종이 핸드오프로 연결된 팀이 완성됐다. 기획자가 명세를 쓰고, 개발자가 구현하고, 산출은 다시 다른 팀원의 검수를 받는다 — 서로의 "됐다"를 그냥 믿지 않는 구조다. 사람은 그 사이의 결정과 최종 승인 자리로 올라간다.
