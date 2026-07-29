@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-04-10T09:20:00.000Z
-title: Regression TC 추출 + Jira 상태를 TC 시트로 자동 반영
+title: 티켓은 완료인데 TC는 Fail — TC와 Jira의 어긋남을 규칙으로 닫다
 slug: regression-and-status-sync
 featured: false
 draft: false

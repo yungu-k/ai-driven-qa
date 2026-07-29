@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-06-04T05:00:00.000Z
-title: 키오스크 자동화 인프라 — Web UI + API 두 트랙
+title: 테스트 1,160건으로 무인 키오스크를 지키다 — Web UI + API 두 트랙
 slug: kiosk-automation-infra
 featured: true
 draft: false

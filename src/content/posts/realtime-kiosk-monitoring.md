@@ -35,7 +35,7 @@ _상태 상황판. 장비별 카드가 최신 이벤트로 색을 판정하고, 
 
 ![분석 뷰 — KPI 카드, 알람 코드 랭킹, 장비별 분포, 일별 추이 차트](/images/monitor-analysis.png)
 
-_분석 뷰. 좌측 필터로 기간·장비·유형을 걸고, Action Required vs Guide Exists 비교와 일별 추이를 본다._
+_분석 뷰. 좌측 필터로 기간·장비·유형을 걸고, Action Required(조치 필요) vs Guide Exists(가이드 존재) 비교와 일별 추이를 본다._
 
 ![가용성 뷰 — 평균 가용성 KPI와 장비별 가용성/다운타임 차트](/images/monitor-downtime.png)
 
