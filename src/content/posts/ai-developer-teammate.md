@@ -57,7 +57,7 @@ description: 기획자·QA와 대칭인 세 번째 팀원. 핸드오프 명세�
 - **도메인 규칙은 저장소에 의존한다** — 개발자 본체엔 '일하는 방식'만 있다. '이 저장소의 규칙'이 CLAUDE.md에 없으면, 개발자도 그 맥락을 모른다.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="AI 팀원 3종의 핸드오프 루프. 기획자가 무엇을 만들지 명세를 쓰면 개발자가 어떻게 구현·배포할지 맡고, QA가 무엇이 깨질지 검수한다. 세 팀원의 산출은 다시 서로의 검수를 받고, 사람은 그 사이의 결정과 최종 승인 자리에 선다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">핸드오프 루프 — 서로의 "됐다"를 그냥 믿지 않는 구조</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">핸드오프 루프 — 세 팀원이 서로의 산출을 교차 검수하는 순환</figcaption>
   <div class="mt-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-xs">
     <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-foreground">기획자<span class="mt-0.5 block text-[10px] text-muted-foreground">무엇을</span></span>
     <span aria-hidden="true" class="text-muted-foreground">→ 명세 →</span>

@@ -66,7 +66,7 @@ description: QA 리포팅을 데이터 수집→집계→시트→PDF→메일 �
 - Test Summary: Total / Pass / Fail / N/A / N/T + Success Rate = `PASS / (PASS + FAIL)` (N/A·N/T는 분모 제외)
 - Defect Summary, QA Opinion(**사실 기반, 유추 금지**), Verification Details
 
-**③ PDF.** 처음엔 시트를 그대로 export했는데 품질이 나빠 폐기하고, **HTML 템플릿 + headless 브라우저 인쇄**를 표준으로 잡았다. 네이밍도 규칙으로 고정했다(`{차수}_QA_Report_{날짜}.pdf`).
+**③ PDF.** 처음엔 시트를 그대로 export했는데 품질이 나빠 폐기하고, **HTML 템플릿 + headless 브라우저 인쇄**를 표준으로 잡았다. 대가는 HTML 템플릿을 직접 유지보수해야 한다는 것 — 시트 export가 공짜로 주던 서식을 포기하고, 통제권과 맞바꿨다. 네이밍도 규칙으로 고정했다(`{차수}_QA_Report_{날짜}.pdf`).
 
 **④ 메일.** 원칙은 "**기록은 시스템, 메일은 알림**". 본문에 결과 상세를 넣지 않고 Drive 링크만 건다. QA Start / Sign-off 양식을 고정해, 한 통 쓰는 데 5분을 넘기지 않게 했다.
 

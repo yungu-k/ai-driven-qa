@@ -3,7 +3,7 @@ author: 공윤구
 pubDatetime: 2026-07-28T06:30:00.000Z
 title: AI도 확증편향에 빠진다 — 서브에이전트로 반증을 구조화하기
 slug: ai-confirmation-bias-subagents
-featured: false
+featured: true
 draft: false
 tags:
   - qa-automation
@@ -147,7 +147,7 @@ description: AI가 테스트 케이스를 설계하고 화면을 역기획할 �
 
 → **[반증 서브에이전트 재현 레시피 — 5원칙](/posts/confirmation-bias-subagent-recipe/)**
 
-한 가지만 미리: **공짜는 아니다** — 토큰·시간을 더 쓰니 검증 가능하고 틀리면 비싼 산출물에만 건다. 어디에 걸고 어디엔 안 거는지 비용 저울질은 [레시피 글](/posts/confirmation-bias-subagent-recipe/)에서 다룬다.
+한 가지만 미리: **공짜는 아니다** — 토큰·시간을 더 쓰니 검증 가능하고 틀리면 비싼 산출물에만 건다. 어디에 걸고 어디엔 안 거는지 비용 저울질은 위 레시피 글에서 다룬다.
 
 ---
 

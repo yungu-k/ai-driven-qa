@@ -3,7 +3,7 @@ author: 공윤구
 pubDatetime: 2026-06-04T05:00:00.000Z
 title: 테스트 1,160건으로 무인 키오스크를 지키다 — Web UI + API 두 트랙
 slug: kiosk-automation-infra
-featured: true
+featured: false
 draft: false
 tags:
   - qa-automation
@@ -23,7 +23,7 @@ description: 무인 키오스크 앱을 Web UI와 API 두 트랙으로 자동 �
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="산출물 규모 통계 카드. API 자동화는 1,160 테스트로 1,133 PASS와 27 manual-required, fail 0. Web UI 자동화는 2기종 32화면 128 spec. 자동 검출하고 수정한 production 부정합은 5종.">
   <div class="flex flex-wrap gap-3 text-xs">
     <div class="flex-1 rounded-lg border border-border bg-background/60 p-3"><p class="text-lg font-bold text-accent">1,160</p><p class="mt-1 text-muted-foreground">API 테스트 (1,133 PASS + 27 manual · fail 0)</p></div>
-    <div class="flex-1 rounded-lg border border-border bg-background/60 p-3"><p class="text-lg font-bold text-accent">128</p><p class="mt-1 text-muted-foreground">Web UI spec (2기종 × 32화면)</p></div>
+    <div class="flex-1 rounded-lg border border-border bg-background/60 p-3"><p class="text-lg font-bold text-accent">128</p><p class="mt-1 text-muted-foreground">Web UI spec (2기종 × 32화면 × 4종 검증)</p></div>
     <div class="flex-1 rounded-lg border border-border bg-background/60 p-3"><p class="text-lg font-bold text-accent">5</p><p class="mt-1 text-muted-foreground">자동 검출·수정한 production 부정합</p></div>
   </div>
 </figure>
@@ -166,8 +166,4 @@ CLI는 운영·비개발 인원이 쓰기 어려웠다.
 - **실 장비의 물리 동작은 대체하지 못한다** — 로컬 기동 기반이라, 실제 하드웨어 상호작용은 여전히 최종 sanity check에서 사람이 확인한다.
 - **스펙 문서 자체가 틀리면 그 오류는 잡지 못한다** — 계약 검증이 보는 것은 "스펙과 일치하는가"까지다. 스펙이 곧 정답지라, 정답지의 오류는 이 자동화의 범위 밖이다.
 
-## 산출물 규모
-
-- API 자동화: 18개 디바이스 모듈 + 백엔드 → 1,160 테스트 = 1,133 PASS + 27 manual-required(Mock·환경 한계로 수동 검증으로 분리한 케이스) / fail 0
-- Web UI 자동화: 2기종 32개 화면 × 4종 검증 = 128 spec
-- 자동 검출·수정한 production 부정합: 5종
+이 인프라를 명령어가 아니라 버튼으로 돌리게 만든 다음 단계는 [API 실행 Web UI](/posts/api-runner-web-ui)에 담았다 — 회귀를 비기술 구성원도 누를 수 있게 한 이야기다.

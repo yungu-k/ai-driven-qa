@@ -26,6 +26,17 @@ description: 규격 문서를 정본으로, AI가 Figma 시안을 분석해 Goog
 
 Figma 분석은 **하이브리드 2단계**로 잡았다. 메타데이터(노드 트리)만 읽으면 UI 텍스트가 `title`, `description` 같은 제네릭 이름으로 나와 구체적인 TC를 못 쓴다. 반대로 스크린샷만 보면 hidden 노드 필터링이나 구조 완전성을 보장 못 한다. 그래서 **메타데이터로 구조·순서를 확보하고, 텍스트가 제네릭한 핵심 화면만 골라 스크린샷으로 보완**한다.
 
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="하이브리드 2단계 분석 도식. 1단계는 메타데이터(노드 트리)로 화면 구조와 순서, hidden 노드 필터링을 확보한다. 2단계는 텍스트가 제네릭 이름으로 나오는 핵심 화면만 골라 스크린샷으로 실제 문구를 보완한다. 두 단계를 합쳐 구조 완전성과 구체적 문구를 동시에 얻는다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">하이브리드 2단계 — 구조는 메타데이터로, 문구는 스크린샷으로</figcaption>
+  <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
+    <span class="rounded-lg border border-accent/60 bg-accent/5 px-3 py-2 text-foreground">① 메타데이터<span class="block text-[10px] text-muted-foreground">구조·순서 · hidden 필터</span></span>
+    <span aria-hidden="true" class="text-muted-foreground">+</span>
+    <span class="rounded-lg border border-accent/60 bg-accent/5 px-3 py-2 text-foreground">② 스크린샷<span class="block text-[10px] text-muted-foreground">제네릭 화면만 문구 보완</span></span>
+    <span aria-hidden="true" class="text-muted-foreground">→</span>
+    <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-muted-foreground">구조 완전성 + 구체 문구</span>
+  </div>
+</figure>
+
 ## 구현 — 분석 → 규격 적용 → 서식까지
 
 **① 하이브리드 분석 + 분기 파싱.** 메타데이터로 화면 구조를 잡고 hidden 노드·비-UI 프레임(메모·설명)을 걸러낸다. 여기에 규칙 하나를 더 박았다 — 화면 옆의 `Description` 주석 프레임에 적힌 **비즈니스 분기(예외 조건, 진입 케이스, 상태 전이별 메시지)를 개별 TC로 분할 의무화**. 이 규칙이 없을 땐 "비-UI 프레임 필터링"에 분기 로직까지 같이 걸러져 TC가 통째로 누락됐다.
@@ -50,12 +61,18 @@ Border는 반드시 맨 마지막, 그리고 채워진 영역에만
 
 **2. 드롭다운 칩 색상의 API 한계.** Google Sheets API로는 드롭다운 칩(둥근 pill)의 색상을 못 넣는다. 조건부 서식으로 우회해봤지만 **버렸다** — 칩 스타일이 깨져서 얻는 것보다 잃는 게 컸다. 결론: 드롭다운만 API로 넣고 **색상은 자동화하지 않고 수동 영역으로 명확히 분리**. API 한계는 빨리 인정하는 게 시간을 아낀다.
 
-**3. TC를 사람으로 가르려 했던 정책을, 다시 버렸다.** 한동안 TC를 "주니어 수행 가능 / 시니어 협업 / 보류" 3분류로 나누고 행 배경색까지 칠했다. 그런데 곧 깨달았다 — **TC를 사람 등급으로 나누면 안 된다.** 모든 TC는 그 자체로 따라 수행 가능해야(Step 자기완결성) 한다. 그래서 3분류 정책을 폐기하고, 대신 ⓐ 스텝을 자기완결적으로 쓰고, ⓑ 자원·권한 의존은 사전조건에 사실로 명시하고 스텝에 `(개발자)` 라벨을 달고, ⓒ 지금 검증 불가한 건 결과를 `N/T`(Not Tested, 미수행)로 두고 사유를 적는 방식으로 바꿨다. "설계자가 아는 걸 수행자도 안다"고 가정하지 않기 — 이 블로그에서 반복해 다루는 [지식의 저주](/posts/ai-confirmation-bias-subagents)와 같은 교훈이다.
+**3. TC를 사람으로 가르려 했던 정책을, 다시 버렸다.** 한동안 TC를 "주니어 수행 가능 / 시니어 협업 / 보류" 3분류로 나누고 행 배경색까지 칠했다. 그런데 곧 깨달았다 — **TC를 사람 등급으로 나누면 안 된다.** 모든 TC는 그 자체로 따라 수행 가능해야(Step 자기완결성) 한다. 그래서 3분류 정책을 폐기하고, 대신 이렇게 바꿨다:
+
+- ⓐ 스텝을 자기완결적으로 쓴다.
+- ⓑ 자원·권한 의존은 사전조건에 사실로 명시하고, 스텝에 `(개발자)` 라벨을 단다.
+- ⓒ 지금 검증 불가한 건 결과를 `N/T`(Not Tested, 미수행)로 두고 사유를 적는다.
+
+"설계자가 아는 걸 수행자도 안다"고 가정하지 않기 — 이 블로그에서 반복해 다루는 [지식의 저주](/posts/ai-confirmation-bias-subagents)와 같은 교훈이다.
 
 ## 결과
 
 - 이 워크플로우로 **3개 이상 프로젝트에서 누적 600개 이상의 TC**를 작성했다. 손으로 쓰면 하루 100건 남짓이니, 600개는 대략 **6일치 작성 노동**에 해당한다.
-- 대표 시안 1세트를 TC로 옮기는 데 **수동 5일이 자동 2~3시간으로** 줄었다(검토 시간은 별도). 서식 노동이 사라진 게 큰 몫이다.
+- 대표 시안 1세트를 TC로 옮기는 데 **수동 5일이 자동 2~3시간으로** 줄었다(검토 시간은 별도이고, 정식 병행 비교가 아니라 경험치다). 서식 노동이 사라진 게 큰 몫이다.
 - 규격 문서만 있으면 **프로젝트가 바뀌어도 동일 품질**이 나온다. 품질을 사람의 컨디션이 아니라 문서로 보장하게 됐다.
 
 | | 수동 | 규격 자동 |

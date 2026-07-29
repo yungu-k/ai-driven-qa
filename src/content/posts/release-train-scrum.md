@@ -22,6 +22,8 @@ description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3
 - 한 번에 다량을 배포하니 **회귀 범위가 커지고**, 장애가 나면 원인 격리가 어려웠다
 - 오래 묵은 검증분은 배포 시점에 **재검증 부담**으로 되돌아왔다
 
+이렇게 묵힌 변경분이 릴리스 대상 티켓 53건까지 쌓여, 어느 보드에도 제대로 모여 있지 않았다.
+
 ## 방향 — 무엇을 분리했나
 
 해법의 본질은 기능이 아니라 **분리**였다.
@@ -30,6 +32,14 @@ description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3
 - **고객 트랙** — 고객이 원할 때, 이미 검증된 버전 중 하나를 꺼내 배포한다
 
 개발과 QA를 고객 일정의 예측 불가능성에서 떼어낸 것이다. 이때부터 열차 비유가 팀의 공용어가 됐다 — **열차는 정시에 출발하고, 못 탄 짐은 다음 열차에 실으며, 승객(고객)은 원하는 열차를 골라 탄다.**
+
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="비정기 배포와 정주기 열차의 대조 도식. 전에는 배포가 불규칙해 고객 요청이 올 때마다 큰 묶음이 한꺼번에 나갔다. 후에는 2~3주 주기로 검증 완료 버전을 항상 만들어 두고, 고객은 그중 검증된 버전을 골라 배포한다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">전: 고객 요청에 끌린 비정기 → 후: 정주기 열차 + 골라 태우기</figcaption>
+  <div class="mt-4 space-y-2 text-xs">
+    <div class="flex flex-wrap items-center gap-x-2"><span class="w-8 shrink-0 font-semibold text-muted-foreground">전</span><span class="text-muted-foreground">┈┈┈┈▮(큰 묶음)┈┈┈┈┈┈┈┈▮(큰 묶음)  — 불규칙, 고객 요청 시</span></div>
+    <div class="flex flex-wrap items-center gap-x-2"><span class="w-8 shrink-0 font-semibold text-accent">후</span><span class="text-accent">▮─2~3주─▮─2~3주─▮─2~3주─▮  <span class="text-muted-foreground">— 정시 출발, 고객은 검증본 골라 탑승</span></span></div>
+  </div>
+</figure>
 
 ## 설계 — "왜"가 있는 결정들
 
@@ -134,7 +144,7 @@ Train 14  =  이름표 (배포 단위)
 
 ## 남은 것
 
-열차 체계는 설계로 완성되지 않는다. 실제로 몇 바퀴를 정시에 굴려봐야 '고객과 내부를 분리한다'는 이 원칙이 문서 속 문장에서 팀의 습관으로 내려앉는다. 지금은 그 반복의 초입이다.
+열차 체계는 설계로 완성되지 않는다. 실제로 몇 바퀴를 정시에 굴려봐야 '고객과 내부를 분리한다'는 이 원칙이 문서 속 문장에서 팀의 습관으로 내려앉는다. 지금은 그 첫 바퀴를 돌리는 중이다.
 
 > 프로세스는 문서로 완성되지 않는다. 열차가 실제로 정시에 떠나봐야 한다.
 
