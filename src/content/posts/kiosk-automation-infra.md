@@ -14,6 +14,20 @@ description: 무인 키오스크 앱을 Web UI와 API 두 트랙으로 자동 �
 
 > 키오스크 앱(현금↔칩 교환 무인기)을 Web UI와 API 두 트랙으로 자동 검증하는 인프라. 소스를 받아 테스트를 생성·실행하고, 실패를 리포트·Jira 티켓으로 연결하는 과정을 한 번의 명령으로 반복한다.
 
+## 음수 금액이 200으로 통과하고 있었다
+
+무인 키오스크는 현금과 칩을 사람 없이 주고받는다. 그 말은, 잘못된 응답 하나가 곧 현금 사고라는 뜻이다. 실제로 어떤 API는 **음수 금액을 넣어도 `200 OK`로 통과**시키고 있었다 — 그리고 아무도 그걸 매 릴리스마다 손으로 확인하지 못했다. 화면 32개 × 검증 수백 건을 사람이 매번 돌리는 건 불가능하니까.
+
+그래서 두 트랙(Web UI + API) 자동 검증 인프라를 세웠다. 지금 규모는 이렇다:
+
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="산출물 규모 통계 카드. API 자동화는 1,160 테스트로 1,133 PASS와 27 manual-required, fail 0. Web UI 자동화는 2기종 32화면 128 spec. 자동 검출하고 수정한 production 부정합은 5종.">
+  <div class="flex flex-wrap gap-3 text-xs">
+    <div class="flex-1 rounded-lg border border-border bg-background/60 p-3"><p class="text-lg font-bold text-accent">1,160</p><p class="mt-1 text-muted-foreground">API 테스트 (1,133 PASS + 27 manual · fail 0)</p></div>
+    <div class="flex-1 rounded-lg border border-border bg-background/60 p-3"><p class="text-lg font-bold text-accent">128</p><p class="mt-1 text-muted-foreground">Web UI spec (2기종 × 32화면)</p></div>
+    <div class="flex-1 rounded-lg border border-border bg-background/60 p-3"><p class="text-lg font-bold text-accent">5</p><p class="mt-1 text-muted-foreground">자동 검출·수정한 production 부정합</p></div>
+  </div>
+</figure>
+
 ## 무엇을 만들었나
 
 - **Web UI 트랙 (Playwright):** 화면 진입·사용자 흐름·다국어·시각 회귀 검증. 키오스크 2기종 약 32개 화면.
@@ -119,6 +133,12 @@ it("칩 지급 — 음수 금액은 400", async () => {
 초기엔 fail이 20건 넘게 쌓였는데, 점검 결과 단 하나도 실제 운영 결함이 아니었다(Mock 한계·타이밍). 상시 빨간 fail은 회귀 신호를 가리는 noise다.
 
 - **해결:** 환경 한계 케이스를 manual-required로 분리하고, 안정적으로 통과하는 spec만 green baseline으로 묶어 회귀 게이트 신뢰도 확보.
+
+| | 초기 | 정리 후 |
+| --- | --- | --- |
+| 상시 fail | 20건+ (전부 noise) | 0 |
+| 실운영 결함 | 0 (fail 중) | — |
+| manual-required | 미분리 | 27건 별도 격리 |
 
 ### 3. 환경 종속성 → Local-first 전환
 

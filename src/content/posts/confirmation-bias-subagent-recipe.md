@@ -9,7 +9,7 @@ tags:
   - sub-agent
   - confirmation-bias
   - how-to
-description: 컨텍스트 격리 검증을 실제로 작동시킨 5원칙과 감사자 브리핑 템플릿 — AI 확증편향을 프롬프트가 아니라 구조로 잡는 실전 레시피.
+description: 컨텍스트 격리 검증을 실제로 작동시킨 5원칙과 감사자 브리핑 템플릿 — AI 확증편향을 프롬프트가 아니라 구조로 잡는 실전 레시피. 이 구조로 "수행 불가 33건"이 0이 됐다.
 ---
 
 > [AI도 확증편향에 빠진다](/posts/ai-confirmation-bias-subagents/)에서 "왜" 컨텍스트를 공유하지 않는 별도 AI에게 반증을 시켜야 하는지를 다뤘다. 이 글은 그 구조를 **실제로 작동시킨** 다섯 가지 — 그대로 따라 할 수 있는 레시피다.
@@ -17,6 +17,32 @@ description: 컨텍스트 격리 검증을 실제로 작동시킨 5원칙과 감
 ## 왜 패턴만으론 안 되나
 
 "우리도 서브에이전트 쓰자"에서 멈추면 안 통한다. 검증 에이전트를 하나 더 띄우는 것 자체는 쉽지만, **컨텍스트를 잘못 주면 같은 편향에 똑같이 끌려간다.** 실제로 작동하게 만든 건 아래 다섯 가지 규칙이었다.
+
+## 실제로 띄우는 법
+
+도구는 상관없다 — 서브에이전트 기능이든, 별도 세션이든, 별도 API 호출이든. 순서만 지키면 된다.
+
+1. **검증 대상을 고른다** — 정답(소스)이 있고, 틀리면 비싼 산출물. 테스트 설계·소스 역기획처럼.
+2. **격리된 에이전트를 띄운다** — 저자의 맥락은 빼고, **결과물 + 원본 소스만** 건넨다. "이렇게 만들었다"는 절대 안 준다.
+3. **계약을 준다** — 아래 브리핑 템플릿(근거 줄 없으면 결함, 완료조건은 "누락 0").
+4. **큰 작업이면 구역을 갈라 병렬로 던진다** — 담당 구역이 안 겹치게.
+5. **돌아온 지적을 그대로 믿지 않는다** — 메인이 원문을 재대조한 뒤 채택한다.
+
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="병렬 팬아웃 도식. 메인 세션이 큰 작업을 겹치지 않는 구역으로 쪼개, 결과물과 원본 소스만 담아 여러 독립 감사자에게 동시에 던진다. 각 감사자는 담당 구역만 소스와 1대1로 대조해 반증을 돌려주고, 메인이 원문을 재대조한 뒤 채택한다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">병렬 팬아웃 — 구역을 갈라 던지고, 반증을 메인이 재대조 후 채택</figcaption>
+  <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
+    <span class="rounded-lg border-2 border-accent bg-accent/10 px-3 py-2 font-semibold text-accent">메인 세션<span class="block text-[10px] font-normal text-muted-foreground">구역 분할 + 결과물·소스만</span></span>
+    <span aria-hidden="true" class="text-muted-foreground">→ 팬아웃 →</span>
+    <span class="flex flex-col gap-1.5">
+      <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">감사자 A · 구역 1</span>
+      <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">감사자 B · 구역 2</span>
+      <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">감사자 C · 구역 3</span>
+    </span>
+    <span aria-hidden="true" class="text-muted-foreground">→ 반증 → 메인 재대조</span>
+  </div>
+</figure>
+
+각 단계의 "왜"가 아래 5원칙이다.
 
 ## 5원칙
 
@@ -58,7 +84,9 @@ AI는 done-state가 없으면 그럴듯한 데서 멈춘다(satisfice). "확인�
 
 **정직하게, 공짜는 아니다.** 서브에이전트는 토큰·시간을 더 쓴다. 그래서 **검증 가능한(정답이 있는) 작업 + 틀리면 비싼 산출물**에 건다 — 테스트 설계, 소스 대조 같은. 잡담이나 되돌리기 쉬운 초안엔 과한 투자다. 편향을 잡는 값과 치르는 비용을 저울질하는 게 실무의 몫이다.
 
-이 다섯 개를 프로세스로 강제했을 때 무슨 일이 벌어졌는지 — "수행 불가 33건이 네 라운드 만에 0"이 된 실측과 교차 세션 증거 — 는 [본편](/posts/ai-confirmation-bias-subagents/)에 있다.
+이 레시피가 만능은 아니다. 두 가지 한계가 분명하다 — ⓐ **브리핑 템플릿은 프로젝트에 종속적이다.** "소스만이 정답" 같은 원칙은 옮겨가도, 무엇이 '소스'이고 무엇이 '근거 줄'인지는 매번 그 프로젝트 문맥으로 다시 정의해야 한다. ⓑ **게이트 강제는 아직 수동이다.** 검증 에이전트를 띄우는 것도, 돌아온 지적을 재대조하는 것도 사람이 그때그때 한다 — CI에 박아 자동으로 도는 단계까진 못 갔다.
+
+실제로 이 구조를 처음 돌린 첫 패스에서만 **25건**을 잡았다(신규 커버리지 4건, "실측으로 뭉갠" 게 실은 티켓에 확정돼 있던 스펙 3건, 도구 실수 1건 포함). 네 라운드까지 돌려 "수행 불가 33건이 0"이 된 전체 서사와 교차 세션 증거는 [본편](/posts/ai-confirmation-bias-subagents/)에 있다.
 
 ---
 
