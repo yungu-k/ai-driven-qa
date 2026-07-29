@@ -28,6 +28,22 @@ Figma REST API로 페이지별 노드 트리를 JSON 스냅샷으로 저장하�
 - 변경 감지 + TC 커버리지 갭 분석 슬래시 커맨드
 - 대상 페이지는 프로젝트별로 설정 가능
 
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="스냅샷 diff 흐름 도식. 이전 스냅샷과 현재 스냅샷을 프레임의 이름, 숨김 여부, 하위 요소 개수 세 기준으로 비교해, 추가·삭제·변경된 화면만 추려낸다. 그 변경 화면에 대응하는 TC가 있는지 대조하는 것은 감지 위에 얹은 부수 단계다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">스냅샷 diff — 시각(timestamp)이 아니라 노드 트리를 비교한다</figcaption>
+  <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
+    <div class="flex flex-col gap-1">
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">이전 스냅샷</span>
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">현재 스냅샷</span>
+    </div>
+    <span aria-hidden="true" class="text-muted-foreground">→</span>
+    <span class="rounded-lg border border-accent/60 bg-accent/5 px-3 py-2 text-center text-foreground">diff<br/><span class="text-[10px] text-muted-foreground">이름 · 숨김 · 하위개수</span></span>
+    <span aria-hidden="true" class="text-muted-foreground">→</span>
+    <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-foreground">추가·삭제·변경 화면만</span>
+    <span aria-hidden="true" class="text-muted-foreground">⋯</span>
+    <span class="rounded-lg border border-dashed border-foreground/30 px-3 py-2 text-muted-foreground">TC 갭 대조 <span class="text-[10px]">(부수)</span></span>
+  </div>
+</figure>
+
 ## 어떤 문제를 겪었나
 
 ### 1. 비-UI 노드의 오탐지

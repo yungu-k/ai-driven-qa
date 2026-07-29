@@ -57,6 +57,25 @@ QA 엔지니어는 종종 '반복 작업이 많지만 판단이 중요한' 애�
 | Figma | REST API + MCP | 시안 메타데이터·스크린샷·노드 diff |
 | Notion | MCP + REST | 회고 기록, 이 블로그의 원본 |
 
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="MCP 허브 구조 도식. 가운데 단일 AI Agent를 중심으로 Jira, Confluence, Google Sheets, Figma, Notion 다섯 시스템이 방사형으로 연결되어 있다. Agent 하나가 다섯 도구를 모두 제어하므로, 도구를 오갈 때 맥락이 끊기지 않는다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">MCP 허브 — 도구마다 창을 옮기는 대신, Agent 하나가 다섯을 제어한다</figcaption>
+  <div class="mt-4 flex flex-col items-center gap-2 text-xs">
+    <div class="flex flex-wrap justify-center gap-2">
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">Jira</span>
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">Confluence</span>
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">Google Sheets</span>
+    </div>
+    <span aria-hidden="true" class="text-muted-foreground">▲ ▲ ▲</span>
+    <span class="rounded-lg border-2 border-accent bg-accent/10 px-4 py-2 font-bold text-accent">단일 AI Agent</span>
+    <span aria-hidden="true" class="text-muted-foreground">▼ ▼</span>
+    <div class="flex flex-wrap justify-center gap-2">
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">Figma</span>
+      <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">Notion</span>
+    </div>
+    <p class="mt-2 text-[11px] leading-tight text-muted-foreground">연결은 MCP·API 혼합 — 방식은 달라도 진입점은 Agent 하나. '지금 뭘 하고 있었지'를 도구 전환마다 다시 세울 필요가 없다.</p>
+  </div>
+</figure>
+
 ### MCP를 쓰면서 배운 점
 
 - **완벽한 자동화가 아니라 맥락 유지가 중요하다** — 작업을 사람이 누르든 AI가 누르든, '같은 맥락에서 이어진다'는 감각이 생산성을 결정한다.
