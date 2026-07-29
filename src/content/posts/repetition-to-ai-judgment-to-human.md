@@ -32,7 +32,7 @@ QA 엔지니어는 종종 '반복 작업이 많지만 판단이 중요한' 애�
 | 1 | [TC 설계 자동화](/posts/tc-design-automation/) | 디자인 시안 분석 → TC 자동 생성 + [코드 diff 기반 영향도 릴리스 TC](/posts/diff-driven-tc/) |
 | 2 | [Bug Report 자동화](/posts/bug-report-automation/) | TC 기반 Jira 연동 + 시트 상태 자동 업데이트 |
 | 3 | [QA Report 자동화](/posts/qa-report-automation/) | Jira + TC 데이터 수집 → Sign-off / Status 리포트 |
-| 4 | [디자인 변경 감지](/posts/design-change-detection/) | Figma 스냅샷 diff → TC 커버리지 갭 분석 |
+| 4 | [디자인 변경 감지](/posts/design-change-detection/) | Figma 스냅샷 diff → 바뀐 화면만 감지 (TC 갭 대조는 부수) |
 | 5 | [Regression + 상태 동기화](/posts/regression-and-status-sync/) | P0 기반 Regression 추출 + Jira 상태 자동 반영 |
 | 6 | [운영 모니터링](/posts/realtime-kiosk-monitoring/) | [알람 자동 분류 리포트](/posts/live-issue-triage/) → 실시간 관제 대시보드 |
 | 7 | [AI 팀원 + 도메인 확장](/series/ai-teammate/) | 역기획 스토리보드 · AI 기획자/QA 팀원 · 기술지원 이력 연동 · API 실행 Web UI |
@@ -132,7 +132,7 @@ QA 종료 시점의 Sign-off 리포트와 진행 중의 상태 리포트는 숫�
 
 이 Phase에서 가장 많은 자잘한 사고를 겪었고, 그 끝에 배운 것은 — 가장 어려운 것은 '데이터 수집'이 아니라 '**서식 일관성**'이라는 사실이다. 머지 순서, 행 참조, 빈 행 하나가 전체 레이아웃을 무너뜨린다. 사고들의 목록과 해결은 [QA Report 자동화](/posts/qa-report-automation/)에 담았다.
 
-## Phase 4 — 디자인 변경 감지 + TC 커버리지 갭 분석
+## Phase 4 — 디자인 변경 감지
 
 ### 배경
 
