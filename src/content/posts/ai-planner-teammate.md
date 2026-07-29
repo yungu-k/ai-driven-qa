@@ -2,7 +2,7 @@
 author: 공윤구
 pubDatetime: 2026-07-02T01:00:00.000Z
 modDatetime: 2026-07-02T08:00:00.000Z
-title: AI 기획자 팀원 만들기 — 소스 코드에서 Figma 스토리보드로
+title: AI 기획자 팀원 만들기 — 소스 코드에서 67화면 Figma 스토리보드로
 slug: ai-planner-teammate
 featured: false
 draft: false
@@ -13,7 +13,7 @@ tags:
 description: 기획서 없는 레거시 화면을 역으로 읽어 스토리보드로 복원하는 AI 기획자를 4층 구조로 설계하고, 제품 3종 67화면+모달 전수의 기획 문서 공백을 메운 기록.
 ---
 
-> 소스 코드만 남고 기획서가 없는 레거시 화면을, AI 기획자가 역으로 읽어 Figma 스토리보드로 복원한다 — 팀원의 설계부터 산출물까지.
+> 소스 코드만 남고 기획서가 없는 레거시 화면을, AI 기획자가 역으로 읽어 Figma 스토리보드로 복원한다 — 팀원의 설계부터, 제품 3종 67화면(37+30)+모달의 기획 공백을 메운 산출물까지.
 
 <div class="not-prose my-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
   <p class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">시리즈 — AI 팀원 만들기 3부작</p>
