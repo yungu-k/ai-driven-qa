@@ -94,6 +94,26 @@ description: AI가 테스트 케이스를 설계하고 화면을 역기획할 �
 
 역방향으로도 작동했다. 검증 에이전트가 "이 케이스는 기대값의 근거가 없다"고 짚자, 메인이 티켓을 다시 대조해 **설계자(자기)의 기대결과가 틀렸음을 확인하고 정정**했다 — 잔량이 충분한 케이스에 "부족 안내"를 기대하고 있었던 것. 검증자 → 설계자 방향의 반증이 실제로 먹힌 사례다.
 
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="컨텍스트 격리 검증 구조 도식. 왼쪽 메인 세션(저자)은 분석 맥락을 가지고 있다. 메인에서 감사자로 가는 실선 화살표는 결과물과 원본 소스만 전달한다. 저자의 추론·가정·이렇게 만들었다는 설명은 점선으로 차단되어 감사자에게 전달되지 않는다. 오른쪽 감사자는 맥락을 모른 채 소스만으로 1대1 대조한다. 감사자에서 메인으로 돌아오는 화살표는 반증(커버리지 갭·창작·판정 불가)이며, 메인은 원문을 재대조한 뒤 채택한다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">컨텍스트 격리 검증 — 저자의 '맥락'은 점선에서 끊고, 결과물·소스만 건넨다</figcaption>
+  <div class="mt-4 flex flex-col gap-3 text-xs sm:flex-row sm:items-stretch">
+    <div class="flex-1 rounded-lg border border-border bg-background/60 p-3">
+      <p class="font-semibold text-foreground">메인 세션 <span class="font-normal text-muted-foreground">(저자)</span></p>
+      <p class="mt-1 text-muted-foreground">설계·분석 맥락 보유</p>
+    </div>
+    <div class="flex flex-1 flex-col justify-center gap-2">
+      <div class="rounded-md border border-accent bg-accent/10 px-2 py-1.5 text-center text-accent">→ 준다: 결과물 + 원본 소스</div>
+      <div class="rounded-md border border-dashed border-foreground/40 px-2 py-1.5 text-center text-muted-foreground line-through decoration-foreground/30">✕ 안 준다: 추론·가정·"이렇게 만들었다"</div>
+      <div class="rounded-md border border-border bg-background/60 px-2 py-1.5 text-center text-muted-foreground">← 반증: 갭·창작·판정 불가</div>
+    </div>
+    <div class="flex-1 rounded-lg border border-border bg-background/60 p-3">
+      <p class="font-semibold text-foreground">감사자 <span class="font-normal text-muted-foreground">(맥락 격리)</span></p>
+      <p class="mt-1 text-muted-foreground">소스만으로 요소↔줄 1:1 대조</p>
+    </div>
+  </div>
+  <p class="mt-3 text-[11px] leading-tight text-muted-foreground">핵심: 저자의 '맥락'을 함께 주면 같은 편향에 끌려간다. 그래서 결과물·소스만 남기고 나머지는 계약으로 끊는다. 반증도 메인이 원문 재대조 후 채택 — 감사자도 틀릴 수 있으니까.</p>
+</figure>
+
 ### 4-2. 주니어 페르소나 수행성 검증 — "모르는 사람 시뮬레이션"
 
 서브에이전트 여러 개에 동일 페르소나를 준다: **"이 제품을 화면으로만 아는 주니어 엔지니어. 코드 지식 없음."** 지식 소스를 명시적으로 제한하고, 테스트를 한 줄씩 **실제 수행하는 시뮬레이션**을 시킨다 — 어디서 손이 멈추는지 보고.

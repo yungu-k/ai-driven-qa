@@ -25,6 +25,25 @@ description: 무인 키오스크 앱을 Web UI와 API 두 트랙으로 자동 �
 | Web UI | 화면 노출·사용자 흐름·다국어·시각 회귀 | Playwright |
 | API | 모듈별 응답 계약·에러 코드 정합 | vitest + supertest + zod |
 
+<figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="Orchestrator 5단계 파이프라인 도식. 소스 clone, 테스트 생성, 실행, 리포트, 티켓 등록이 순서대로 이어진다. 테스트 생성과 실행 단계는 Web UI 트랙(Playwright)과 API 트랙(vitest+zod) 두 갈래로 나뉘어 병렬로 진행된 뒤, 리포트 단계에서 다시 합쳐진다. 전 과정이 한 번의 명령으로 반복된다.">
+  <figcaption class="text-xs font-semibold text-muted-foreground">Orchestrator — 한 번의 명령으로 도는 5단계, 가운데서 두 트랙으로 갈라진다</figcaption>
+  <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
+    <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-muted-foreground">① 소스 clone</span>
+    <span aria-hidden="true" class="text-muted-foreground">→</span>
+    <div class="rounded-lg border border-accent/60 bg-accent/5 p-2">
+      <p class="mb-1.5 text-center text-[10px] text-muted-foreground">② 생성 → ③ 실행 <span class="text-accent">(두 트랙 병렬)</span></p>
+      <div class="flex flex-col gap-1.5">
+        <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-foreground">Web UI · Playwright <span class="text-muted-foreground">— 32화면</span></span>
+        <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-foreground">API · vitest+zod <span class="text-muted-foreground">— 18모듈</span></span>
+      </div>
+    </div>
+    <span aria-hidden="true" class="text-muted-foreground">→</span>
+    <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-muted-foreground">④ 리포트</span>
+    <span aria-hidden="true" class="text-muted-foreground">→</span>
+    <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-muted-foreground">⑤ 티켓 등록</span>
+  </div>
+</figure>
+
 ## 코드로 보는 두 트랙
 
 **Web UI 트랙** — 화면마다 "UI 요소가 스펙대로 노출되는가"를 명시적 assertion으로 검증한다. 공통 helper로 다국어·접근성·시각 회귀를 표준화했다.
