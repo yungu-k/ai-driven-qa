@@ -16,9 +16,9 @@ description: 기획서 없는 레거시 화면을 역으로 읽어 스토리보�
 > 소스 코드만 남고 기획서가 없는 레거시 화면을, AI 기획자가 역으로 읽어 Figma 스토리보드로 복원한다 — 팀원의 설계부터, 제품 3종 67화면(37+30)+모달의 기획 공백을 메운 산출물까지.
 
 <div class="not-prose my-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
-  <p class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">시리즈 — AI 팀원 만들기 3부작</p>
-  <p class="mt-2 leading-relaxed"><strong class="text-accent">① 기획자 (이 글)</strong><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-qa-engineer-teammate/">② QA 엔지니어</a><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-developer-teammate/">③ 개발자</a></p>
-  <p class="mt-2 text-xs"><a class="text-muted-foreground hover:text-accent" href="/series/ai-teammate/">이 팀을 왜 셋으로 나눴는지 — 시리즈 소개 →</a></p>
+  <p class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">시리즈 — AI 팀원 만들기 4부작</p>
+  <p class="mt-2 leading-relaxed"><strong class="text-accent">① 기획자 (이 글)</strong><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-qa-engineer-teammate/">② QA 엔지니어</a><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-developer-teammate/">③ 개발자</a><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-technical-writer-teammate/">④ Technical Writer</a></p>
+  <p class="mt-2 text-xs"><a class="text-muted-foreground hover:text-accent" href="/series/ai-teammate/">이 팀을 왜 나눴는지 — 시리즈 소개 →</a></p>
 </div>
 
 ## 목차

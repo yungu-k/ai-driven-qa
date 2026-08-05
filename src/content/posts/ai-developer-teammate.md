@@ -14,9 +14,9 @@ description: 기획자·QA와 대칭인 세 번째 팀원. 핸드오프 명세�
 > 기획자가 '무엇을 만들까', QA가 '무엇이 깨질까'라면, 개발자는 '어떻게 구현하고 배포하나'를 맡는 세 번째 팀원이다.
 
 <div class="not-prose my-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
-  <p class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">시리즈 — AI 팀원 만들기 3부작</p>
-  <p class="mt-2 leading-relaxed"><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-planner-teammate/">① 기획자</a><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-qa-engineer-teammate/">② QA 엔지니어</a><span class="text-muted-foreground"> → </span><strong class="text-accent">③ 개발자 (이 글)</strong></p>
-  <p class="mt-2 text-xs"><a class="text-muted-foreground hover:text-accent" href="/series/ai-teammate/">이 팀을 왜 셋으로 나눴는지 — 시리즈 소개 →</a></p>
+  <p class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">시리즈 — AI 팀원 만들기 4부작</p>
+  <p class="mt-2 leading-relaxed"><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-planner-teammate/">① 기획자</a><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-qa-engineer-teammate/">② QA 엔지니어</a><span class="text-muted-foreground"> → </span><strong class="text-accent">③ 개발자 (이 글)</strong><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-technical-writer-teammate/">④ Technical Writer</a></p>
+  <p class="mt-2 text-xs"><a class="text-muted-foreground hover:text-accent" href="/series/ai-teammate/">이 팀을 왜 나눴는지 — 시리즈 소개 →</a></p>
 </div>
 
 ## 배경
