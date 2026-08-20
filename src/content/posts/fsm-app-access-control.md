@@ -4,7 +4,7 @@ pubDatetime: 2026-08-19T09:00:00.000Z
 title: 로그인만 하면 다 보였다 — 사내 웹앱을 외부 파트너에게 열기까지
 slug: fsm-app-access-control
 featured: false
-draft: false
+draft: true
 tags:
   - infra
   - security
