@@ -45,15 +45,19 @@
 
 기존 글은 고유명사를 **전부** 지웠다. 신규도 같은 선이어야 한다.
 
-| 실제 | 기존 글 표기 |
+| 범주 | 기존 글 표기 |
 |---|---|
-| Vercel | "무료 호스팅" |
-| Supabase | "관리형 DB·스토리지", "서버리스 Edge Function" |
-| `clonix-fsm-chi.vercel.app` | 미표기 |
-| `clonixpm.atlassian.net` / CTS | "내부 Jira" |
-| GKL·Sevenluck·MGM·Paradise·Macau·Cotai·Busan | 미표기 |
-| CRK·CDK | 미표기 |
-| `Clonixrnd/clonix-fsm` | 미표기 |
+| 호스팅 서비스명 | "무료 호스팅" |
+| BaaS 서비스명 | "관리형 DB·스토리지", "서버리스 Edge Function" |
+| 사내 배포 도메인 | 미표기 |
+| 사내 Jira 사이트·프로젝트 키 | "내부 Jira" |
+| 고객사명 (국내·해외 전부) | 미표기 |
+| 장비 모델명 | 미표기 |
+| 회사 GitHub 조직·저장소명 | 미표기 |
+
+> 이 표에 **실제 값을 적지 않는다.** 금지 목록을 적는 문서가 그 값을 노출한 사고가
+> 한 번 났다 (2026-08-20). 무엇을 지워야 하는지는 범주로 충분하고, 실제 값이 필요하면
+> 원본을 보면 된다.
 
 **결정 필요**: 이 선을 유지할지, 스택명(React·Supabase·Vercel·Playwright)만 풀지.
 스택명을 풀면 글이 훨씬 구체적이고 검색에도 걸린다. 고객사·도메인·장비명은 어느 경우에도 금지.
