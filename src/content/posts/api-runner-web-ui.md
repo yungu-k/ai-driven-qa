@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-02T01:04:00.000Z
-title: API 자동화 실행 Web UI — 1,000건 회귀를 버튼 하나로
+title: 1,000건 회귀를 버튼 하나로
 slug: api-runner-web-ui
 featured: false
 draft: false

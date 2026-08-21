@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-04-10T09:16:00.000Z
-title: 디자인 시안에서 TC 600개까지 — 규격 문서 하나로 만든 TC 설계 자동화
+title: 디자인 시안에서 TC 600개까지
 slug: tc-design-automation
 featured: false
 draft: false

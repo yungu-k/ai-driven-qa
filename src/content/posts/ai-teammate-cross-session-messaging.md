@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-08-18T09:00:00.000Z
-title: claude.exe는 리눅스 바이너리였다 — 소켓 3개, 명부 2개로 알아낸 AI 팀원 간 대화의 원리
+title: claude.exe는 리눅스 바이너리였다
 slug: ai-teammate-cross-session-messaging
 featured: false
 draft: false

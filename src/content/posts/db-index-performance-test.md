@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-03T02:00:00.000Z
-title: QA가 DB까지 — 1,300만 행에서 슬로우 쿼리 장애 재현하기
+title: 1,300만 행에서 장애를 재현했다
 slug: db-index-performance-test
 featured: true
 draft: false

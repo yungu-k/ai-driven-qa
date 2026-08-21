@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-04-10T09:19:00.000Z
-title: Figma는 '바뀐 화면 목록'을 주지 않는다 — 스냅샷 diff로 30개 중 바뀐 것만 찾기
+title: Figma는 '바뀐 화면 목록'을 주지 않는다
 slug: design-change-detection
 featured: false
 draft: false

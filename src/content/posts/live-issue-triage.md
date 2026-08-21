@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-04-16T07:21:00.000Z
-title: 운영 이슈 트리아지 자동화 — 600건 알람을 누락 0으로 분류하기
+title: 600건 알람을 누락 0으로 분류하기
 slug: live-issue-triage
 featured: false
 draft: false

@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-02T04:29:00.000Z
-title: 코드 diff 기반 영향도 TC 설계 — TC 7건을 버리고 배운, 티켓 산문 대신 코드 읽기
+title: 티켓 산문 대신 코드 diff를 읽는다
 slug: diff-driven-tc
 featured: false
 draft: false

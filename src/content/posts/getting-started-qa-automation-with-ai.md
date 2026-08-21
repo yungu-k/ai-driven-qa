@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-02T07:00:00.000Z
-title: 따라하기 — Claude Code + MCP로 QA 자동화 시작하기
+title: Claude Code와 MCP로 QA 자동화 시작하기
 slug: getting-started-qa-automation-with-ai
 featured: false
 draft: false

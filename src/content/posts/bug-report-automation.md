@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-04-10T09:17:00.000Z
-title: Bug Report 자동화 — 버그 한 건 5분에서 1분으로, TC와 Jira의 왕복을 없애다
+title: 버그 한 건 쓰는 데 5분에서 1분으로
 slug: bug-report-automation
 featured: true
 draft: false

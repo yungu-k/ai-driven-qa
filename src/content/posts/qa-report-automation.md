@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-04-10T09:18:00.000Z
-title: QA 리포트 자동화 — 데이터에서 PDF까지, 사람은 서명만 한다
+title: 데이터에서 PDF까지, 사람은 서명만 한다
 slug: qa-report-automation
 featured: false
 draft: false

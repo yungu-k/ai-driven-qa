@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-23T01:00:00.000Z
-title: 릴리스 열차를 Jira에 앉히다 — 에픽·스프린트·버전을 바로잡은 정착기
+title: 릴리스 열차를 Jira에 앉히다
 slug: release-train-jira
 featured: false
 draft: false

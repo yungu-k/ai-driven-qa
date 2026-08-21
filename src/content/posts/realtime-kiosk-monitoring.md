@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-02T02:00:00.000Z
-title: 실시간 키오스크 모니터링 대시보드 — 정적 리포트에서 살아있는 관제로
+title: 정적 리포트에서 살아있는 관제로
 slug: realtime-kiosk-monitoring
 featured: false
 draft: false
