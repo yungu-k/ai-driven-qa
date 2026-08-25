@@ -134,7 +134,10 @@ const stats = [
           >
             {t.home.featured}
           </h2>
-          <ul class="mt-4 grid gap-4 sm:grid-cols-2">
+          {/* 홀수 개일 때 첫 카드를 전폭으로 — 마지막 줄 고아 카드 방지 */}
+          <ul
+            class="mt-4 grid gap-4 sm:grid-cols-2 sm:[&>li:first-child:nth-last-child(odd)]:col-span-2"
+          >
             {featuredPosts.map(data => (
               <Card variant="h3" {...data} />
             ))}
@@ -151,7 +154,9 @@ const stats = [
           >
             {t.home.recentPosts}
           </h2>
-          <ul class="mt-4 grid gap-4 sm:grid-cols-2">
+          <ul
+            class="mt-4 grid gap-4 sm:grid-cols-2 sm:[&>li:first-child:nth-last-child(odd)]:col-span-2"
+          >
             {recentPosts.slice(0, postsConfig.perIndex).map(data => (
               <Card variant="h3" {...data} />
             ))}
