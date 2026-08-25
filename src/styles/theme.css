@@ -21,7 +21,8 @@
   --accent: #4f46e5;
   --accent-foreground: #ffffff;
   --muted: #efeff2;
-  --muted-foreground: #6f7280;
+  /* ≥5:1 on both --background and bg-muted/40 tiles (was #6f7280 — 4.4:1 on tiles) */
+  --muted-foreground: #62656e;
   --border: #e4e4e9;
 }
 
