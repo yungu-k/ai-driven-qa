@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-08-28T04:30:00.000Z
-title: 우리가 하던 일에 이름이 생겼다
+title: 하네스 엔지니어링, 우리가 하던 일의 이름이었다
 slug: harness-engineering-we-were-already
 featured: false
 draft: false
