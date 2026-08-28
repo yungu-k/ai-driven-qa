@@ -7,8 +7,6 @@ featured: false
 draft: false
 tags:
   - ai-teammate
-  - design-system
-  - operations
 description: 배포 판정 리포트를 디자인 AI 팀원에게 넘겼다. 페이지 수도 숫자도 그대로인데 표 4개가 사라졌다. 바뀐 것은 정보량이 아니라 숫자의 뜻을 누가 맞추느냐였고, 학습한 트렌드의 절반 이상은 종이라서 버렸다.
 ---
 

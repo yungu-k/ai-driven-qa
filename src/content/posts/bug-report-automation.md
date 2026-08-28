@@ -6,9 +6,7 @@ slug: bug-report-automation
 featured: true
 draft: false
 tags:
-  - qa-automation
-  - bug-report
-  - jira
+  - qa-process
 description: TC에서 Fail 항목을 선택하면 Jira 버그를 규격대로 자동 생성하고 TC 시트를 자동 업데이트하는 워크플로우. 손이 아니라 규칙이 버그를 쓴다.
 ---
 

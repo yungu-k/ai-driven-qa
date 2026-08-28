@@ -6,8 +6,7 @@ slug: release-train-scrum
 featured: false
 draft: false
 tags:
-  - process
-  - operations
+  - qa-process
 description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3주 주기 내부 릴리스 체계와 품질 게이트를 설계해 앉힌 기록.
 ---
 

@@ -7,7 +7,6 @@ featured: false
 draft: false
 tags:
   - ai-teammate
-  - operations
 description: 세션 간 메시징을 붙이고 2주가 지나 트랜스크립트를 전수 집계했다. 내가 팀에 입력한 글은 1.1만 자, 팀이 저희끼리 주고받은 대화는 31.7만 자였다. 요약을 새로 시키는 대신, 프로토콜이 이미 강제하고 있던 한 줄 요약을 사람 쪽으로 모으는 도구를 만들었다.
 ---
 

@@ -6,9 +6,7 @@ slug: design-change-detection
 featured: false
 draft: false
 tags:
-  - qa-automation
-  - figma
-  - coverage
+  - test-design
 description: Figma 노드 트리 스냅샷 diff로 변경 화면을 자동 식별하는 시스템. TC 갭 대조는 감지 위에 얹은 부수 기능이다. 30개 화면 전수 육안 확인을 변경분 확인으로 줄였다.
 ---
 

@@ -6,9 +6,7 @@ slug: kiosk-automation-infra
 featured: false
 draft: false
 tags:
-  - qa-automation
-  - infra
-  - playwright
+  - test-automation
 description: 무인 키오스크 앱을 Web UI와 API 두 트랙으로 자동 검증하는 인프라. 소스 클론부터 티켓 등록까지 한 번의 명령으로.
 ---
 

@@ -6,9 +6,7 @@ slug: global-incident-management
 featured: false
 draft: false
 tags:
-  - process
-  - operations
-  - incident
+  - qa-process
 description: 글로벌 B2B 고객의 장애를 표준 프로세스로 대응하고, 고객 공유 리포트와 내부 추적을 분리 운영하는 체계 설계기.
 ---
 

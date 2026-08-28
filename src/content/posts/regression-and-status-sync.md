@@ -6,9 +6,7 @@ slug: regression-and-status-sync
 featured: false
 draft: false
 tags:
-  - qa-automation
-  - regression
-  - jira
+  - qa-process
 description: 전수 TC에서 P0 기반 Regression 스위트를 자동 추출하고, Jira 이슈 상태 변화를 TC 시트에 자동 반영하는 상태 전이 규칙 설계. 회귀 스위트는 120개 규모로 유지된다.
 ---
 

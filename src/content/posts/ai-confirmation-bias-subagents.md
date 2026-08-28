@@ -6,9 +6,7 @@ slug: ai-confirmation-bias-subagents
 featured: true
 draft: false
 tags:
-  - qa-automation
-  - sub-agent
-  - confirmation-bias
+  - ai-workflow
 description: AI가 테스트 케이스를 설계하고 화면을 역기획할 때 사람과 똑같이, 어쩌면 더 세게 확증편향에 빠진다. 해결책은 '더 조심하기'가 아니라 컨텍스트를 공유하지 않는 별도 AI에게 반증을 시키는 구조 — 수행 불가 33건이 네 라운드 만에 0이 됐다.
 ---
 

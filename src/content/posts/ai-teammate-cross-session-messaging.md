@@ -7,7 +7,6 @@ featured: false
 draft: false
 tags:
   - ai-teammate
-  - wsl
 description: AI 팀원 둘을 실제로 대화시키려다 Windows에서 막혔다. 실행파일을 열어 보니 이름만 .exe인 리눅스 바이너리였고, 그 안에 이유가 그대로 적혀 있었다.
 ---
 

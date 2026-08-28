@@ -8,8 +8,6 @@ featured: false
 draft: false
 tags:
   - ai-teammate
-  - planning
-  - figma
 description: 기획서 없는 레거시 화면을 역으로 읽어 스토리보드로 복원하는 AI 기획자를 4층 구조로 설계하고, 제품 3종 67화면+모달 전수의 기획 문서 공백을 메운 기록.
 ---
 

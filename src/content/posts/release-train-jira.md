@@ -6,9 +6,7 @@ slug: release-train-jira
 featured: false
 draft: false
 tags:
-  - process
-  - operations
-  - jira
+  - qa-process
 description: 2~3주 릴리스 열차 설계를 Jira 보드에 앉히며 에픽·스프린트·버전·QA 상태를 바로잡은 실행 기록. 프로세스의 절반은 쌓인 것을 걷어내는 일이었다.
 ---
 

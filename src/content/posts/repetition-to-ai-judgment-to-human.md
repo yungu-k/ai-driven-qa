@@ -7,9 +7,7 @@ slug: repetition-to-ai-judgment-to-human
 featured: true
 draft: false
 tags:
-  - ai
-  - qa-automation
-  - retrospective
+  - ai-workflow
 description: TC 설계부터 실시간 운영 모니터링, AI 팀원 구축까지 — QA 업무 전체를 AI 협업 워크플로우로 전환한 7단계 여정.
 ---
 

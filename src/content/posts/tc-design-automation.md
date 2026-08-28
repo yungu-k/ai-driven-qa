@@ -6,9 +6,7 @@ slug: tc-design-automation
 featured: false
 draft: false
 tags:
-  - qa-automation
-  - test-case
-  - figma
+  - test-design
 description: 규격 문서를 정본으로, AI가 Figma 시안을 분석해 Google Sheets에 TC를 서식까지 자동 생성하는 워크플로우. 3개 이상 프로젝트에서 600개 이상의 TC를 이 방식으로 작성했다.
 ---
 

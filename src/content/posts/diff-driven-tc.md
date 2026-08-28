@@ -6,9 +6,7 @@ slug: diff-driven-tc
 featured: false
 draft: false
 tags:
-  - qa-automation
-  - test-case
-  - methodology
+  - test-design
 description: 릴리스 TC를 직전 검증 버전과 최신 코드의 git diff로 설계하는 방법론과, baseline 오설정에서 배운 교훈.
 ---
 

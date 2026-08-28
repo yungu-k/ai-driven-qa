@@ -6,9 +6,7 @@ slug: confirmation-bias-subagent-recipe
 featured: false
 draft: false
 tags:
-  - sub-agent
-  - confirmation-bias
-  - how-to
+  - ai-workflow
 description: 컨텍스트 격리 검증을 실제로 작동시킨 5원칙과 감사자 브리핑 템플릿 — AI 확증편향을 프롬프트가 아니라 구조로 잡는 실전 레시피. 이 구조로 "수행 불가 33건"이 0이 됐다.
 ---
 

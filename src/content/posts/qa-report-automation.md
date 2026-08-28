@@ -6,9 +6,7 @@ slug: qa-report-automation
 featured: false
 draft: false
 tags:
-  - qa-automation
-  - report
-  - jira
+  - qa-process
 description: QA 리포팅을 데이터 수집→집계→시트→PDF→메일 파이프라인으로 규격화하고, 사람은 판정(Verdict)과 승인만 하게 만든 이야기. 실제 릴리스에서 TC 38건 집계·Verdict까지, 사람 손은 서명뿐이었다.
 ---
 

@@ -7,7 +7,6 @@ featured: false
 draft: false
 tags:
   - ai-teammate
-  - technical-writing
 description: 글 쓰는 AI가 아니라 기준을 지키는 AI. 글로벌 테크 블로그를 실측 분석해 기준을 세우고, 자기가 쓴 글까지 독립 감사에 넘기는 네 번째 팀원 설계기.
 ---
 

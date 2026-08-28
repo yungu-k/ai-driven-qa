@@ -7,8 +7,6 @@ slug: field-service-jira-sync
 featured: false
 draft: false
 tags:
-  - infra
-  - integration
   - operations
 description: 외부 파트너가 올린 현장 기록이 자동으로 내부 Jira 이슈가 되고, 처리 상태가 다시 파트너 화면으로 돌아온다. 사람이 보는 값은 이름으로 맞추고 시스템이 참조하는 값은 id로 걸어야 하는 이유를, 세 번의 실패로 배웠다.
 ---

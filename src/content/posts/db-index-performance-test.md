@@ -6,8 +6,6 @@ slug: db-index-performance-test
 featured: true
 draft: false
 tags:
-  - performance
-  - database
   - operations
 description: 운영 장애의 원인으로 지목된 슬로우 쿼리를 테스트 환경에 1,300만 행을 시딩해 재현하고, 인덱스 세 가지 상태를 정량 비교해 수정안을 권고한 기록.
 ---

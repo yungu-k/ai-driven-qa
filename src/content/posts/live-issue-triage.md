@@ -6,9 +6,7 @@ slug: live-issue-triage
 featured: false
 draft: false
 tags:
-  - monitoring
   - operations
-  - qa-automation
 description: 운영 알람을 6색 분류 규격으로 자동 분류하고 미팅용 리포트 18장을 한 번의 명령으로 생성하는 파이프라인.
 ---
 

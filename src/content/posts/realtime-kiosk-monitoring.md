@@ -6,9 +6,7 @@ slug: realtime-kiosk-monitoring
 featured: false
 draft: false
 tags:
-  - monitoring
   - operations
-  - infra
 description: 알람 분류 리포트의 한계를 넘어, 장비 상태를 실시간으로 보여주는 관제 대시보드를 구축한 기록.
 ---
 

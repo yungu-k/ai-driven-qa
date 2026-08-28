@@ -6,9 +6,7 @@ slug: fsm-app-access-control
 featured: false
 draft: true
 tags:
-  - infra
-  - security
-  - supabase
+  - operations
 description: 현장 서비스 이력 앱을 React + Supabase로 짓고 외부 파트너에게 열었다. 그 순간 앱의 중심이 화면에서 DB로 옮겨갔다 — 가입 경로 3개, 관문 1개, 접근 제어에만 쓴 마이그레이션 4개의 기록.
 ---
 

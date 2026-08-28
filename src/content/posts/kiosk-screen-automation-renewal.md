@@ -6,9 +6,7 @@ slug: kiosk-screen-automation-renewal
 featured: false
 draft: false
 tags:
-  - qa-automation
-  - playwright
-  - test-reliability
+  - test-automation
 description: '"실물이 없으면 못 한다"던 수동 26건 중 25건을 자동화로 옮기고, 커진 자동화에서 초록(통과)이 거짓말하는 경로 여섯 개를 찾아 막은 기록. 검사 221건, 한 바퀴 25.5분.'
 ---
 

@@ -6,9 +6,7 @@ slug: api-runner-web-ui
 featured: false
 draft: false
 tags:
-  - qa-automation
-  - infra
-  - dx
+  - test-automation
 description: 1,000건 규모 API 자동화를 비기술 구성원도 돌릴 수 있게 만든 실행 Web UI 구축기.
 ---
 

@@ -6,9 +6,7 @@ slug: getting-started-qa-automation-with-ai
 featured: false
 draft: false
 tags:
-  - guide
-  - ai
-  - qa-automation
+  - ai-workflow
 description: 이 블로그의 자동화들을 직접 시도해보고 싶은 분들을 위한 초기 환경 세팅 가이드 — MCP 연결부터 첫 규격 문서, 첫 슬래시 커맨드까지.
 ---
 

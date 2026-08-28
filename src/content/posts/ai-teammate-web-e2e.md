@@ -6,9 +6,8 @@ slug: ai-teammate-web-e2e
 featured: true
 draft: false
 tags:
-  - qa-automation
   - ai-teammate
-  - playwright
+  - test-automation
 description: 자동화 테스트가 하나도 없던 사내 웹앱에 소스와 명세만 주고 AI 팀원 둘을 붙였다. 검사 36건, 제품 결함 6건, 사람이 옮겨 적은 문장 0. 그리고 그 대가로 무엇을 지불해야 하는지까지 세어 뒀다.
 ---
 

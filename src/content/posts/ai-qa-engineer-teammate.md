@@ -7,7 +7,6 @@ featured: false
 draft: false
 tags:
   - ai-teammate
-  - qa-automation
 description: 기획자와 대칭되는 AI QA 팀원. 기존 지식베이스를 재사용하고, 1년치 실수 교정을 헌법으로 이식한 설계기.
 ---
 

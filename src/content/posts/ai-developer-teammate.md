@@ -7,7 +7,6 @@ featured: false
 draft: false
 tags:
   - ai-teammate
-  - development
 description: 기획자·QA와 대칭인 세 번째 팀원. 핸드오프 명세를 받아 구현·독립 검증·배포까지 맡는 범용 개발자를 설계한 기록.
 ---
 
