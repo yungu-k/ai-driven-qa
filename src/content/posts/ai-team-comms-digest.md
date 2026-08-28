@@ -1,6 +1,6 @@
 ---
 author: 공윤구
-pubDatetime: 2026-08-28T09:00:00.000Z
+pubDatetime: 2026-08-28T02:00:00.000Z
 title: 내 AI 팀은 나 없이 31만 자를 말했다
 slug: ai-team-comms-digest
 featured: false
