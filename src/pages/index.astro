@@ -20,7 +20,15 @@ const t = useTranslations(locale);
 
 const posts = await getCollection("posts");
 const sortedPosts = getSortedPosts(posts);
-const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
+// 대표 글 첫 자리 고정(2026-08-28 사용자 지정). 홀수 개일 때 첫 카드가 전폭이라
+// 첫 자리가 곧 '제일 큰 대표 글'이다. 날짜(modDatetime)를 올려 순서를 바꾸는 방법은
+// 카드의 '수정일' 표기가 거짓이 되므로 쓰지 않는다 — 자리는 여기서 정한다.
+const HERO_POST_ID = "repetition-to-ai-judgment-to-human";
+const featured = sortedPosts.filter(({ data }) => data.featured);
+const featuredPosts = [
+  ...featured.filter(p => p.id === HERO_POST_ID),
+  ...featured.filter(p => p.id !== HERO_POST_ID),
+];
 const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 const homePath = getRelativeLocaleUrl(locale, "");
 
