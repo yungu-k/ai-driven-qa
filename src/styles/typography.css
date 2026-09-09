@@ -117,3 +117,14 @@
     }
   }
 }
+
+/* 테마별 도해 스위칭 — light/dark 이미지 페어 (docs/diagram-spec.md §2) */
+.diagram-dark {
+  display: none;
+}
+html[data-theme="dark"] .diagram-dark {
+  display: block;
+}
+html[data-theme="dark"] .diagram-light {
+  display: none;
+}
