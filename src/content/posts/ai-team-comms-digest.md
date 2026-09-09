@@ -69,4 +69,4 @@ summary도 결국 발신자가 쓴 것이라는 한계는 그대로다. 그래�
 
 ---
 
-→ 팀원 시리즈: [기획자](/posts/ai-planner-teammate/) · [개발자](/posts/ai-developer-teammate/) · [QA](/posts/ai-qa-engineer-teammate/) · [테크라이터](/posts/ai-technical-writer-teammate/) · [디자이너](/posts/ai-designer-teammate/) · 이 대화 채널이 만들어진 이야기: [AI 팀원끼리 대화하는 법](/posts/ai-teammate-cross-session-messaging/)
+→ 이어지는 관측 장치: [지금 누가 뭘 하나를 그리는 사무실](/posts/openfloor-team-dashboard/) · 팀원 시리즈: [기획자](/posts/ai-planner-teammate/) · [개발자](/posts/ai-developer-teammate/) · [QA](/posts/ai-qa-engineer-teammate/) · [테크라이터](/posts/ai-technical-writer-teammate/) · [디자이너](/posts/ai-designer-teammate/) · 이 대화 채널이 만들어진 이야기: [AI 팀원끼리 대화하는 법](/posts/ai-teammate-cross-session-messaging/)

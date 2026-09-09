@@ -1,10 +1,10 @@
 ---
 author: 공윤구
-pubDatetime: 2026-09-10T00:30:00.000Z
+pubDatetime: 2026-09-09T07:30:00.000Z
 title: 누가 뭘 하는지 안 보여서 사무실을 그렸다
 slug: openfloor-team-dashboard
 featured: false
-draft: true
+draft: false
 tags:
   - ai-teammate
 description: AI 팀원이 늘자 한 사람의 눈이 모자랐다. 세션들의 활동을 방과 캐릭터로 그리는 사내 대시보드 Openfloor를 하루 만에 지었는데, 짓는 동안 팀이 여섯에서 열하나가 됐다. 은유는 하루를 못 버티고 한 번 무너졌고, 그 기록을 남긴다.

@@ -96,4 +96,4 @@ ERROR  0 · WARN  2 · 인덱스 등재 16/16(생성)
 
 ---
 
-→ 이어지는 글: [하네스 엔지니어링, 우리가 하던 일의 이름이었다](/posts/harness-engineering-we-were-already/) · [세션 간 대화 다이제스트](/posts/ai-team-comms-digest/) · [초록을 의심하다](/posts/kiosk-screen-automation-renewal/)
+→ 이어지는 글: [누가 뭘 하는지 안 보여서 사무실을 그렸다](/posts/openfloor-team-dashboard/) · [하네스 엔지니어링, 우리가 하던 일의 이름이었다](/posts/harness-engineering-we-were-already/) · [세션 간 대화 다이제스트](/posts/ai-team-comms-digest/) · [초록을 의심하다](/posts/kiosk-screen-automation-renewal/)
