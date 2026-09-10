@@ -128,3 +128,20 @@ html[data-theme="dark"] .diagram-dark {
 html[data-theme="dark"] .diagram-light {
   display: none;
 }
+
+/* 인라인 배지 — 본문·표 안의 작은 상태 표시 (docs/inline-badge-spec.md) */
+.badge {
+  display: inline-block;
+  margin-inline-start: 0.35em;
+  padding: 0.1em 0.45em;
+  border-radius: 0.4em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5;
+  vertical-align: 0.08em;
+  white-space: nowrap;
+}
+.badge-new {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
