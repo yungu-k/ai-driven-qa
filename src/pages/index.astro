@@ -37,9 +37,14 @@ const stats = [
   { value: "1,100+", label: "통과한 자동화 테스트" },
   { value: `${sortedPosts.length}편`, label: "실전 기록" },
   {
-    value: "AI ×5",
-    label: "직접 설계한 AI 팀원 (기획·QA·개발·문서·디자인)",
-    href: "/series/ai-teammate/",
+    // 세는 축 고정(2026-09-11): '직접 설계한 AI 팀원' = 11. 발행 글
+    // openfloor-team-dashboard("여섯에서 열하나가 됐다")와 같은 수를 쓴다 — 링크도
+    // 그 글로 건다(5부작 시리즈는 원년 다섯을 다루므로 수를 못 받친다). 역할로 세면
+    // 8(기획·QA·개발·문서·디자인·PM·운영·데이터분석)이라 축을 바꾸면 수가 갈린다.
+    // 세션 이름(내부 식별자)은 공개 저장소에 안 내보내므로 수만 쓴다.
+    value: "AI ×11",
+    label: "직접 설계한 AI 팀원",
+    href: "/posts/openfloor-team-dashboard/",
   },
 ];
 ---
