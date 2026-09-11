@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import { careerLabel } from "@/utils/careerSpan";
 import { getRelativeLocaleUrl } from "astro:i18n";
 import IconRss from "@/assets/icons/IconRss.svg";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
@@ -33,7 +34,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 const homePath = getRelativeLocaleUrl(locale, "");
 
 const stats = [
-  { value: "8년 5개월", label: "QA 경력" },
+  { value: careerLabel(), label: "QA 경력" },
   { value: "1,100+", label: "통과한 자동화 테스트" },
   { value: `${sortedPosts.length}편`, label: "실전 기록" },
   {

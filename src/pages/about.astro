@@ -1,6 +1,8 @@
 ---
 import { getEntry } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
+// 🔴 경력 길이는 **한 곳에서 계산한다** — 글자로 박으면 한 달 뒤 틀린다(QA 지적)
+import { careerLabel } from "@/utils/careerSpan";
 import Header from "@/components/Header.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import Footer from "@/components/Footer.astro";
@@ -9,12 +11,13 @@ import config from "@/config";
 // About 콘텐츠의 단일 출처는 이 파일이다.
 // src/content/pages/about.md 는 메타(title·description)만 제공한다.
 const about = await getEntry("pages", "about");
+const CAREER_LABEL = `경력 ${careerLabel()}`;
 if (!about) {
   throw new Error("Missing content entry: `about.md` in `src/content/pages/`");
 }
 
 const INTRO = [
-  `<strong>공윤구</strong> — 경력 8년 5개월 QA 엔지니어입니다. 교육(해커스) → 핀테크(LINE Pay 대만) → 게임 플랫폼(넷마블) → 현재는 스타트업까지, 도메인이 바뀔 때마다 그 도메인의 품질 기준과 QA 프로세스를 새로 정의해 왔습니다.`,
+  `<strong>공윤구</strong> — ${CAREER_LABEL} QA 엔지니어입니다. 교육(해커스) → 핀테크(LINE Pay 대만) → 게임 플랫폼(넷마블) → 현재는 스타트업까지, 도메인이 바뀔 때마다 그 도메인의 품질 기준과 QA 프로세스를 새로 정의해 왔습니다.`,
   `지금은 글로벌 대형 카지노를 고객으로 하는 B2B 스타트업에서 현금·칩 거래 키오스크 제품의 QA Lead를 맡고 있습니다. 1인 QA로 릴리스 트레인·QA 게이트·장애 대응 체계를 제로베이스에서 설계·운영했고, 지금은 그 체계를 팀으로 넓히는 중입니다. 지난 1년은 QA 업무 전반을 AI 협업 워크플로우로 전환하는 데 집중했습니다 — 반복 작업은 AI에게 위임하고 사람은 판단에 집중하는 구조를 만드는 일입니다. 이 블로그는 그 여정의 기록입니다.`,
 ];
 
@@ -152,7 +155,7 @@ const PRINCIPLES = [
 
 <Layout
   title={`${about.data.title} | ${config.site.title}`}
-  description={about.data.description}
+  description={about.data.description.replace("{{CAREER}}", CAREER_LABEL)}
   ogImage={about.data.ogImage}
   canonicalURL={about.data.canonicalURL}
 >
@@ -175,7 +178,7 @@ const PRINCIPLES = [
         <div class="min-w-0">
           <h1 class="text-3xl font-extrabold tracking-tight">공윤구</h1>
           <p class="mt-1 text-sm text-muted-foreground">
-            경력 8년 5개월 QA 엔지니어 · QA 프로세스 설계와 AI 업무 자동화(AX)
+            {CAREER_LABEL} QA 엔지니어 · QA 프로세스 설계와 AI 업무 자동화(AX)
           </p>
           <div class="mt-3 flex flex-wrap items-center gap-2">
             {
@@ -198,6 +201,26 @@ const PRINCIPLES = [
               ))
             }
           </div>
+          <!-- §6 버튼 — 한 줄로 기대를 맞춘다. A 경로의 유일한 마찰은
+               「대상 프린터」에서 「PDF로 저장」을 골라야 한다는 것이고, 그건 표시로 줄인다.
+               ⚠ 「A4 2장」을 적는 이유: **모르고 누르면 3장이 나와도 모른다.** -->
+          <div class="no-print mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              id="resume-pdf"
+              class="rounded-lg border border-accent/60 px-3 py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-accent/10"
+            >
+              이력서 PDF 받기
+            </button>
+            <span class="text-[11px] text-muted-foreground">
+              인쇄 창에서 「PDF로 저장」을 고르세요 · A4 2장
+            </span>
+          </div>
+          <!-- §4 종이에서 링크는 죽는다 ⇒ **보이는 글자로 적는다.** 도메인+경로까지만 —
+               `https://` 와 쿼리는 노이즈다. QR 은 안 쓴다(무엇으로 가는지 사람이 못 읽는다). -->
+          <p class="print-only mt-2 text-[11px] leading-relaxed">
+            github.com/yungu-k · linkedin.com/in/yungu-k · ai-driven-qa.vercel.app
+          </p>
         </div>
       </div>
       <div class="mt-6 space-y-3 max-w-3xl text-[15px] leading-relaxed">
@@ -301,6 +324,72 @@ const PRINCIPLES = [
 
   <Footer />
 </Layout>
+
+<script>
+  // §5-2 `window.print()` 로 저장하면 브라우저가 **`document.title` 을 파일명**으로 쓴다.
+  // 지금은 「About | …」 이라 `About.pdf` 가 된다. 🔴 **문서 이름은 내용의 일부다** —
+  // 받는 사람 폴더에 그 이름으로 남는다. ⇒ 인쇄 직전에 바꾸고 끝나면 되돌린다.
+  const RESUME_TITLE = "공윤구-QA엔지니어-이력서";
+  document.getElementById("resume-pdf")?.addEventListener("click", () => {
+    const prev = document.title;
+    document.title = RESUME_TITLE;
+    const restore = () => { document.title = prev; };
+    // `afterprint` 가 안 오는 브라우저가 있어 타이머로도 되돌린다 — 제목이 바뀐 채
+    // 남으면 **그 다음 저장·공유가 전부 그 이름**이 된다
+    window.addEventListener("afterprint", restore, { once: true });
+    setTimeout(restore, 3000);
+    window.print();
+  });
+</script>
+
+<style is:global>
+  /* ── 이력서 인쇄 (docs/resume-pdf-layout-v1.md) ─────────────────────
+     🔴 **A4 2장.** 1장은 내용을 버려야 한다 — Career 하나가 958px 인데 1장 가용이 1017px 다.
+     🔴 **색을 정보로 안 쓴다. 0색이다.** 이력서에 「상태」가 없어서 색이 나를 것이 없고,
+        받는 쪽은 대개 인쇄한다 — 흑백에서 회색 면은 **잉크만 먹고 구분은 약하다.** */
+  .print-only { display: none; }
+  @media print {
+    @page { size: A4; margin: 14mm 15mm; }
+    .print-only { display: block !important; }
+    /* §5 빼는 것 — 전부 화면 장치다. 인용 배너는 **블로그의 목소리지 이력서의 자격이 아니다** */
+    header, footer, #skip-to-content, .no-print, #back-to-top,
+    astro-breadcrumb, nav, .about-quote { display: none !important; }
+    html, body { background: #fff !important; color: #000 !important; }
+    /* §3 면·색·모서리 */
+    [class*="bg-muted"], [class*="bg-background"], [class*="bg-accent"] {
+      background: transparent !important;
+    }
+    [class*="rounded"] { border-radius: 0 !important; }
+    [class*="text-accent"], .text-accent { color: #000 !important; font-weight: 700 !important; }
+    [class*="text-muted-foreground"] { color: #333 !important; }
+    [class*="border-"] { border-color: #000 !important; }
+    a { color: #000 !important; text-decoration: none !important; }
+    /* ⚠ §5-1 **`body{font-size}` 로는 안 줄어든다.** Tailwind 가 자식에 크기를 직접 박아서
+       상위 규칙이 안 먹는다 — design 첫 초안이 그래서 3쪽 그대로였다(204px 만 줄었다).
+       ⇒ **유틸리티를 직접 겨냥한다.**
+       🔴 그래서 유지가 약하다 — 누가 `text-sm` 을 `text-[13px]` 로 바꾸면 **인쇄가 조용히
+       되돌아가고 빨강이 안 난다.** 쪽수 검사(R1)가 그 자리의 유일한 그물이다. */
+    .text-sm { font-size: 11px !important; line-height: 1.35 !important; }
+    .text-base { font-size: 11.5px !important; line-height: 1.4 !important; }
+    .text-xs, .text-\[11px\] { font-size: 10px !important; }
+    .text-\[15px\] { font-size: 11.5px !important; line-height: 1.4 !important; }
+    .text-3xl { font-size: 20px !important; }
+    [class*="p-4"] { padding: 6px !important; }
+    [class*="p-5"] { padding: 6px !important; }
+    [class*="py-1.5"] { padding-top: 2px !important; padding-bottom: 2px !important; }
+    [class*="space-y-4"] > * + * { margin-top: 6px !important; }
+    [class*="space-y-3"] > * + * { margin-top: 4px !important; }
+    [class*="space-y-1.5"] > * + * { margin-top: 2px !important; }
+    [class*="gap-5"] { gap: 10px !important; }
+    [class*="gap-3"] { gap: 6px !important; }
+    [class*="mt-6"] { margin-top: 8px !important; }
+    [class*="mt-3"] { margin-top: 4px !important; }
+    section { padding-top: 6px !important; padding-bottom: 6px !important; }
+    img { max-width: 92px !important; height: auto !important; }
+    /* 🔴 **한 역할이 쪽을 넘어 잘리면 경력이 잘린 것처럼 읽힌다.** */
+    section > div > div, li { break-inside: avoid; page-break-inside: avoid; }
+  }
+</style>
 
 <style>
   .about-bullets :global(a) {
