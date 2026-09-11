@@ -7,9 +7,19 @@
 // 겨냥하는 방식이라, 누가 `text-sm` 을 `text-[13px]` 로 바꾸면 **인쇄가 조용히
 // 되돌아가고 아무 빨강도 안 난다.** 쪽수만이 그걸 본다.
 //
-// 실행 (playwright 가 이 저장소엔 없다 — 다른 저장소 것을 빌려 쓴다):
-//   NODE_PATH=/mnt/c/dev/ai-team-office/node_modules node scripts/check-resume-pdf.cjs
-//   ⚠ powershell/cmd 로 부를 때는 종료 코드가 뭉개진다 — `; exit $LASTEXITCODE` 를 붙여라
+// 🔴 **WSL 에서는 안 돈다.** Playwright Chromium 이 `libnspr4.so` 를 못 찾는다 —
+// **대상이 어긴 게 아니라 검사가 못 뜬 것**이다. 둘을 못 가르면 「이력서가 규격을
+// 어겼다」로 읽힌다. ⇒ 브라우저가 안 뜨면 **종료 코드 2(못 쟀다)** 로 끝낸다.
+//
+// 실행 — **Windows 쪽 node 로**(playwright 는 이 저장소에 없어 다른 저장소 것을 빌린다):
+//   cd /mnt/c/dev/tech-blog && NODE_PATH='C:\dev\ai-team-office\node_modules' \
+//     WSLENV=NODE_PATH cmd.exe /c node scripts\check-resume-pdf.cjs
+//
+// ⚠ **종료 코드는 인자를 분리해 부르면 보존된다**(QA 실측). 뭉개지는 것은
+// `cmd /c "명령 전체를 한 덩어리로"` 나 `powershell -Command "…"` 쪽이다 —
+// 그때는 powershell 에 `; exit $LASTEXITCODE` 를 붙여야 한다.
+//
+// 종료 코드: **0 통과 · 1 규격 위반 · 2 못 쟀다**(브라우저 없음·`dist` 없음)
 const { chromium } = require("playwright");
 const http = require("http");
 const fs = require("fs");
@@ -47,7 +57,17 @@ function serve(root){
   }
   const srv = await serve(DIST);
   const base = "http://127.0.0.1:" + srv.address().port;
-  const b = await chromium.launch({ headless: true });
+  // 🔴 **「검사가 못 떴다」와 「대상이 어겼다」를 가른다.** 여기서 1 로 끝내면
+  // WSL 에서 돌린 사람이 **이력서가 규격을 어긴 줄 안다**(QA 지적).
+  let b;
+  try {
+    b = await chromium.launch({ headless: true });
+  } catch (e) {
+    srv.close();
+    console.log("못 쟀다 — 이 환경에서 브라우저가 안 뜬다: " + String(e).split("\n")[0]);
+    console.log("  ⇒ WSL 이면 Windows 쪽 node 로 돌려라. 이건 **규격 위반이 아니다.**");
+    process.exit(2);
+  }
   const page = await b.newPage();
   const fails = [], notes = [];
   const ok = (id, cond, why) => { const v = !!cond;
