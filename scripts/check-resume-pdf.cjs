@@ -90,6 +90,39 @@ function serve(root){
   ok("R5", txt.includes("github.com/yungu-k") && txt.includes("ai-driven-qa.vercel.app"),
      "URL 이 글자로 안 보인다 — 종이에서 링크는 죽는다");
 
+  // §3 🔴 **색이 0개** (R3). ⚠ **「0색」이라고 말하려면 0색이어야 한다** — 첫 판에
+  // `#1c1c21`(B 채널만 5 높은 유채색)이 174자 남아 있었다. 흑백 인쇄엔 무해했지만
+  // **말이 틀렸다.** ⇒ 말로 두지 않고 **잰다.**
+  const colors = await page.evaluate(() => {
+    const bad = new Map();
+    for (const e of document.querySelectorAll("main, main *")) {
+      if (!(e.checkVisibility ? e.checkVisibility() : true)) continue;
+      const c = getComputedStyle(e).color;
+      const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);
+      if (!m) continue;
+      const [r, g, b2] = [+m[1], +m[2], +m[3]];
+      if (!(r === g && g === b2)) bad.set(c, (bad.get(c) || 0) + 1);
+    }
+    return [...bad.entries()];
+  });
+  ok("R3", colors.length === 0, `유채색이 남았다: ${JSON.stringify(colors)} — 「0색」이 말뿐이 된다`);
+
+  // ⚠ **너무 줄이면 종이에서 안 읽힌다** (R8). 첫 판은 최소 7.5pt·본문 8.2pt 였다 —
+  // 이력서 보통 9~10pt 다. **줄이는 것과 읽히는 것은 다른 축**이라 따로 잰다.
+  const MIN_PX = 12;   // 9pt
+  const small = await page.evaluate((min) => {
+    const out = new Map();
+    for (const e of document.querySelectorAll("main, main *")) {
+      if (!(e.checkVisibility ? e.checkVisibility() : true)) continue;
+      if (!(e.textContent || "").trim()) continue;
+      const px = parseFloat(getComputedStyle(e).fontSize);
+      if (px < min) out.set(px, (out.get(px) || 0) + 1);
+    }
+    return [...out.entries()].sort((a, b) => a[0] - b[0]);
+  }, MIN_PX);
+  ok("R8", small.length === 0,
+     `${MIN_PX}px(9pt) 아래 글자가 있다: ${JSON.stringify(small)} — 종이에서 안 읽힌다`);
+
   console.log(`판: playwright ${require("playwright/package.json").version} · ` +
               `A4 ${pages}쪽 · ${new Date().toISOString()}`);
   console.log(notes.join(" · "));
