@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { careerLabel } from "@/utils/careerSpan";
+import { AI_TEAM } from "@/data/aiTeam";
 import { getRelativeLocaleUrl } from "astro:i18n";
 import IconRss from "@/assets/icons/IconRss.svg";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
@@ -38,14 +39,12 @@ const stats = [
   { value: "1,100+", label: "통과한 자동화 테스트" },
   { value: `${sortedPosts.length}편`, label: "실전 기록" },
   {
-    // 세는 축 고정(2026-09-11): '직접 설계한 AI 팀원' = 11. 발행 글
-    // openfloor-team-dashboard("여섯에서 열하나가 됐다")와 같은 수를 쓴다 — 링크도
-    // 그 글로 건다(5부작 시리즈는 원년 다섯을 다루므로 수를 못 받친다). 역할로 세면
-    // 8(기획·QA·개발·문서·디자인·PM·운영·데이터분석)이라 축을 바꾸면 수가 갈린다.
-    // 세션 이름(내부 식별자)은 공개 저장소에 안 내보내므로 수만 쓴다.
-    value: "AI ×11",
+    // 수·근거 링크는 `data/aiTeam.ts` 한 곳에서 읽는다 — 세는 축(직접 설계한 AI 팀원 =
+    // 11, 역할로 세면 8)과 링크를 그 글로 거는 이유도 거기 적었다. About 이력이 같은
+    // 상수를 읽는다: 여기만 글자로 두면 채용 때 한쪽만 낡는다(About 이 5인에 남았던 일).
+    value: `AI ×${AI_TEAM.size}`,
     label: "직접 설계한 AI 팀원",
-    href: "/posts/openfloor-team-dashboard/",
+    href: AI_TEAM.href,
   },
 ];
 ---
