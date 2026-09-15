@@ -20,6 +20,8 @@
 //
 // 🔴 **폰트를 못 불러오면 「못 쟀다」(2)다.** 폰트 요청을 막으면 390px 이 2줄→3줄로 바뀌는데
 // 첫 판은 PASS 였다(QA) — 사람이 보는 글꼴이 아닌 걸 쟀다는 게 출력에 안 남았다.
+// 둘째 판도 **스타일시트째 막으면**(CDN 불통) 통과했다 — face 가 안 생겨 error·check() 둘 다
+// 조용하다(QA 밖에서 부숨). ⇒ 첫 글꼴에 loaded face 가 있어야 한다.
 //
 // ⚠ `edge`(줄 오른쪽 끝)는 **불릿 본문 span 의 오른쪽**이다. `li.flex` 의 자식이라 블록화돼서
 // li 내용 박스와 같은 값이다(QA 대조). li 가 flex 가 아니게 바뀌면 span 이 인라인이 되어
@@ -82,7 +84,13 @@ async function measure(){
   const body = li.children[li.children.length - 1];
   const cs = getComputedStyle(body);
   const failedFaces = [...document.fonts].filter(f => f.status === "error").map(f => f.family);
-  const fontOk = document.fonts.check(`${cs.fontSize} ${cs.fontFamily}`, body.textContent);
+  // 🔴 `check()` 만으로는 안 된다 — **글꼴 스타일시트가 통째로 안 오면 face 가 아예 안 생기고**
+  // `error` 도 없으며, `check()` 는 맞는 face 가 없으면 true 다(QA: CDN 차단 시 PASS).
+  // ⇒ 계산된 font-family **첫 글꼴에 loaded face 가 하나 이상** 있어야 사람이 보는 글꼴이다.
+  const firstFamily = cs.fontFamily.split(",")[0].trim().replace(/^["']|["']$/g, "");
+  const firstLoaded = [...document.fonts]
+    .some(f => f.family.replace(/^["']|["']$/g, "") === firstFamily && f.status === "loaded");
+  const fontOk = firstLoaded && document.fonts.check(`${cs.fontSize} ${cs.fontFamily}`, body.textContent);
   const ids = new Map();
   const chars = [];
   const w = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
@@ -111,7 +119,7 @@ async function measure(){
     c.line = line; lastTop = c.top;
   }
   const de = document.documentElement;
-  return { found: true, display: cs.display, fontOk, failedFaces,
+  return { found: true, display: cs.display, fontOk, failedFaces, firstFamily, firstLoaded,
            text: chars.map(c => c.ch).join(""), lines: chars.map(c => c.line),
            lefts: chars.map(c => c.left), rights: chars.map(c => c.right), nws: chars.map(c => c.nw),
            edge: body.getBoundingClientRect().right,
@@ -183,10 +191,14 @@ const MUTANTS = {
   "<wbr> 빼기": () => { target().querySelectorAll("wbr").forEach(e => e.remove()); },
 };
 
-async function sweep(b, base, { mutate = null, blockFonts = false, quiet = false } = {}){
+async function sweep(b, base, { mutate = null, blockFonts = false, blockSheets = false, quiet = false } = {}){
   const log = s => { if (!quiet) console.log(s); };
   const page = await b.newPage({ viewport: { width: SWEEP[0], height: 900 } });
+  // 폰트 파일만 막기 — face 가 error 로 남는다
   if (blockFonts) await page.route(/\.(woff2?|ttf|otf)(\?|$)/, r => r.abort());
+  // 바깥 스타일시트 막기 — 오프라인·CDN 장애 모양. face 가 **아예 안 생긴다**
+  if (blockSheets) await page.route(u => !u.href.startsWith(base), r =>
+    r.request().resourceType() === "stylesheet" ? r.abort() : r.continue());
   await page.goto(base + "/about/", { waitUntil: "networkidle" });
   if (mutate) await page.evaluate(`(() => { const target = ${target.toString()}; (${mutate.toString()})(); })()`);
   const runs = [];
@@ -203,7 +215,8 @@ async function sweep(b, base, { mutate = null, blockFonts = false, quiet = false
     const m = await page.evaluate(measure);
     if (!m.found) { unmeasured = "「AI 팀원 N인(…) 설계」 불릿을 못 찾았다"; break; }
     if (!m.fontOk || m.failedFaces.length) {
-      unmeasured = `폰트를 못 불러왔다(실패 ${JSON.stringify([...new Set(m.failedFaces)])}) — 사람이 보는 글꼴이 아닌 걸 재게 된다`; break; }
+      unmeasured = `폰트를 못 불러왔다(첫 글꼴 ${m.firstFamily} loaded face ${m.firstLoaded ? "있음" : "없음"}` +
+        ` · 실패 ${JSON.stringify([...new Set(m.failedFaces)])}) — 사람이 보는 글꼴이 아닌 걸 재게 된다`; break; }
     if (m.display === "inline") { unmeasured = "불릿 본문이 인라인이다 — 줄 끝(edge)·넘침 전제가 깨진다"; break; }
     const j = judge(m);
     if (!j) { unmeasured = "문구 정규식이 안 맞는다 — 검사할 글자가 0개다"; break; }
@@ -230,7 +243,8 @@ async function sweep(b, base, { mutate = null, blockFonts = false, quiet = false
   await page.close();
   if (!unmeasured) {
     log(`훑은 폭 ${runs.length}개(${SWEEP[0]}~${SWEEP[1]}px 1px · ${EXTRA.join("·")}px · print) · 묶음 ${first}`);
-    log("모양: " + shapes.filter(s => !s.bad).map(s => `${s.from}${s.to ? "~" + s.to + "px" : ""} ${s.key}`).join(" / "));
+    const ok = shapes.filter(s => !s.bad);
+    log("모양: " + (ok.length ? ok.map(s => `${s.from}${s.to ? "~" + s.to + "px" : ""} ${s.key}`).join(" / ") : "(통과한 폭 없음)"));
   }
   // 폭 목록을 구간으로 접는다 — "440px~485px"
   const ranges = ls => {
@@ -281,10 +295,13 @@ async function sweep(b, base, { mutate = null, blockFonts = false, quiet = false
       console.log(`자체시험 ${name}: ${r.unmeasured ? "못 쟀다(" + r.unmeasured + ")" : `빨강 ${r.fail}폭`} → ${ok ? "잡힘" : "🔴 안 잡힘"}` +
                   (r.rules ? `\n    ${r.rules}` : ""));
     }
-    const f = await sweep(b, base, { blockFonts: true, quiet: true });
-    const fok = !!f.unmeasured && /폰트/.test(f.unmeasured);
-    if (!fok) dead++;
-    console.log(`자체시험 폰트 막기: ${f.unmeasured ? "못 쟀다(" + f.unmeasured.slice(0, 30) + "…)" : `빨강 ${f.fail}폭`} → ${fok ? "잡힘" : "🔴 안 잡힘"}`);
+    for (const [name, opt] of [["폰트 파일 막기", { blockFonts: true }],
+                               ["바깥 스타일시트 막기(CDN 불통)", { blockSheets: true }]]) {
+      const f = await sweep(b, base, { ...opt, quiet: true });
+      const fok = !!f.unmeasured && /폰트/.test(f.unmeasured);
+      if (!fok) dead++;
+      console.log(`자체시험 ${name}: ${f.unmeasured ? "못 쟀다(" + f.unmeasured.slice(0, 60) + "…)" : `빨강 ${f.fail}폭`} → ${fok ? "잡힘" : "🔴 안 잡힘"}`);
+    }
   }
   console.log(ver);
   await b.close(); srv.close();
