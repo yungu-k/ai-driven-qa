@@ -1,5 +1,21 @@
 import { AI_TEAM } from "@/data/aiTeam";
 
+/** 「N개 역할: 기획·PM·…」 — **묶음 단위로만 줄을 바꾼다.**
+ *
+ * 🔴 공백 없는 「·」 연결이라 브라우저가 아무 데서나 끊었다(QA 실측, 2026-09-15):
+ * 390~430px 「Technical / Writer」, 360·375px 줄머리 「·」, 320px 「로그 / 분석」.
+ * ⇒ 역할 하나·「N개 역할:」 하나를 각각 안 끊기는 묶음으로 두고 **「·」는 앞 역할에 붙인다.**
+ *
+ * ⚠ **묶음 사이에 `<wbr>` 가 있어야 한다.** 「·」 뒤 라틴 글자 앞(`·PM`·`·Technical`)은
+ * 원래 줄바꿈 자리가 아니라, 빼면 한글 역할 앞에서만 끊긴다 — 「개발·QA·」「디자인·Technical
+ * Writer·DevOps·」가 한 덩어리로 움직여 **넘침 없이 줄만 는다**(실측: 320px 3→4줄, 390px 2→3줄).
+ * 검사: `scripts/check-about-wrap.cjs` 의 W4(일찍 끊김)가 그 변이를 잡는다.
+ */
+const nowrap = (s: string) => `<span class="whitespace-nowrap">${s}</span>`;
+const AI_TEAM_ROLES_HTML =
+  nowrap(`${AI_TEAM.roles.length}개 역할:`) + " " +
+  AI_TEAM.roles.map((r, i) => nowrap(i < AI_TEAM.roles.length - 1 ? `${r}·` : r)).join("<wbr>");
+
 /** 경력 정본 — **여기 하나다.**
  *
  * 🔴 종전엔 기간이 **두 배열**에 있었다: 여기의 `period` 와 `careerSpan.ts` 의 구간.
@@ -23,8 +39,9 @@ export const CAREER = [
           `<strong><a href="/posts/kiosk-automation-infra/">UI/API 이중 트랙 자동화 인프라</a> 구축·확장</strong> — Playwright + vitest, 빌드 감지→검증→리포트 자동 파이프라인과 상시 계약 검증까지`,
           `운영 알람 분류 자동화 → <strong><a href="/posts/realtime-kiosk-monitoring/">실시간 관제 대시보드</a></strong>(FastAPI+HTMX) 구축`,
           `외부 파트너용 <strong>기술지원 이력 시스템</strong>(Jira 양방향 동기화) 구축·운영 오픈`,
-          // 수·역할·링크는 `aiTeam.ts` 에서 읽는다 — 여기 글자로 박으면 채용 때 이 줄만 낡는다
-          `<strong><a href="${AI_TEAM.href}">AI 팀원 ${AI_TEAM.size}인(${AI_TEAM.roles.join("·")}) 설계</a></strong> — 이 블로그의 주제. 전체 이야기는 <a href="/posts/repetition-to-ai-judgment-to-human/">QA 자동화 여정기</a>에`,
+          // 수·역할·링크는 `aiTeam.ts` 에서 읽는다 — 여기 글자로 박으면 채용 때 이 줄만 낡는다.
+          // 「8개 역할:」도 roles.length 다: 괄호 속 역할을 독자가 세면 11 과 안 맞아서 축을 밝힌다(오너 선택)
+          `<strong><a href="${AI_TEAM.href}">AI 팀원 ${AI_TEAM.size}인(${AI_TEAM_ROLES_HTML}) 설계</a></strong> — 이 블로그의 주제. 전체 이야기는 <a href="/posts/repetition-to-ai-judgment-to-human/">QA 자동화 여정기</a>에`,
         ],
       },
     ],
