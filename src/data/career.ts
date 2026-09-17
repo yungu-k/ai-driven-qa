@@ -25,15 +25,29 @@ const AI_TEAM_ROLES_HTML =
  * ⚠️ 표시(About 본문)와 계산(경력 길이)이 **같은 배열을 읽는다** — 화면과 수가
  * 어긋날 자리가 없어진다.
  */
-export const CAREER = [
+type CareerRole = {
+  title: string;
+  period: string;
+  context?: string;
+  bullets: string[];
+};
+type CareerCompany = {
+  company: string;
+  isBreak?: boolean;
+  /** 회사 옆에 붙는 링크(제품/브랜드 사이트) — 본문 문장에 넣지 않는다(오너 결정 2026-09-17). */
+  site?: { href: string; label: string };
+  roles: CareerRole[];
+};
+export const CAREER: CareerCompany[] = [
   {
     company: "클로닉스",
+    site: { href: "https://spadeone.ai/", label: "spadeone.ai" },
     roles: [
       {
         title: "QA Lead",
         period: "2025.07 ~ 현재",
         context:
-          `글로벌 대형 카지노 대상 <a href="https://spadeone.ai/" target="_blank" rel="noopener noreferrer">spadeone.ai</a> B2B 스타트업 — 현금·칩 거래 키오스크 제품군을 담당합니다. 금전을 다루는 규제 산업이라 정확성과 장애 대응이 특히 엄격한 환경입니다.`,
+          `글로벌 대형 카지노 대상 B2B 스타트업 — 현금·칩 거래 키오스크 제품군을 담당합니다. 금전을 다루는 규제 산업이라 정확성과 장애 대응이 특히 엄격한 환경입니다.`,
         bullets: [
           `QA 프로세스 제로베이스 구축 — <a href="/posts/release-train-scrum/">2~3주 릴리스 트레인</a>, QA OK-Sign 게이트, 고객 대응 Incident 체계 설계·운영`,
           `<strong><a href="/posts/kiosk-automation-infra/">UI/API 이중 트랙 자동화 인프라</a> 구축·확장</strong> — Playwright + vitest, 빌드 감지→검증→리포트 자동 파이프라인과 상시 계약 검증까지`,
