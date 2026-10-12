@@ -357,14 +357,11 @@ const PRINCIPLES = [
     .r-name { font-size: 25px !important; font-weight: 800 !important;
               letter-spacing: -0.02em !important; line-height: 1.15 !important; }
     .r-tagline { margin-top: 4px !important; font-size: 12.5px !important; }
-    .r-meta { margin-top: 5px !important; gap: 0 !important; }
-    /* 칩·연락 버튼은 화면 장치다 — 종이에선 **상자를 벗기고 글자만** 남긴다.
-       연락처는 §4 의 URL 줄이 받으므로 여기선 칩(자격 요약)만 남긴다 */
-    .r-contact { display: none !important; }
-    .r-chip { border: 0 !important; padding: 0 !important; font-size: 11px !important;
-              color: var(--r-ink-2) !important; letter-spacing: 0.01em !important; }
-    .r-chip + .r-chip::before { content: "  ·  "; color: var(--r-rule) !important; }
-    .r-links { margin-top: 5px !important; font-size: 11px !important; }
+    /* 칩 줄(연락 버튼 + 자격 요약 칩)은 **종이에 안 싣는다**(오너 결정 2026-10-12).
+       연락처는 §4 의 URL 줄이 받고, 칩의 내용(「도메인 4개 전환」·「QA Lead」·「글로벌 고객
+       대응」)은 **바로 아래 소개 문단과 경력이 이미 말한다** — 같은 말을 두 번 하는 자리다. */
+    .r-meta { display: none !important; }
+    .r-links { margin-top: 7px !important; font-size: 11px !important; }
     .r-links a { color: var(--r-accent) !important;
                  text-decoration-color: var(--r-accent) !important; }
     .r-links-sep { color: var(--r-rule) !important; }
