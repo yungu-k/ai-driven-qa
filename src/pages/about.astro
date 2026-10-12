@@ -29,6 +29,17 @@ const CONTACTS = [
 
 const CHIPS = ["도메인 4개 전환", "QA Lead", "글로벌 고객 대응"];
 
+// §4 이력서 PDF 의 연락 줄. **종이에서는 글자로 읽히고, 화면에서는 눌려야 한다.**
+// 받는 쪽이 PDF 를 여는 자리는 대개 화면(메일 첨부·ATS 뷰어)인데, 보이는 글자만 있고
+// `href` 가 없으면 **주소를 손으로 옮겨 적어야 한다.** ⇒ 한 줄에 둘 다 — 보이는 글자는
+// 도메인+경로(`https://`·`www.`·쿼리는 노이즈), `href` 는 실제 주소.
+const linkText = (u: string) =>
+  u.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
+const RESUME_LINKS = [...CONTACTS.map(c => c.href), config.site.url].map(href => ({
+  href,
+  text: linkText(href),
+}));
+
 
 const STRENGTHS = [
   {
@@ -79,9 +90,12 @@ const PRINCIPLES = [
   <Breadcrumb />
 
   <main id="main-content" class="app-layout pb-12">
-    <!-- A1. 프로필 헤더 -->
-    <section class="pt-6 pb-8">
-      <div class="flex flex-wrap items-center gap-5">
+    <!-- A1. 프로필 헤더
+         ⚠ `r-*` 클래스는 **인쇄 전용 손잡이**다(화면 스타일 0). 인쇄 CSS 가 Tailwind
+         유틸리티(`text-sm`·`p-5`)를 겨냥하면 **누가 유틸리티를 바꾸는 날 조용히 되돌아간다**
+         (규격 §5-1). 구조에 이름을 붙여 두고 그 이름으로 인쇄를 그린다. -->
+    <section class="r-head pt-6 pb-8">
+      <div class="r-head-row flex flex-wrap items-center gap-5">
         <!-- 사진은 화면과 종이가 다르다 (오너 결정 2026-10-12) — 화면은 블로그의 정체성
              (뒷모습 풍경), 종이는 **이력서 사진**이다. 같은 자리에 둘을 겹쳐 두고 매체로 가른다.
              ⚠ 인쇄용은 `loading="eager"` — `lazy` 로 두면 화면에서 `display:none` 이라
@@ -104,19 +118,19 @@ const PRINCIPLES = [
           decoding="async"
           class="print-only h-20 w-20 shrink-0 border border-border object-cover"
         />
-        <div class="min-w-0">
-          <h1 class="text-3xl font-extrabold tracking-tight">공윤구</h1>
-          <p class="mt-1 text-sm text-muted-foreground">
+        <div class="r-head-text min-w-0">
+          <h1 class="r-name text-3xl font-extrabold tracking-tight">공윤구</h1>
+          <p class="r-tagline mt-1 text-sm text-muted-foreground">
             {CAREER_LABEL} QA 엔지니어 · QA 프로세스 설계와 AI 업무 자동화(AX)
           </p>
-          <div class="mt-3 flex flex-wrap items-center gap-2">
+          <div class="r-meta mt-3 flex flex-wrap items-center gap-2">
             {
               CONTACTS.map(({ label, href }) => (
                 <a
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-accent/60 hover:text-accent"
+                  class="r-contact rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-accent/60 hover:text-accent"
                 >
                   {label} ↗
                 </a>
@@ -124,7 +138,7 @@ const PRINCIPLES = [
             }
             {
               CHIPS.map(chip => (
-                <span class="rounded-full border border-border bg-background/60 px-2.5 py-1 text-[11px] text-muted-foreground">
+                <span class="r-chip rounded-full border border-border bg-background/60 px-2.5 py-1 text-[11px] text-muted-foreground">
                   {chip}
                 </span>
               ))
@@ -145,28 +159,38 @@ const PRINCIPLES = [
               인쇄 창에서 「PDF로 저장」을 고르세요 · A4 2장
             </span>
           </div>
-          <!-- §4 종이에서 링크는 죽는다 ⇒ **보이는 글자로 적는다.** 도메인+경로까지만 —
-               `https://` 와 쿼리는 노이즈다. QR 은 안 쓴다(무엇으로 가는지 사람이 못 읽는다). -->
-          <p class="print-only mt-2 text-[11px] leading-relaxed">
-            github.com/yungu-k · linkedin.com/in/yungu-k · ai-driven-qa.vercel.app
+          <!-- §4 종이에서 링크는 죽는다 ⇒ **보이는 글자로 적는다**(도메인+경로까지만).
+               화면에서 PDF 를 여는 쪽은 그 글자를 **누를 수 있어야 한다** ⇒ `<a>` 로 둔다.
+               QR 은 안 쓴다(무엇으로 가는지 사람이 못 읽는다). -->
+          <p class="r-links print-only mt-2 text-[11px] leading-relaxed">
+            {
+              RESUME_LINKS.map(({ href, text }, i) => (
+                <Fragment>
+                  {i > 0 && <span class="r-links-sep"> · </span>}
+                  <a href={href} target="_blank" rel="noopener noreferrer">
+                    {text}
+                  </a>
+                </Fragment>
+              ))
+            }
           </p>
         </div>
       </div>
-      <div class="mt-6 space-y-3 max-w-3xl text-[15px] leading-relaxed">
+      <div class="r-intro mt-6 space-y-3 max-w-3xl text-[15px] leading-relaxed">
         {INTRO.map(p => <p set:html={p} />)}
       </div>
     </section>
 
     <!-- A2. 경력 타임라인 -->
-    <section class="pb-8">
-      <h2 class="text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+    <section class="r-section pb-8">
+      <h2 class="r-h2 text-sm font-semibold tracking-widest text-muted-foreground uppercase">
         Career
       </h2>
       <div class="mt-4 space-y-4">
         {
           CAREER.map(({ company, roles, site }) => (
-            <div class="rounded-xl border border-border bg-muted/40 p-5">
-              <p class="text-base font-bold text-foreground">
+            <div class="r-company-card rounded-xl border border-border bg-muted/40 p-5">
+              <p class="r-company text-base font-bold text-foreground">
                 {company}
                 {site && (
                   <Fragment>
@@ -175,7 +199,7 @@ const PRINCIPLES = [
                       href={site.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      class="text-sm font-normal text-accent hover:underline"
+                      class="r-site text-sm font-normal text-accent hover:underline"
                     >
                       {site.label}
                     </a>
@@ -184,21 +208,21 @@ const PRINCIPLES = [
               </p>
               <div class="mt-3 space-y-5">
                 {roles.map(role => (
-                  <div class="border-l-2 border-accent/40 pl-4">
+                  <div class="r-role border-l-2 border-accent/40 pl-4">
                     <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-                      <p class="font-semibold text-foreground">{role.title}</p>
-                      <p class="text-xs whitespace-nowrap text-muted-foreground">
+                      <p class="r-role-title font-semibold text-foreground">{role.title}</p>
+                      <p class="r-period text-xs whitespace-nowrap text-muted-foreground">
                         {role.period}
                       </p>
                     </div>
                     {role.context && (
                       <p
-                        class="mt-1.5 text-sm leading-relaxed text-muted-foreground"
+                        class="r-context mt-1.5 text-sm leading-relaxed text-muted-foreground"
                         set:html={role.context}
                       />
                     )}
                     {role.bullets.length > 0 && (
-                      <ul class="about-bullets mt-2 space-y-1.5 text-sm leading-relaxed">
+                      <ul class="about-bullets r-bullets mt-2 space-y-1.5 text-sm leading-relaxed">
                         {role.bullets.map(b => (
                           <li class="flex gap-2">
                             <span aria-hidden="true" class="mt-[2px] text-accent">
@@ -219,16 +243,16 @@ const PRINCIPLES = [
     </section>
 
     <!-- A3. 강점 / 원칙 카드 그리드 -->
-    <section class="pb-8">
-      <h2 class="text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+    <section class="r-section pb-8">
+      <h2 class="r-h2 text-sm font-semibold tracking-widest text-muted-foreground uppercase">
         강점
       </h2>
-      <ul class="mt-4 grid gap-3 sm:grid-cols-2">
+      <ul class="r-grid mt-4 grid gap-3 sm:grid-cols-2">
         {
           STRENGTHS.map(({ title, desc }) => (
-            <li class="rounded-xl border border-border bg-muted/40 p-4">
-              <p class="font-bold text-foreground">{title}</p>
-              <p class="mt-1 text-sm leading-relaxed text-muted-foreground">
+            <li class="r-card rounded-xl border border-border bg-muted/40 p-4">
+              <p class="r-card-t font-bold text-foreground">{title}</p>
+              <p class="r-card-d mt-1 text-sm leading-relaxed text-muted-foreground">
                 {desc}
               </p>
             </li>
@@ -237,16 +261,16 @@ const PRINCIPLES = [
       </ul>
     </section>
 
-    <section class="pb-8">
-      <h2 class="text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+    <section class="r-section pb-8">
+      <h2 class="r-h2 text-sm font-semibold tracking-widest text-muted-foreground uppercase">
         일하는 원칙
       </h2>
-      <ul class="mt-4 grid gap-3 sm:grid-cols-2">
+      <ul class="r-grid mt-4 grid gap-3 sm:grid-cols-2">
         {
           PRINCIPLES.map(({ title, desc }) => (
-            <li class="rounded-xl border border-border bg-muted/40 p-4">
-              <p class="font-bold text-foreground">{title}</p>
-              <p class="mt-1 text-sm leading-relaxed text-muted-foreground">
+            <li class="r-card rounded-xl border border-border bg-muted/40 p-4">
+              <p class="r-card-t font-bold text-foreground">{title}</p>
+              <p class="r-card-d mt-1 text-sm leading-relaxed text-muted-foreground">
                 {desc}
               </p>
             </li>
@@ -290,64 +314,114 @@ const PRINCIPLES = [
 </script>
 
 <style is:global>
-  /* ── 이력서 인쇄 (docs/resume-pdf-layout-v1.md) ─────────────────────
-     🔴 **A4 2장.** 1장은 내용을 버려야 한다 — Career 하나가 958px 인데 1장 가용이 1017px 다.
-     🔴 **색을 정보로 안 쓴다. 0색이다.** 이력서에 「상태」가 없어서 색이 나를 것이 없고,
-        받는 쪽은 대개 인쇄한다 — 흑백에서 회색 면은 **잉크만 먹고 구분은 약하다.** */
+  /* ── 이력서 인쇄 v2 (docs/resume-pdf-layout-v2.md) ──────────────────
+     판 바뀜(2026-10-12, 오너): v1 은 **「받는 쪽은 대개 인쇄한다」**를 전제로 0색이었다.
+     그 전제를 안 쟀다 — 지금 이력서 PDF 가 읽히는 자리는 **메일 첨부·ATS 뷰어·화면**이다.
+     ⇒ **색을 쓴다. 단 색이 정보를 나르지는 않는다**(흑백 출력·ATS·색각에서 잃는 것 0).
+
+     🔴 **면(배경)에 기대지 않는다.** 브라우저 인쇄는 「배경 그래픽」이 기본 꺼짐이라
+     틴트 카드는 **받는 쪽 화면에서 통째로 사라진다.** 색은 **글자와 선**에만 싣는다.
+
+     🔴 **유틸리티가 아니라 구조(`r-*`)를 겨냥한다.** v1 은 `.text-sm`·`[class*=p-4]` 를
+     직접 눌러서, 누가 유틸리티를 바꾸면 인쇄가 조용히 되돌아갔다(§5-1). */
   .print-only { display: none; }
   @media print {
     @page { size: A4; margin: 14mm 15mm; }
+    /* 팔레트는 블로그 도해 규격(docs/diagram-spec.md §4)에서 가져온다 — 실측 대비:
+       먹 16.3:1 · 보조 5.1:1 · 강조 6.0:1 · 장식선 1.2:1(의미 있는 선에 금지) */
+    :root {
+      --r-ink: #1c1c21; --r-ink-2: #62656e; --r-accent: #4f46e5; --r-rule: #e4e4e9;
+    }
     .print-only { display: block !important; }
     /* §5 빼는 것 — 전부 화면 장치다. 인용 배너는 **블로그의 목소리지 이력서의 자격이 아니다** */
     header, footer, #skip-to-content, .no-print, #back-to-top,
     astro-breadcrumb, nav, .about-quote { display: none !important; }
-    html, body { background: #fff !important; color: #000 !important; }
-    /* §3 면·색·모서리 */
-    [class*="bg-muted"], [class*="bg-background"], [class*="bg-accent"] {
-      background: transparent !important;
-    }
-    [class*="rounded"] { border-radius: 0 !important; }
-    /* 🔴 **`main` 으로 가둔다.** 안 가두면 `[class*="text-accent"]` 가 `<body>` 의
-       `selection:text-accent-foreground` 에 걸려서 **`font-weight:700` 이 문서 전체로
-       상속된다** — 인쇄본 글자 **100% 가 굵어지고**(화면은 18.4%), `<strong>` 강조가
-       바탕과 같아져 **강조 장치가 통째로 죽는다.** 0색이라 색으로도 못 나눈다.
-       ⚠ `body{font-weight:400}` 로 덮으려 하면 **진다** — 특정도 0,1,0 > 0,0,1.
-       ⇒ 그물은 R10(굵은 글자 비율). 쪽수(R1)는 이걸 못 본다 — 굵어져도 2쪽이었다. */
-    main [class*="text-accent"], main .text-accent { color: #000 !important; font-weight: 700 !important; }
-    /* 🔴 **「0색」이라고 말하려면 0색이어야 한다.** 첫 판은 `#1c1c21` 이 174자 남아 있었다
-       — B 채널만 5 높은 **유채색**이다. 흑백 인쇄엔 무해하지만 **말이 틀렸다**(QA 실측).
-       ⇒ 본문 전체를 먹으로 덮고, 흐린 글자만 무채색 회색으로 되돌린다. 순서가 규칙이다. */
-    main, main * { color: #000 !important; }
-    [class*="text-muted-foreground"], main [class*="text-muted-foreground"] * { color: #333 !important; }
-    [class*="border-"] { border-color: #000 !important; }
-    a { color: #000 !important; text-decoration: none !important; }
-    /* ⚠ §5-1 **`body{font-size}` 로는 안 줄어든다.** Tailwind 가 자식에 크기를 직접 박아서
-       상위 규칙이 안 먹는다 — design 첫 초안이 그래서 3쪽 그대로였다(204px 만 줄었다).
-       ⇒ **유틸리티를 직접 겨냥한다.**
-       🔴 그래서 유지가 약하다 — 누가 `text-sm` 을 `text-[13px]` 로 바꾸면 **인쇄가 조용히
-       되돌아가고 빨강이 안 난다.** 쪽수 검사(R1)가 그 자리의 유일한 그물이다. */
-    /* ⚠ **너무 줄이면 종이에서 안 읽힌다.** 첫 판은 본문 8.2pt · 최소 7.5pt 였다 —
-       일반 문서 본문 10~11pt, 이력서 보통 9~10pt 에 견주면 **한 단계 작다**(QA 실측).
-       ⇒ **9pt(12px) 아래로 안 내린다.** 대가는 쪽수로 잰다 — 그게 R1 이다. */
-    .text-sm { font-size: 12px !important; line-height: 1.4 !important; }
-    .text-base { font-size: 12.5px !important; line-height: 1.45 !important; }
-    .text-xs, .text-\[11px\] { font-size: 12px !important; }
-    .text-\[15px\] { font-size: 12.5px !important; line-height: 1.45 !important; }
-    .text-3xl { font-size: 20px !important; }
-    [class*="p-4"] { padding: 6px !important; }
-    [class*="p-5"] { padding: 6px !important; }
-    [class*="py-1.5"] { padding-top: 2px !important; padding-bottom: 2px !important; }
-    [class*="space-y-4"] > * + * { margin-top: 6px !important; }
-    [class*="space-y-3"] > * + * { margin-top: 4px !important; }
-    [class*="space-y-1.5"] > * + * { margin-top: 2px !important; }
-    [class*="gap-5"] { gap: 10px !important; }
-    [class*="gap-3"] { gap: 6px !important; }
-    [class*="mt-6"] { margin-top: 8px !important; }
-    [class*="mt-3"] { margin-top: 4px !important; }
-    section { padding-top: 6px !important; padding-bottom: 6px !important; }
-    img { max-width: 92px !important; height: auto !important; }
+    html, body { background: #fff !important; }
+
+    /* ── 바탕: 면 0 · 모서리 0 · 글자는 먹 ───────────────────────── */
+    main, main *, main *::before, main *::after { background: transparent !important; }
+    main [class*="rounded"] { border-radius: 0 !important; }
+    main, main * { color: var(--r-ink) !important; }
+    main { font-size: 12.5px !important; line-height: 1.6 !important; }
+    main [class*="text-muted-foreground"] { color: var(--r-ink-2) !important; }
+    /* 본문 속 글 링크는 **조용히** — 먹 글자에 장식선 밑줄. 누를 수 있다는 표시는 남기고
+       강조색은 연락 줄(§4)에만 쓴다. 색이 많아지면 「이력서」가 아니라 「웹페이지」가 된다 */
+    main a { color: var(--r-ink) !important; text-decoration: underline !important;
+             text-decoration-color: var(--r-rule) !important; text-underline-offset: 2px !important; }
+
+    /* ── A1 머리 ──────────────────────────────────────────────── */
+    .r-head { padding: 0 0 2px !important; }
+    .r-head-row { gap: 14px !important; align-items: center !important; }
+    .r-head img { max-width: 80px !important; width: 80px !important; height: 80px !important;
+                  border: 1px solid var(--r-rule) !important; }
+    .r-name { font-size: 25px !important; font-weight: 800 !important;
+              letter-spacing: -0.02em !important; line-height: 1.15 !important; }
+    .r-tagline { margin-top: 4px !important; font-size: 12.5px !important; }
+    .r-meta { margin-top: 5px !important; gap: 0 !important; }
+    /* 칩·연락 버튼은 화면 장치다 — 종이에선 **상자를 벗기고 글자만** 남긴다.
+       연락처는 §4 의 URL 줄이 받으므로 여기선 칩(자격 요약)만 남긴다 */
+    .r-contact { display: none !important; }
+    .r-chip { border: 0 !important; padding: 0 !important; font-size: 11px !important;
+              color: var(--r-ink-2) !important; letter-spacing: 0.01em !important; }
+    .r-chip + .r-chip::before { content: "  ·  "; color: var(--r-rule) !important; }
+    .r-links { margin-top: 5px !important; font-size: 11px !important; }
+    .r-links a { color: var(--r-accent) !important;
+                 text-decoration-color: var(--r-accent) !important; }
+    .r-links-sep { color: var(--r-rule) !important; }
+    .r-intro { margin-top: 13px !important; max-width: none !important;
+               font-size: 12.5px !important; line-height: 1.65 !important; }
+    .r-intro > * + * { margin-top: 6px !important; }
+
+    /* ── 섹션 제목: v1 의 위계 역전을 고친다 ──────────────────────
+       v1 은 섹션 제목이 **페이지에서 가장 작고 흐렸다**(12px/#333, 역할 제목은 16px 먹).
+       화면에선 카드 면이 받쳐 줬지만 종이엔 면이 없다. ⇒ **규칙선 + 강조 단**으로 세운다.
+       한글에 `tracking-widest`(1.2px)는 자간만 벌어진다 — 0.08em 으로 줄인다. */
+    .r-section { padding: 0 !important; margin-top: 19px !important; }
+    .r-h2 { font-size: 11px !important; font-weight: 700 !important;
+            letter-spacing: 0.08em !important; color: var(--r-ink-2) !important;
+            padding-bottom: 4px !important; margin-bottom: 9px !important;
+            border-bottom: 1px solid var(--r-rule) !important; position: relative !important; }
+    /* 🔴 강조 단을 `background` 로 그리면 **인쇄에서 사라진다**(배경 그래픽 기본 꺼짐).
+       **테두리로 그린다** — 테두리는 그 설정과 무관하게 찍힌다. */
+    .r-h2::after { content: ""; position: absolute; left: 0; bottom: -1.5px;
+                   width: 24px; border-bottom: 1.5px solid var(--r-accent) !important; }
+
+    /* ── A2 경력: 상자를 벗기고 **여백과 선**으로 가른다 ─────────── */
+    .r-section > div { margin-top: 0 !important; }
+    .r-company-card { border: 0 !important; padding: 0 !important; }
+    /* ⚠ 회사 사이를 **선으로** 가르면 쪽이 넘어갈 때 그 선이 **2쪽 맨 위에 외톨이로 뜬다**
+       (실측). 선은 섹션 제목에만 두고 회사는 **여백과 글자 크기**로 가른다. */
+    .r-company-card + .r-company-card { margin-top: 15px !important; }
+    .r-company { font-size: 15px !important; font-weight: 700 !important;
+                 letter-spacing: -0.01em !important; }
+    .r-site { font-size: 11.5px !important; color: var(--r-accent) !important;
+              text-decoration-color: var(--r-accent) !important; }
+    .r-company-card > div { margin-top: 5px !important; }
+    .r-role { border-left: 0 !important; padding-left: 11px !important; }
+    .r-role + .r-role { margin-top: 11px !important; }
+    .r-role-title { font-size: 13px !important; font-weight: 700 !important; }
+    .r-period { font-size: 11.5px !important; color: var(--r-ink-2) !important;
+                font-variant-numeric: tabular-nums !important; }
+    .r-context { margin-top: 4px !important; font-size: 12px !important;
+                 color: var(--r-ink-2) !important; }
+    .r-bullets { margin-top: 6px !important; font-size: 12.5px !important; }
+    .r-bullets > li + li { margin-top: 4px !important; }
+    .r-bullets li { gap: 5px !important; }
+    /* 불릿 마커만 강조색 — **모든 불릿이 같은 색**이라 정보를 나르지 않는다(흑백에서 회색 점) */
+    .r-bullets li > span:first-child { color: var(--r-accent) !important;
+                                       font-weight: 400 !important; margin-top: 0 !important; }
+
+    /* ── A3 강점·원칙: 카드 상자 → 2열 글 ───────────────────────── */
+    .r-grid { margin-top: 0 !important; gap: 12px 24px !important;
+              grid-template-columns: 1fr 1fr !important; }
+    .r-card { border: 0 !important; padding: 0 !important; }
+    .r-card-t { font-size: 12.5px !important; font-weight: 700 !important; }
+    .r-card-d { margin-top: 3px !important; font-size: 12px !important;
+                color: var(--r-ink-2) !important; }
+
     /* 🔴 **한 역할이 쪽을 넘어 잘리면 경력이 잘린 것처럼 읽힌다.** */
-    section > div > div, li { break-inside: avoid; page-break-inside: avoid; }
+    .r-company-card, .r-role, .r-card, li { break-inside: avoid; page-break-inside: avoid; }
+    .r-h2 { break-after: avoid; page-break-after: avoid; }
   }
 </style>
 

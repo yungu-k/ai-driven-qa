@@ -132,38 +132,85 @@ function serve(root){
   ok("R5", txt.includes("github.com/yungu-k") && txt.includes("ai-driven-qa.vercel.app"),
      "URL 이 글자로 안 보인다 — 종이에서 링크는 죽는다");
 
-  // §3 🔴 **색이 0개** (R3). ⚠ **「0색」이라고 말하려면 0색이어야 한다** — 첫 판에
-  // `#1c1c21`(B 채널만 5 높은 유채색)이 174자 남아 있었다. 흑백 인쇄엔 무해했지만
-  // **말이 틀렸다.** ⇒ 말로 두지 않고 **잰다.**
-  const colors = await page.evaluate(() => {
-    const bad = new Map();
+  // §3 v2 — 🔴 **「색 0개」는 폐기했다**(판 바뀜 2026-10-12, 오너). v1 은 「받는 쪽은 대개
+  // 인쇄한다」를 **안 재고** 전제로 깔았다. 지금 이 PDF 가 읽히는 자리는 화면이다.
+  // ⇒ 색을 쓰되 **색이 정보를 나르지 않는다**를 잰다. 세 갈래로 나눠야 한다:
+  //   R3  쓰인 색이 **팔레트 안**인가 (임의 hex 가 끼면 흑백·저품질 인쇄에서 무너진다)
+  //   R3b **면(배경)이 0** 인가 — 브라우저 인쇄는 배경이 기본 꺼짐이라 **틴트는 사라진다.**
+  //        면에 정보를 실으면 받는 쪽 화면에서 그 정보가 통째로 없어진다
+  //   R3c 강조색이 **정해진 자리에만** 쓰였나 — 색으로 뜻을 나누기 시작하면 흑백에서 잃는다
+  // ⚠ 「색을 쓴다」가 「아무 색이나 쓴다」가 되는 순간을 막는 게 이 셋의 일이다.
+  const PALETTE = {               // tech-blog/docs/diagram-spec.md §4 (대비 실측값)
+    "rgb(28, 28, 33)": "먹 16.3:1",
+    "rgb(98, 101, 110)": "보조 5.1:1",
+    "rgb(79, 70, 229)": "강조 6.0:1",
+    "rgb(228, 228, 233)": "장식선 1.2:1 — 선에만",
+  };
+  const ACCENT = "rgb(79, 70, 229)";
+  const paint = await page.evaluate(() => {
+    const out = { text: {}, border: {}, bg: [], accentAt: [] };
+    const key = (el) => el.tagName.toLowerCase() + (el.className ? "." + String(el.className).trim().split(/\s+/)[0] : "");
     for (const e of document.querySelectorAll("main, main *")) {
       if (!(e.checkVisibility ? e.checkVisibility() : true)) continue;
-      const c = getComputedStyle(e).color;
-      const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);
-      if (!m) continue;
-      const [r, g, b2] = [+m[1], +m[2], +m[3]];
-      if (!(r === g && g === b2)) bad.set(c, (bad.get(c) || 0) + 1);
+      const s = getComputedStyle(e);
+      const hasOwnText = [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
+      if (hasOwnText) {
+        out.text[s.color] = (out.text[s.color] || 0) + 1;
+        if (s.color === "rgb(79, 70, 229)") out.accentAt.push(key(e));
+      }
+      for (const side of ["Top", "Right", "Bottom", "Left"]) {
+        if (parseFloat(s["border" + side + "Width"]) > 0 && s["border" + side + "Style"] !== "none")
+          out.border[s["border" + side + "Color"]] = (out.border[s["border" + side + "Color"]] || 0) + 1;
+      }
+      const bg = s.backgroundColor;
+      if (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") out.bg.push(key(e) + " " + bg);
     }
-    return [...bad.entries()];
+    return out;
   });
-  ok("R3", colors.length === 0, `유채색이 남았다: ${JSON.stringify(colors)} — 「0색」이 말뿐이 된다`);
+  const offPalette = [...Object.keys(paint.text), ...Object.keys(paint.border)].filter(c => !(c in PALETTE));
+  ok("R3", offPalette.length === 0,
+     `팔레트 밖 색이 쓰였다: ${JSON.stringify(offPalette)} — 쓰인 색 ` +
+     `${JSON.stringify({ 글자: paint.text, 선: paint.border })}`);
+  ok("R3b", paint.bg.length === 0,
+     `인쇄에 면(배경)이 남았다: ${JSON.stringify(paint.bg)} — 배경은 기본 꺼짐이라 받는 쪽에서 사라진다`);
+  // 강조색이 허용된 자리: 연락 줄 링크 · 회사 사이트 링크 · 불릿 마커. 전부 **같은 역할**이고
+  // 흑백이 되면 회색 한 가지로 수렴한다 — 즉 색이 지고 있는 뜻이 없다.
+  const ACCENT_OK = /^(a$|a\.r-site|span$|a\.|span\.)/;
+  const accentBad = paint.accentAt.filter(k => !ACCENT_OK.test(k));
+  ok("R3c", paint.accentAt.length > 0 && accentBad.length === 0,
+     `강조색이 정해진 자리 밖에 쓰였다(또는 아예 안 쓰였다): ${JSON.stringify(paint.accentAt)}`);
 
-  // ⚠ **너무 줄이면 종이에서 안 읽힌다** (R8). 첫 판은 최소 7.5pt·본문 8.2pt 였다 —
-  // 이력서 보통 9~10pt 다. **줄이는 것과 읽히는 것은 다른 축**이라 따로 잰다.
-  const MIN_PX = 12;   // 9pt
-  const small = await page.evaluate((min) => {
-    const out = new Map();
+  // ⚠ **너무 줄이면 안 읽힌다** (R8). v1 은 전부 9pt 하한이었다 — **인쇄 전제**였기 때문이다.
+  // v2 는 읽는 방식으로 가른다: **정독하는 글(본문)과 훑는 글(메타·라벨)은 하한이 다르다.**
+  // 🔴 하한을 낮추는 건 **완화**다. 그래서 두 단을 따로 적고, 바닥(11px)은 공통으로 둔다.
+  //   본문(소개·불릿·맥락·카드 설명·제목) ≥ 12px(9pt)   메타(기간·칩·섹션 라벨·URL) ≥ 11px(8.25pt)
+  const BODY_SEL = ".r-intro p, .r-bullets li, .r-bullets li span, .r-context, .r-card-t, " +
+                   ".r-card-d, .r-company, .r-role-title, .r-tagline, .r-name";
+  const MIN_BODY = 12, MIN_ANY = 11;
+  const sizes = await page.evaluate(([bodySel, minBody, minAny]) => {
+    const bad = { body: [], any: [] };
     for (const e of document.querySelectorAll("main, main *")) {
       if (!(e.checkVisibility ? e.checkVisibility() : true)) continue;
-      if (!(e.textContent || "").trim()) continue;
+      if (![...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
       const px = parseFloat(getComputedStyle(e).fontSize);
-      if (px < min) out.set(px, (out.get(px) || 0) + 1);
+      const tag = e.tagName.toLowerCase() + "@" + px + "px";
+      if (px < minAny) bad.any.push(tag);
+      else if (px < minBody && e.matches(bodySel)) bad.body.push(tag);
     }
-    return [...out.entries()].sort((a, b) => a[0] - b[0]);
-  }, MIN_PX);
-  ok("R8", small.length === 0,
-     `${MIN_PX}px(9pt) 아래 글자가 있다: ${JSON.stringify(small)} — 종이에서 안 읽힌다`);
+    return bad;
+  }, [BODY_SEL, MIN_BODY, MIN_ANY]);
+  ok("R8", sizes.any.length === 0 && sizes.body.length === 0,
+     `글자가 하한 아래다 — 바닥 ${MIN_ANY}px 미만 ${JSON.stringify(sizes.any)} · ` +
+     `본문 ${MIN_BODY}px 미만 ${JSON.stringify(sizes.body)}`);
+
+  // R11 — 🔴 **화면에서 PDF 를 여는 쪽은 그 URL 을 누른다.** v1 은 URL 을 글자로만 적어서
+  // (§4, 인쇄 전제) **눌리지 않았다** — 반면 화면 장치로 둔 칩에는 링크가 살아 있었다(뒤집혀 있었다).
+  // ⇒ **PDF 안에 링크 주석이 실제로 있는지** 바이트에서 센다. 화면 DOM 으로는 못 재는 축이다.
+  const uris = [...raw.matchAll(/\/URI\s*\(([^)]*)\)/g)].map(m => m[1]);
+  const WANT_URI = ["github.com/yungu-k", "linkedin.com/in/yungu-k", "ai-driven-qa.vercel.app"];
+  const missing = WANT_URI.filter(w => !uris.some(u => u.includes(w)));
+  ok("R11", missing.length === 0,
+     `PDF 안에 연락 링크가 없다: ${JSON.stringify(missing)} — 받는 쪽이 주소를 손으로 옮겨 적어야 한다`);
 
   // R9 — 종이에 실리는 사진은 **이력서 사진 하나뿐**이다 (오너 결정 2026-10-12).
   // 🔴 **「새 사진이 있다」가 아니라 「옛 사진이 없다」까지 센다.** 둘 다 보이면 헤더에

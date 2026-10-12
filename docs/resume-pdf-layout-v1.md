@@ -1,11 +1,17 @@
 ---
-status: draft
+status: superseded
 owner: design
-updated: 2026-09-11
+updated: 2026-10-12
 covers: src/pages/about.astro
+superseded-by: resume-pdf-layout-v2.md
 ---
 
 # About → 이력서 PDF — 배치·구성 v1
+
+> ⛔ **이 판은 2026-10-12 로 끝났다. 현행은 [v2](resume-pdf-layout-v2.md) 다.**
+> 바뀐 것은 배치가 아니라 **전제**다 — §3 이 깔고 있던 「받는 쪽은 대개 인쇄한다」를 **안 쟀고**,
+> 실제 소비 자리는 화면이었다(오너 판단). 그래서 **0색(§3)·URL 을 글자로만(§4)** 이 폐기됐다.
+> 분량 2쪽(§2)·쪽 나눔(§5)·검사 틀(§8)은 v2 가 그대로 이어받는다.
 
 > 오너: 「About 쪽에 **PDF 추출 기능** 넣어서 이력서 관심있는 사람들이 PDF로 발급받아서
 > 가게 할 수 있어? **PDF 내용 배치나 구성 등은 디자인 세션이랑 상의**해봐.」
