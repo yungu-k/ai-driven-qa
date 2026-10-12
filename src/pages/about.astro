@@ -82,6 +82,10 @@ const PRINCIPLES = [
     <!-- A1. 프로필 헤더 -->
     <section class="pt-6 pb-8">
       <div class="flex flex-wrap items-center gap-5">
+        <!-- 사진은 화면과 종이가 다르다 (오너 결정 2026-10-12) — 화면은 블로그의 정체성
+             (뒷모습 풍경), 종이는 **이력서 사진**이다. 같은 자리에 둘을 겹쳐 두고 매체로 가른다.
+             ⚠ 인쇄용은 `loading="eager"` — `lazy` 로 두면 화면에서 `display:none` 이라
+             **안 받아 오고, 인쇄 시점엔 늦는다**(빈 자리로 찍힌다). -->
         <img
           src="/images/profile.jpg"
           alt="공윤구 프로필 사진 — 스위스 체르마트, 마테호른이 보이는 호숫가에 앉아 있는 뒷모습"
@@ -89,7 +93,16 @@ const PRINCIPLES = [
           height="320"
           loading="eager"
           decoding="async"
-          class="h-20 w-20 shrink-0 rounded-full border border-accent/30 object-cover"
+          class="no-print h-20 w-20 shrink-0 rounded-full border border-accent/30 object-cover"
+        />
+        <img
+          src="/images/resume-photo.jpg"
+          alt="공윤구 이력서 사진"
+          width="600"
+          height="600"
+          loading="eager"
+          decoding="async"
+          class="print-only h-20 w-20 shrink-0 border border-border object-cover"
         />
         <div class="min-w-0">
           <h1 class="text-3xl font-extrabold tracking-tight">공윤구</h1>
@@ -242,8 +255,11 @@ const PRINCIPLES = [
       </ul>
     </section>
 
-    <!-- A4. 마무리 인용 배너 -->
-    <section class="pb-4">
+    <!-- A4. 마무리 인용 배너
+         ⚠ `about-quote` 는 **인쇄 CSS 가 숨기는 이름**이다(§5: 인용 배너는 블로그의 목소리지
+         이력서의 자격이 아니다). 클래스가 빠지면 **CSS 는 그대로인데 배너가 종이에 실린다** —
+         실제로 그 상태였고, R2 는 헤더·푸터·버튼만 봐서 조용히 통과했다. 지우지 말 것. -->
+    <section class="about-quote pb-4">
       <div
         class="rounded-r-xl border-l-4 border-accent bg-accent/5 px-6 py-5 text-lg font-bold tracking-tight"
       >
@@ -291,7 +307,13 @@ const PRINCIPLES = [
       background: transparent !important;
     }
     [class*="rounded"] { border-radius: 0 !important; }
-    [class*="text-accent"], .text-accent { color: #000 !important; font-weight: 700 !important; }
+    /* 🔴 **`main` 으로 가둔다.** 안 가두면 `[class*="text-accent"]` 가 `<body>` 의
+       `selection:text-accent-foreground` 에 걸려서 **`font-weight:700` 이 문서 전체로
+       상속된다** — 인쇄본 글자 **100% 가 굵어지고**(화면은 18.4%), `<strong>` 강조가
+       바탕과 같아져 **강조 장치가 통째로 죽는다.** 0색이라 색으로도 못 나눈다.
+       ⚠ `body{font-weight:400}` 로 덮으려 하면 **진다** — 특정도 0,1,0 > 0,0,1.
+       ⇒ 그물은 R10(굵은 글자 비율). 쪽수(R1)는 이걸 못 본다 — 굵어져도 2쪽이었다. */
+    main [class*="text-accent"], main .text-accent { color: #000 !important; font-weight: 700 !important; }
     /* 🔴 **「0색」이라고 말하려면 0색이어야 한다.** 첫 판은 `#1c1c21` 이 174자 남아 있었다
        — B 채널만 5 높은 **유채색**이다. 흑백 인쇄엔 무해하지만 **말이 틀렸다**(QA 실측).
        ⇒ 본문 전체를 먹으로 덮고, 흐린 글자만 무채색 회색으로 되돌린다. 순서가 규칙이다. */

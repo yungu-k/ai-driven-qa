@@ -74,6 +74,16 @@ function serve(root){
     if (!v) fails.push(`${id} ${why}`); notes.push(`${id} ${v ? "PASS" : "FAIL"}`); };
 
   await page.goto(base + "/about/", { waitUntil: "networkidle" });
+
+  // R9b — **화면 쪽도 같이 잰다.** 사진 두 장을 겹쳐 두고 매체로 가르는 구조라
+  // **반대 방향 사고**가 생긴다: `print-only` 가 빠지면 **이력서 사진이 About 화면에 뜬다.**
+  // 인쇄만 재는 검사는 그걸 통과시킨다(변이로 확인했다). ⇒ 매체마다 한 장씩.
+  const screenImgs = await page.evaluate(() => [...document.querySelectorAll("#main-content img")]
+    .filter(e => (e.checkVisibility ? e.checkVisibility() : true))
+    .map(e => new URL(e.currentSrc || e.src).pathname));
+  ok("R9b", screenImgs.length === 1 && /profile\.jpg/.test(screenImgs[0]),
+     `화면에 보이는 사진이 프로필 사진 하나가 아니다: ${JSON.stringify(screenImgs)}`);
+
   await page.emulateMedia({ media: "print" });
   const pdf = await page.pdf({ format: "A4", margin: { top: "14mm", bottom: "14mm", left: "15mm", right: "15mm" },
                                printBackground: false });
@@ -97,13 +107,25 @@ function serve(root){
   // ⚠ **자기 `display` 만 보면 안 된다.** 조상이 `display:none` 이어도 자식의 계산값은
   // 그대로 `inline-block` 이라 **숨겨진 요소가 「보인다」로 잡힌다** — 실제로 이 검사가
   // 처음에 거짓 빨강을 냈다. **실제로 그려지는지**를 물어야 한다.
+  // ⚠ **목록에 없는 것은 안 본다.** 인용 배너(§5)가 그 구멍으로 빠져나갔다 — CSS 는
+  // `.about-quote` 를 숨기는데 **마크업에 그 클래스가 없어서** 종이에 실렸고, 이 검사는
+  // 헤더·푸터·버튼만 보고 PASS 를 냈다. 숨기기로 한 것은 **전부 여기 적는다.**
+  // 🔴 **「안 보인다」만 재면 클래스가 사라진 날을 못 잡는다.** `.about-quote` 를 마크업에서
+  // 지우면 선택자가 0개를 맞히고 **「안 보인다」로 통과한다** — 배너는 종이에 그대로 실린 채로.
+  // (변이로 확인했다: 클래스 제거 → 전 항목 PASS.) ⇒ **존재부터 단언한다.**
   const shown = await page.evaluate(() => {
     const vis = (sel) => [...document.querySelectorAll(sel)]
       .filter(e => (e.checkVisibility ? e.checkVisibility() : e.offsetParent !== null)).length;
-    return { header: vis("header"), footer: vis("footer"), btn: vis("#resume-pdf"), nav: vis("nav") };
+    const dom = (sel) => document.querySelectorAll(sel).length;
+    return { vis: { header: vis("header"), footer: vis("footer"), btn: vis("#resume-pdf"),
+                    nav: vis("nav"), quote: vis(".about-quote"), noPrint: vis(".no-print") },
+             dom: { quote: dom(".about-quote"), noPrint: dom(".no-print"), printOnly: dom(".print-only") } };
   });
-  ok("R2", Object.values(shown).every(n => n === 0),
-     `화면 장치가 인쇄에 남았다: ${JSON.stringify(shown)}`);
+  ok("R2", Object.values(shown.vis).every(n => n === 0),
+     `화면 장치가 인쇄에 남았다: ${JSON.stringify(shown.vis)}`);
+  ok("R2b", Object.values(shown.dom).every(n => n > 0),
+     `매체를 가르는 클래스가 마크업에서 사라졌다: ${JSON.stringify(shown.dom)} — ` +
+     `하나라도 0 이면 R2 는 「안 보인다」로 조용히 통과한다`);
 
   // §4 링크가 글자로 보인다 (R5)
   const txt = await page.textContent("main");
@@ -142,6 +164,37 @@ function serve(root){
   }, MIN_PX);
   ok("R8", small.length === 0,
      `${MIN_PX}px(9pt) 아래 글자가 있다: ${JSON.stringify(small)} — 종이에서 안 읽힌다`);
+
+  // R9 — 종이에 실리는 사진은 **이력서 사진 하나뿐**이다 (오너 결정 2026-10-12).
+  // 🔴 **「새 사진이 있다」가 아니라 「옛 사진이 없다」까지 센다.** 둘 다 보이면 헤더에
+  // 사진 두 장이 찍히고, 클래스 하나만 지워져도 **풍경이 조용히 돌아온다.**
+  const imgs = await page.evaluate(() => [...document.querySelectorAll("#main-content img")]
+    .filter(e => (e.checkVisibility ? e.checkVisibility() : true))
+    .map(e => new URL(e.currentSrc || e.src).pathname));
+  ok("R9", imgs.length === 1 && /resume-photo/.test(imgs[0]),
+     `인쇄에 실린 사진이 이력서 사진 하나가 아니다: ${JSON.stringify(imgs)}`);
+
+  // R10 — **굵은 글자가 과반이면 강조가 죽는다.** 0색이라 색으로 못 나누는 만큼
+  // 굵기가 유일한 강조 축이다. `[class*="text-accent"]` 를 `main` 밖으로 풀면
+  // `<body class="… selection:text-accent-foreground …">` 에 걸려 **100% 가 된다**(실측).
+  // ⚠ **쪽수(R1)는 이걸 못 본다** — 전부 굵어도 2쪽이었다. 그래서 축을 따로 잰다.
+  const BOLD_MAX = 40;   // 화면이 18.4%, 지금 인쇄본이 17.7% — 40% 는 「과반 전 경보」다
+  const bold = await page.evaluate(() => {
+    const main = document.getElementById("main-content");
+    const w = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+    let total = 0, heavy = 0, n;
+    while ((n = w.nextNode())) {
+      const t = n.textContent.replace(/\s+/g, " ").trim();
+      if (!t) continue;
+      const el = n.parentElement;
+      if (el.checkVisibility && !el.checkVisibility()) continue;
+      total += t.length;
+      if (parseInt(getComputedStyle(el).fontWeight, 10) >= 600) heavy += t.length;
+    }
+    return { total, heavy, pct: total ? +(100 * heavy / total).toFixed(1) : 0 };
+  });
+  ok("R10", bold.total > 0 && bold.pct <= BOLD_MAX,
+     `굵은 글자가 ${bold.pct}% (${bold.heavy}/${bold.total}자) — 상한 ${BOLD_MAX}%. 강조가 바탕과 같아진다`);
 
   console.log(`판: playwright ${require("playwright/package.json").version} · ` +
               `A4 ${pages}쪽 · ${new Date().toISOString()}`);
