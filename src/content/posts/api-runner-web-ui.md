@@ -82,4 +82,4 @@ _빨간 선(FAIL)이 0으로 수렴하는 과정 — 상시 빨간 fail을 걷�
 
 ---
 
-→ 몇 달 뒤의 리뉴얼: [프레임워크를 안 쓴다던 그 결정에, 청구서가 왔다](/posts/api-runner-renewal/) · 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 7
+→ 몇 달 뒤의 리뉴얼: [프레임워크를 안 쓴다던 결정을 몇 달 만에 뒤집었다](/posts/api-runner-renewal/) · 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 7
