@@ -34,3 +34,6 @@ compose.override.yaml
 dist/
 node_modules/
 .astro/
+
+# 검수 산출물 (scripts/shoot-resume-pdf.cjs) — 보고 버리는 것이지 저장소에 남길 것이 아니다
+tmp/
