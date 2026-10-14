@@ -154,4 +154,4 @@ function 판정(결과들) {
 
 ---
 
-→ 두 트랙 인프라 전체: [테스트 1,160건으로 무인 키오스크를 지키다](/posts/kiosk-automation-infra) · 전체 여정: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human)
+→ 후속편: [버튼 하나를 일부러 망가뜨렸다](/posts/kiosk-mutation-testing/) · 두 트랙 인프라 전체: [테스트 1,160건으로 무인 키오스크를 지키다](/posts/kiosk-automation-infra) · 전체 여정: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human)
