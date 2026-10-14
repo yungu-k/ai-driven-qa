@@ -46,7 +46,10 @@ def prose_of(text):
     text = re.sub(r"^---.*?---\s*", "", text, count=1, flags=re.S)      # 프런트매터
     text = re.sub(r"```.*?```", "", text, flags=re.S)                   # 코드 블록
     text = re.sub(r"`[^`\n]*`", "", text)                               # 인라인 코드
-    text = re.sub(r"<[^>]+>", "", text)                                 # HTML 태그
+    # HTML 블록(시리즈 상자 <div class="not-prose">…</div>)은 통째로 뺀다 — 태그만 벗기면
+    # 그 안의 「시리즈 — AI 팀원 만들기」가 산문 대시로 잡혔다(2026-10-14, 교정 뒤에도 빨강이던 이유)
+    text = re.sub(r"<div\b[^>]*>.*?</div>", "", text, flags=re.S)
+    text = re.sub(r"<[^>]+>", "", text)                                 # 남은 HTML 태그
     out = []
     for line in text.split("\n"):
         s = line.strip()
