@@ -22,6 +22,16 @@ const INTRO = [
   `지금은 글로벌 대형 카지노를 고객으로 하는 B2B 스타트업에서 현금·칩 거래 키오스크 제품의 QA Lead를 맡고 있습니다. 1인 QA로 릴리스 트레인·QA 게이트·장애 대응 체계를 제로베이스에서 설계·운영했고, 지금은 그 체계를 팀으로 넓히는 중입니다. 지난 1년은 QA 업무 전반을 AI 협업 워크플로우로 전환하는 데 집중했습니다 — 반복 작업은 AI에게 위임하고 사람은 판단에 집중하는 구조를 만드는 일입니다. 이 블로그는 그 여정의 기록입니다.`,
 ];
 
+// 「이 블로그의 시작」 — 오너 원문(2026-10-14)을 다듬은 것. **화면 전용**(`no-print`):
+// 블로그의 목소리지 이력서의 자격이 아니다 — 인용 배너(`about-quote`)와 같은 이유(§5).
+const BLOG_ORIGIN = {
+  title: "이 블로그의 시작",
+  body: [
+    "AI가 일하는 방식을 빠르게 바꾸는 시대입니다. 회사 안팎에서 AI를 잘 쓰는 사람을 찾아 어떻게 일하는지 묻고, 그 사람이 올린 글을 보며 따라 해 봅니다.",
+    "몸에 익을 때까지 연습한 뒤 실무에 적용해 보고, 그 과정과 결과를 이곳에 공유합니다. 이 기록이 또 다른 누군가에게 도움이 되는 것이 이 블로그의 목표입니다.",
+  ],
+};
+
 const CONTACTS = [
   { label: "GitHub", href: "https://github.com/yungu-k" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/yungu-k/" },
@@ -178,6 +188,18 @@ const PRINCIPLES = [
       </div>
       <div class="r-intro mt-6 space-y-3 max-w-3xl text-[15px] leading-relaxed">
         {INTRO.map(p => <p set:html={p} />)}
+      </div>
+    </section>
+
+    <!-- A1-b. 이 블로그의 시작 — 화면 전용. `about-quote` 와 같은 이유로 종이엔 안 싣는다
+         (블로그의 목소리지 이력서의 자격이 아니다). `r-*` 손잡이를 안 붙이는 이유도 그것 —
+         인쇄 CSS 가 겨냥할 구조가 아니다. -->
+    <section class="no-print pb-8">
+      <h2 class="text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+        {BLOG_ORIGIN.title}
+      </h2>
+      <div class="mt-4 space-y-3 max-w-3xl text-[15px] leading-relaxed">
+        {BLOG_ORIGIN.body.map(p => <p>{p}</p>)}
       </div>
     </section>
 
