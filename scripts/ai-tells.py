@@ -38,7 +38,9 @@ N5_STRONG = ["에 있어", "가지고 있", "되어지", "지게 되", "있을 �
 N5_MODERATE = ["에 대해", "를 통해", "을 통해", "와 관련하여", "과 관련하여", "에 기반하", "바탕으로",
                "에 의해", "을 위해", "를 위해", "에서의", "으로의", "으로부터의", "넘어"]
 
-NON_PROSE_PREFIX = ("#", "|", "!", ">", "_", "-", "*", "→", "+", "[")
+# 「[」는 넣지 않는다 — 링크로 시작하는 문단도 산문이다. 넣었더니 그 문단이 통째로 안 세져,
+# 교정 세션이 링크를 문장 뒤로 옮겨 수치를 맞추는 일이 생겼다(2026-10-14).
+NON_PROSE_PREFIX = ("#", "|", "!", ">", "_", "-", "*", "→", "+", "<")
 
 
 def prose_of(text):
@@ -48,7 +50,12 @@ def prose_of(text):
     text = re.sub(r"`[^`\n]*`", "", text)                               # 인라인 코드
     # HTML 블록(시리즈 상자 <div class="not-prose">…</div>)은 통째로 뺀다 — 태그만 벗기면
     # 그 안의 「시리즈 — AI 팀원 만들기」가 산문 대시로 잡혔다(2026-10-14, 교정 뒤에도 빨강이던 이유)
-    text = re.sub(r"<div\b[^>]*>.*?</div>", "", text, flags=re.S)
+    # 안쪽부터 벗겨야 중첩 <div> 가 남지 않는다 — 게으른 매치는 첫 </div> 에서 멈춰 바깥 껍데기의 글을 남겼다.
+    # <figure>(figcaption 포함)도 화면 장치라 뺀다(2026-10-14, 캡션 대시가 산문으로 잡혔다)
+    for tag in ("div", "figure"):
+        pat = re.compile(rf"<{tag}\b[^>]*>(?:(?!<{tag}\b).)*?</{tag}>", flags=re.S)
+        while pat.search(text):
+            text = pat.sub("", text)
     text = re.sub(r"<[^>]+>", "", text)                                 # 남은 HTML 태그
     out = []
     for line in text.split("\n"):
