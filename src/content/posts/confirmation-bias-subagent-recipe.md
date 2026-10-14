@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-28T07:00:00.000Z
-title: 반증 서브에이전트 재현 레시피 — AI 확증편향을 구조로 잡는 5원칙
+title: 확증편향을 구조로 잡는 반증 서브에이전트 5원칙
 slug: confirmation-bias-subagent-recipe
 featured: false
 draft: false

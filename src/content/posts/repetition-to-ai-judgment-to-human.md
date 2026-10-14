@@ -2,7 +2,7 @@
 author: 공윤구
 pubDatetime: 2026-04-16T09:00:00.000Z
 modDatetime: 2026-07-29T02:00:00.000Z
-title: 반복은 AI에게, 판단은 사람에게 — QA 자동화 여정기
+title: 반복은 AI에게, 판단은 사람에게
 slug: repetition-to-ai-judgment-to-human
 featured: true
 draft: false

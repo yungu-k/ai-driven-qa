@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-08-20T09:00:00.000Z
-title: 사람이 쓴 테스트 코드 0줄 — AI 팀원 둘이 사내 웹앱에 검사 36건을 세웠다
+title: AI 팀원 둘이 세운 검사 36건, 사람이 쓴 코드는 0줄
 slug: ai-teammate-web-e2e
 featured: true
 draft: false

@@ -1,7 +1,8 @@
 ---
 author: 공윤구
 pubDatetime: 2026-04-10T09:20:00.000Z
-title: 티켓은 완료인데 TC는 Fail — TC와 Jira의 어긋남을 규칙으로 닫다
+title: 티켓은 완료인데 TC는 Fail
+subtitle: TC와 Jira의 어긋남을 규칙으로 닫다
 slug: regression-and-status-sync
 featured: false
 draft: false

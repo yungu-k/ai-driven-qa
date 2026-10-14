@@ -2,7 +2,8 @@
 author: 공윤구
 pubDatetime: 2026-07-02T01:03:00.000Z
 modDatetime: 2026-08-19T09:30:00.000Z
-title: 이름으로 맞추고 id로 건다 — 외부 파트너와 Jira를 양방향 동기화한 설계
+title: 이름으로 맞추고 id로 건다
+subtitle: 외부 파트너와 Jira를 양방향 동기화한 설계
 slug: field-service-jira-sync
 featured: false
 draft: false

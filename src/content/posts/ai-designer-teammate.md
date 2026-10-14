@@ -1,7 +1,8 @@
 ---
 author: 공윤구
 pubDatetime: 2026-08-21T09:00:00.000Z
-title: 같은 5페이지, 같은 숫자 — AI 팀원에 디자이너를 넣자 표가 스스로 설명하기 시작했다
+title: 같은 5페이지, 같은 숫자
+subtitle: AI 팀원에 디자이너를 넣자 표가 스스로 설명하기 시작했다
 slug: ai-designer-teammate
 featured: false
 draft: false

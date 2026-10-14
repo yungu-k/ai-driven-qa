@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-06-04T05:03:00.000Z
-title: "'장애 후 뭘 하는지 안 보인다' — 고객 컴플레인에서 시작한 장애 대응 분리 설계"
+title: "'장애 후 뭘 하는지 안 보인다'는 컴플레인에서 시작한 설계"
 slug: global-incident-management
 featured: false
 draft: false

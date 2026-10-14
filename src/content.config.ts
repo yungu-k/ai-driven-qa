@@ -13,6 +13,9 @@ const posts = defineCollection({
       pubDatetime: z.date(),
       modDatetime: z.date().optional().nullable(),
       title: z.string(),
+      // 제목의 「A — B」 대시 오른쪽이 하던 일. 글 페이지 제목 아래 한 줄, 탭·OG 메타는 「제목: 부제」
+      // (WRITING_STANDARD §3 H7). 목록 카드엔 안 싣는다 — 카드엔 description 이 있다
+      subtitle: z.string().optional(),
       featured: z.boolean().optional(),
       draft: z.boolean().optional(),
       tags: z.array(z.string()).default(["others"]),

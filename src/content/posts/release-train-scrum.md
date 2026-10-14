@@ -1,7 +1,7 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-23T00:30:00.000Z
-title: 고객 일정에서 배포를 떼어내다 — 2~3주 릴리스 열차 만들기
+title: 릴리스 열차로 고객 일정에서 배포를 떼어내다
 slug: release-train-scrum
 featured: false
 draft: false

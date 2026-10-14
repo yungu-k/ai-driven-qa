@@ -1,7 +1,8 @@
 ---
 author: 공윤구
 pubDatetime: 2026-08-05T08:30:00.000Z
-title: AI Technical Writer 팀원 만들기 — 블로그 23편, 감사 4라운드, A 0편에서 3편으로
+title: AI Technical Writer 팀원 만들기
+subtitle: 블로그 23편, 감사 4라운드, A 0편에서 3편으로
 slug: ai-technical-writer-teammate
 featured: false
 draft: false

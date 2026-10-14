@@ -1,7 +1,8 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-28T06:30:00.000Z
-title: AI도 확증편향에 빠진다 — 서브에이전트로 반증을 구조화하기
+title: AI도 확증편향에 빠진다
+subtitle: 서브에이전트로 반증을 구조화하기
 slug: ai-confirmation-bias-subagents
 featured: true
 draft: false

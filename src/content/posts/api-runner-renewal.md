@@ -1,7 +1,8 @@
 ---
 author: 공윤구
 pubDatetime: 2026-10-12T05:00:00.000Z
-title: 프레임워크를 안 쓴다던 결정을 몇 달 만에 뒤집었다 — 실행 Web UI 리뉴얼
+title: 프레임워크를 안 쓴다던 결정을 몇 달 만에 뒤집었다
+subtitle: 실행 Web UI 리뉴얼
 slug: api-runner-renewal
 featured: false
 draft: false

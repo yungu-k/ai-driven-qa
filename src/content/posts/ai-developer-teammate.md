@@ -1,7 +1,8 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-02T01:12:00.000Z
-title: AI 개발자 팀원 만들기 — 핸드오프를 받아 구현·검증·배포까지
+title: AI 개발자 팀원 만들기
+subtitle: 핸드오프를 받아 구현·검증·배포까지
 slug: ai-developer-teammate
 featured: false
 draft: false

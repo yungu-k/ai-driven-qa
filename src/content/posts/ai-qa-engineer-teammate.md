@@ -1,7 +1,8 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-02T01:06:00.000Z
-title: AI QA 엔지니어 팀원 만들기 — 무엇이 깨질까를 먼저 짚는 조수
+title: AI QA 엔지니어 팀원 만들기
+subtitle: 무엇이 깨질까를 먼저 짚는 조수
 slug: ai-qa-engineer-teammate
 featured: false
 draft: false

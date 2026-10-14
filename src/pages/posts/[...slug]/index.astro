@@ -61,6 +61,7 @@ const locale = Astro.currentLocale ?? config.site.lang;
 
 const {
   title,
+  subtitle,
   description,
   ogImage: initOgImage,
   canonicalURL,
@@ -95,7 +96,7 @@ const ogImage = ogImageUrl
 ---
 
 <PostLayout
-  title={`${title} | ${config.site.title}`}
+  title={`${subtitle ? `${title}: ${subtitle}` : title} | ${config.site.title}`}
   description={description}
   ogImage={ogImage}
   canonicalURL={canonicalURL}
@@ -117,6 +118,13 @@ const ogImage = ogImageUrl
     >
       {title}
     </h1>
+    {
+      subtitle && (
+        <p class="text-muted-foreground mt-1 text-base font-medium sm:text-lg">
+          {subtitle}
+        </p>
+      )
+    }
 
     <div class="my-2 flex items-center gap-2">
       <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" />

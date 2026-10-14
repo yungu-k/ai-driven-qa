@@ -2,7 +2,8 @@
 author: 공윤구
 pubDatetime: 2026-07-02T01:00:00.000Z
 modDatetime: 2026-07-02T08:00:00.000Z
-title: AI 기획자 팀원 만들기 — 소스 코드에서 67화면 Figma 스토리보드로
+title: AI 기획자 팀원 만들기
+subtitle: 소스 코드에서 67화면 Figma 스토리보드로
 slug: ai-planner-teammate
 featured: false
 draft: false
