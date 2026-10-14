@@ -47,15 +47,15 @@ export const CAREER: CareerCompany[] = [
         title: "QA Lead",
         period: "2025.07 ~ 현재",
         context:
-          `글로벌 대형 카지노 대상 B2B 스타트업 — 현금·칩 거래 키오스크 제품군을 담당합니다. 금전을 다루는 규제 산업이라 정확성과 장애 대응이 특히 엄격한 환경입니다.`,
+          `글로벌 대형 카지노 대상 B2B 스타트업에서 현금·칩 거래 키오스크 제품군을 담당합니다. 금전을 다루는 규제 산업이라 정확성과 장애 대응이 특히 엄격한 환경입니다.`,
         bullets: [
-          `QA 프로세스 제로베이스 구축 — <a href="/posts/release-train-scrum/">2~3주 릴리스 트레인</a>, QA OK-Sign 게이트, 고객 대응 Incident 체계 설계·운영`,
-          `<strong><a href="/posts/kiosk-automation-infra/">UI/API 이중 트랙 자동화 인프라</a> 구축·확장</strong> — Playwright + vitest, 빌드 감지→검증→리포트 자동 파이프라인과 상시 계약 검증까지`,
+          `QA 프로세스 제로베이스 구축: <a href="/posts/release-train-scrum/">2~3주 릴리스 트레인</a>, QA OK-Sign 게이트, 고객 대응 Incident 체계 설계·운영`,
+          `<strong><a href="/posts/kiosk-automation-infra/">UI/API 이중 트랙 자동화 인프라</a> 구축·확장</strong>: Playwright + vitest, 빌드 감지→검증→리포트 자동 파이프라인과 상시 계약 검증까지`,
           `운영 알람 분류 자동화 → <strong><a href="/posts/realtime-kiosk-monitoring/">실시간 관제 대시보드</a></strong>(FastAPI+HTMX) 구축`,
           `외부 파트너용 <strong>기술지원 이력 시스템</strong>(Jira 양방향 동기화) 구축·운영 오픈`,
           // 수·역할·링크는 `aiTeam.ts` 에서 읽는다 — 여기 글자로 박으면 채용 때 이 줄만 낡는다.
           // 「8개 역할:」도 roles.length 다: 괄호 속 역할을 독자가 세면 11 과 안 맞아서 축을 밝힌다(오너 선택)
-          `<strong><a href="${AI_TEAM.href}">AI 팀원 ${AI_TEAM.size}인(${AI_TEAM_ROLES_HTML}) 설계</a></strong> — 이 블로그의 주제. 전체 이야기는 <a href="/posts/repetition-to-ai-judgment-to-human/">QA 자동화 여정기</a>에`,
+          `<strong><a href="${AI_TEAM.href}">AI 팀원 ${AI_TEAM.size}인(${AI_TEAM_ROLES_HTML}) 설계</a></strong>: 이 블로그의 주제. 전체 이야기는 <a href="/posts/repetition-to-ai-judgment-to-human/">QA 자동화 여정기</a>에`,
         ],
       },
     ],
@@ -84,7 +84,7 @@ export const CAREER: CareerCompany[] = [
         bullets: [
           "QA 파트의 목표·전략 수립과 품질 지표 관리, 팀원 산출물(TC·리포트) 리뷰 총괄",
           "넷마블 자체결제·<strong>MBX 블록체인</strong> 등 신규 사업 QA 체계 구축",
-          "외주 테스트 조직 운영 관리 — 업무 배분·품질 기준·산출물 검수",
+          "외주 테스트 조직 운영 관리: 업무 배분·품질 기준·산출물 검수",
         ],
       },
       {
@@ -93,7 +93,7 @@ export const CAREER: CareerCompany[] = [
         context:
           "전사 웹 플랫폼 5개 서비스(포럼·고객센터/백오피스·PC 런처·쿠폰·웹 결제) QA 담당.",
         bullets: [
-          "서비스별 QA 프로세스 수립, 배포 Go/No-Go 게이트 운영 — 배포 제어와 릴리스 품질 책임",
+          "서비스별 QA 프로세스 수립, 배포 Go/No-Go 게이트 운영(배포 제어와 릴리스 품질 책임)",
           "Grafana 로그 모니터링 기반 장애 감지·대응, 장애 관리 프로세스 운영",
           "자동화 개발자와 협업해 장기 리그레션 자동화 운영, 중국 진출 등 글로벌 대응 QA",
         ],
@@ -108,7 +108,7 @@ export const CAREER: CareerCompany[] = [
         period: "2018.10 ~ 2020.07",
         context: "대만 LINE Pay 결제 서비스 테스트 엔지니어.",
         bullets: [
-          "대만 LINE Pay 오프라인 결제 앱 론칭 — 테스트 계획부터 배포 모니터링까지 전 주기",
+          "대만 LINE Pay 오프라인 결제 앱 론칭: 테스트 계획부터 배포 모니터링까지 전 주기",
           "<strong>대만-태국-일본 크로스보더 결제</strong> 구축 검증, iPASS(교통카드) 연동·Push 시스템 개편",
           "정기 배포 리그레션과 결함 리포팅 운영",
         ],
@@ -123,7 +123,7 @@ export const CAREER: CareerCompany[] = [
         period: "2017.03 ~ 2018.09",
         bullets: [
           "<strong>10개 독립 사이트의 회원 통합 프로젝트</strong> 검증",
-          "토익 학습 앱(Bigple) 론칭 — 회원가입·결제·동영상 강의 재생 TC 설계/수행",
+          "토익 학습 앱(Bigple) 론칭: 회원가입·결제·동영상 강의 재생 TC 설계/수행",
         ],
       },
     ],
