@@ -38,7 +38,7 @@ description: 무인 키오스크 앱을 Web UI와 API 두 트랙으로 자동 �
 | API | 모듈별 응답 계약·에러 코드 정합 | vitest + supertest + zod |
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="Orchestrator 5단계 파이프라인 도식. 소스 clone, 테스트 생성, 실행, 리포트, 티켓 등록이 순서대로 이어진다. 테스트 생성과 실행 단계는 Web UI 트랙(Playwright)과 API 트랙(vitest+zod) 두 갈래로 나뉘어 병렬로 진행된 뒤, 리포트 단계에서 다시 합쳐진다. 전 과정이 한 번의 명령으로 반복된다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">Orchestrator — 한 번의 명령으로 도는 5단계, 가운데서 두 트랙으로 갈라진다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">Orchestrator: 한 번의 명령으로 도는 5단계, 가운데서 두 트랙으로 갈라진다</figcaption>
   <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
     <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-muted-foreground">① 소스 clone</span>
     <span aria-hidden="true" class="text-muted-foreground">→</span>

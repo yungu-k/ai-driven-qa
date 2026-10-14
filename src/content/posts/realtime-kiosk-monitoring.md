@@ -42,7 +42,7 @@ _가용성 뷰. 장비별 가동률과 다운타임을 한눈에 — 막대를 �
 **분류 기준을 코드 한 곳에 모았다.** 새 알람 유형이 생기면 그 한 파일만 고치면 상태·분석·이슈·가용성 네 화면에 동시에 반영된다. '규칙은 한 곳에' 원칙이 여기서도 그대로 통했다.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="분류 기준 단일 출처 부챗살 도식. 가운데 config.py 한 파일에 알람 분류 기준이 모여 있고, 거기서 상태 상황판·분석 뷰·이슈 뷰·가용성 뷰 네 화면으로 뻗는다. 기준을 바꾸면 한 파일만 고쳐도 네 화면에 동시 반영된다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">단일 출처 — config.py 한 곳을 고치면 네 화면이 함께 바뀐다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">단일 출처: config.py 한 곳을 고치면 네 화면이 함께 바뀐다</figcaption>
   <div class="mt-4 flex flex-col items-center gap-2 text-xs">
     <span class="rounded-lg border-2 border-accent bg-accent/10 px-4 py-2 font-bold text-accent">config.py<span class="block text-[10px] font-normal text-muted-foreground">알람 분류 기준 (단일 출처)</span></span>
     <span aria-hidden="true" class="text-muted-foreground">┌───┬───┬───┐</span>
@@ -105,4 +105,4 @@ def classify(alarm: Alarm) -> Severity:
 
 ---
 
-→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 6
+→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) (Phase 6)

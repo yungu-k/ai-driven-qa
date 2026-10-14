@@ -71,4 +71,4 @@ description: 운영 알람을 6색 분류 규격으로 자동 분류하고 미�
 
 ---
 
-→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 6
+→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) (Phase 6)

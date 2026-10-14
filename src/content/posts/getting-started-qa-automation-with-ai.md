@@ -7,7 +7,7 @@ featured: false
 draft: false
 tags:
   - ai-workflow
-description: 이 블로그의 자동화들을 직접 시도해보고 싶은 분들을 위한 초기 환경 세팅 가이드 — MCP 연결부터 첫 규격 문서, 첫 슬래시 커맨드까지.
+description: 이 블로그의 자동화들을 직접 시도해보고 싶은 분들을 위한 초기 환경 세팅 가이드. MCP 연결부터 첫 규격 문서, 첫 슬래시 커맨드까지.
 ---
 
 > 이 블로그의 여정을 읽고 "우리 팀에도 해보고 싶다"는 분들을 위한 시작 가이드. 거창한 인프라 없이 **Claude Code + MCP + 규격 문서 하나**로 시작할 수 있습니다 — 저는 이걸로 TC 작성을 수동 5일에서 2~3시간으로 줄였습니다.
@@ -38,7 +38,7 @@ claude mcp list
 스프레드시트는 MCP 서버를 쓰거나, Python 스크립트(gspread)를 Claude가 직접 실행하게 해도 됩니다. gspread 쪽이 붙이긴 빠르지만, 대가는 인증·서식 코드를 직접 관리해야 한다는 것입니다. **완벽한 연동보다 '한 대화 안에서 맥락이 이어지는 것'이 먼저입니다.**
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="MCP 연결 토폴로지. 가운데 Claude Code 에이전트 하나가 MCP를 통해 이슈 트래커(Jira), 문서(Confluence), 스프레드시트 세 도구에 모두 연결된다. 도구마다 창을 옮기는 대신 한 에이전트가 전부 다루므로 맥락이 끊기지 않는다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">MCP 연결 — 도구마다 창을 옮기는 대신, 에이전트 하나가 전부 다룬다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">MCP 연결: 도구마다 창을 옮기는 대신, 에이전트 하나가 전부 다룬다</figcaption>
   <div class="mt-4 flex flex-col items-center gap-2 text-xs">
     <span class="rounded-lg border-2 border-accent bg-accent/10 px-4 py-2 font-bold text-accent">Claude Code</span>
     <span aria-hidden="true" class="text-muted-foreground">│ MCP │</span>

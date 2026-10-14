@@ -8,7 +8,7 @@ featured: true
 draft: false
 tags:
   - ai-workflow
-description: AI가 테스트 케이스를 설계하고 화면을 역기획할 때 사람과 똑같이, 어쩌면 더 세게 확증편향에 빠진다. 해결책은 '더 조심하기'가 아니라 컨텍스트를 공유하지 않는 별도 AI에게 반증을 시키는 구조 — 수행 불가 33건이 네 라운드 만에 0이 됐다.
+description: AI가 테스트 케이스를 설계하고 화면을 역기획할 때 사람과 똑같이, 어쩌면 더 세게 확증편향에 빠진다. 해결책은 '더 조심하기'가 아니라 컨텍스트를 공유하지 않는 별도 AI에게 반증을 시키는 구조다. 이 구조로 수행 불가 33건이 네 라운드 만에 0이 됐다.
 ---
 
 > 실제 스프린트에서 발생·기록된 데이터를 익명화한 현장기. 리조트 키오스크의 QA·기획 프로세스를 AI Native로 전환하며 겪은 실패와, 그걸 구조로 잡은 이야기.
@@ -94,7 +94,7 @@ AI가 테스트를 설계하고 화면을 역으로 기획하면 사람보다 �
 역방향으로도 작동했다. 검증 에이전트가 "이 케이스는 기대값의 근거가 없다"고 짚자, 메인이 티켓을 다시 대조해 설계자(자기)의 기대결과가 틀렸음을 확인하고 정정했다. 잔량이 충분한 케이스에 "부족 안내"를 기대하고 있었던 것이다. 검증자 → 설계자 방향의 반증이 실제로 먹힌 사례다.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="컨텍스트 격리 검증 구조 도식. 왼쪽 메인 세션(저자)은 분석 맥락을 가지고 있다. 메인에서 감사자로 가는 실선 화살표는 결과물과 원본 소스만 전달한다. 저자의 추론·가정·이렇게 만들었다는 설명은 점선으로 차단되어 감사자에게 전달되지 않는다. 오른쪽 감사자는 맥락을 모른 채 소스만으로 1대1 대조한다. 감사자에서 메인으로 돌아오는 화살표는 반증(커버리지 갭·창작·판정 불가)이며, 메인은 원문을 재대조한 뒤 채택한다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">컨텍스트 격리 검증 — 저자의 '맥락'은 점선에서 끊고, 결과물·소스만 건넨다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">컨텍스트 격리 검증: 저자의 '맥락'은 점선에서 끊고, 결과물·소스만 건넨다</figcaption>
   <div class="mt-4 flex flex-col gap-3 text-xs sm:flex-row sm:items-stretch">
     <div class="flex-1 rounded-lg border border-border bg-background/60 p-3">
       <p class="font-semibold text-foreground">메인 세션 <span class="font-normal text-muted-foreground">(저자)</span></p>
@@ -144,7 +144,7 @@ AI가 테스트를 설계하고 화면을 역으로 기획하면 사람보다 �
 
 이 세 패턴을 실제로 작동시킨 다섯 가지 규칙(컨텍스트 격리 계약, 완료조건 "누락 0", 범위 안 겹치는 병렬, "검증자의 주장도 주장", 실패의 성문화)과 감사자 브리핑 템플릿은 분량상 별도 글로 뺐다.
 
-→ [반증 서브에이전트 재현 레시피 — 5원칙](/posts/confirmation-bias-subagent-recipe/)
+→ [확증편향을 구조로 잡는 반증 서브에이전트 5원칙](/posts/confirmation-bias-subagent-recipe/)
 
 한 가지만 미리 말하면, **공짜는 아니다**. 토큰·시간을 더 쓰니 검증 가능하고 틀리면 비싼 산출물에만 건다. 어디에 걸고 어디엔 안 거는지 비용 저울질은 위 레시피 글에서 다룬다.
 

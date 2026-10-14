@@ -57,7 +57,7 @@ description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3
 </style>
 
 <figure class="rtviz not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="스프린트 타임라인. 2주 스프린트는 총 10일 중 개발 6일, QA 4일이며 QA는 신규·변경 3일 뒤 Regression 1일 순서. 3주 스프린트는 총 15일 중 개발 9일, QA 6일이며 신규·변경 4일 뒤 Regression 2일. 개발과 QA의 경계가 Code Freeze 지점이다">
-  <figcaption class="text-xs font-semibold text-muted-foreground">스프린트 타임라인 — 폭 = 실제 작업일 비율 · Regression은 항상 마지막</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">스프린트 타임라인: 폭 = 실제 작업일 비율 · Regression은 항상 마지막</figcaption>
   <div class="mt-4 space-y-5 text-xs">
     <div>
       <p class="mb-1 text-muted-foreground">2주 스프린트 (10일)</p>

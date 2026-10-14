@@ -29,7 +29,7 @@ description: 외부 파트너가 올린 현장 기록이 자동으로 내부 Jir
 기록 본문(현상·조치·교체부품)은 앱이 소유한다. 앱에서 고치면 Jira로 밀어 넣지만, Jira에서 본문을 고쳐도 앱으로 돌아오지 않는다. 원본이 파트너가 쓴 그대로 남아야 하기 때문이다. 반대로 진행 상태는 Jira가 소유하고, 양쪽 어디서 바꿔도 서로에게 반영된다.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="아키텍처와 소유권 경계 도식. 외부 파트너의 React 웹앱이 서버리스 Edge Function을 거쳐 내부 Jira와 연결된다. 소유권은 둘로 갈린다 — 기록 본문(현상·조치·교체부품)은 앱이 소유해 앱에서 Jira 방향으로만 흐르고, 진행 상태는 Jira가 소유해 완전 양방향으로 동기화된다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">소유권 경계 — 누가 주인인지가 동기화 방향을 정한다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">소유권 경계: 누가 주인인지가 동기화 방향을 정한다</figcaption>
   <div class="mt-4 space-y-3 text-xs">
     <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
       <span class="rounded-md border border-border bg-background/60 px-2.5 py-1.5 text-muted-foreground">파트너 웹앱<span class="text-[10px]"> (React · 무료 호스팅)</span></span>

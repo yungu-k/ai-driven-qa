@@ -29,7 +29,7 @@ QA를 하다 보면 결함 자체를 찾는 시간보다 결함을 리포트로 
 **둘째, TC 시트를 단일 원천(SSOT)으로 삼는다.** 환경·사전조건·재현 절차·기대 결과는 새로 쓰지 않고 TC 시트의 해당 컬럼에서 그대로 끌어온다. 사람이 하는 건 "이 Fail을 버그로 만들어라" 지목뿐.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="TC와 Jira의 왕복 순환도. 수동에서는 TC 시트에서 Fail을 확인하고, 사람이 Jira로 건너가 버그를 손으로 작성하고, 다시 TC 시트로 돌아와 결과와 링크를 채우는 왕복이 반복된다. 자동에서는 TC 시트에서 Fail을 지목하면 규칙이 Jira 버그를 생성하고 곧바로 TC 시트에 Fail과 이슈 URL을 되쓴다 — 사람의 왕복이 지목 한 번으로 닫힌다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">TC ↔ Jira 왕복 — 사람이 오가던 경로를 규칙이 한 방향으로 닫는다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">TC ↔ Jira 왕복: 사람이 오가던 경로를 규칙이 한 방향으로 닫는다</figcaption>
   <div class="mt-4 space-y-3 text-xs">
     <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
       <span class="w-14 shrink-0 font-semibold text-muted-foreground">수동</span>
@@ -112,4 +112,4 @@ QA를 하다 보면 결함 자체를 찾는 시간보다 결함을 리포트로 
 
 ---
 
-→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 2
+→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) (Phase 2)

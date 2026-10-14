@@ -25,7 +25,7 @@ description: 글로벌 B2B 고객의 장애를 표준 프로세스로 대응하�
 - **알림 입력:** 현장 알림을 분류해 위 두 채널로 연결.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="2채널 분기 도식. 현장 알림이 들어오면 분류를 거쳐 두 채널로 갈린다. 고객 공유 채널은 Google Sheets로 결과 중심(원인·조치·배포 계획)만 담고, 내부 추적 채널은 Jira로 회고와 진행 상태를 담는다. 같은 장애를 목적이 다른 두 문서로 분리해 둘 다 각자 목적에 맞게 굴러간다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">2채널 분리 — 고객은 결과만, 내부는 회고까지</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">2채널 분리: 고객은 결과만, 내부는 회고까지</figcaption>
   <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
     <span class="rounded-md border border-border bg-background/60 px-2.5 py-1.5 text-muted-foreground">현장 알림</span>
     <span aria-hidden="true" class="text-muted-foreground">→ 분류 →</span>

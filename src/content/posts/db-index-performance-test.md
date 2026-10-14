@@ -62,7 +62,7 @@ OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY;
 | C. 복합 | 4 | 1 ms 미만 |
 
 <figure class="dbchart not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="인덱스 상태별 응답 시간 가로 막대그래프. 무인덱스 7,487밀리초, 단일 인덱스 1밀리초, 복합 인덱스 1밀리초 미만">
-  <figcaption class="text-xs font-semibold text-muted-foreground">응답 시간 (ms) · 선형 축 — 빨강 = 장애 상태 · 1ms급 값은 시각상 0에 가까운 최소 폭으로 표시</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">응답 시간 (ms) · 선형 축 · 빨강 = 장애 상태 · 1ms급 값은 시각상 0에 가까운 최소 폭으로 표시</figcaption>
   <div class="mt-3 space-y-2.5">
     <div class="grid grid-cols-[7.5rem_1fr_4.5rem] items-center gap-2" title="A. 무인덱스 — 7,487 ms / 189,016 읽기">
       <span class="text-xs text-foreground">A. 무인덱스</span>
@@ -95,7 +95,7 @@ OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY;
 | C. 복합 | 비활성 키오스크 (극단) | **4** | **1 ms 미만** |
 
 <figure class="dbchart not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="같은 단일 인덱스에서 대상별 응답 시간 가로 막대그래프. 단일 인덱스 활성 키오스크 1밀리초, 단일 인덱스 극단 비활성 키오스크 107,176밀리초, 복합 인덱스 극단 비활성 키오스크 1밀리초 미만">
-  <figcaption class="text-xs font-semibold text-muted-foreground">응답 시간 (ms) · 선형 축 — 위 두 막대는 같은 B(단일) 인덱스, 대상만 다름 · 빨강 = 절벽 구간 · 1ms급 값은 시각상 0에 가까운 최소 폭으로 표시</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">응답 시간 (ms) · 선형 축 · 위 두 막대는 같은 B(단일) 인덱스, 대상만 다름 · 빨강 = 절벽 구간 · 1ms급 값은 시각상 0에 가까운 최소 폭으로 표시</figcaption>
   <div class="mt-3 space-y-2.5">
     <div class="grid grid-cols-[7.5rem_1fr_4.5rem] items-center gap-2" title="B. 단일 인덱스, 활성 키오스크 — 1 ms / 10 읽기">
       <span class="text-xs text-foreground">B 단일 (활성)</span>

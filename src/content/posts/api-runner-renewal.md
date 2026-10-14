@@ -122,4 +122,4 @@ _왼쪽은 회차별 목록, 오른쪽은 한 회차의 종합(160·157·3·0)�
 
 ---
 
-→ 이 도구의 첫 버전 기록: [1,000건 회귀를 버튼 하나로](/posts/api-runner-web-ui/) · 전체 여정: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 7
+→ 이 도구의 첫 버전 기록: [1,000건 회귀를 버튼 하나로](/posts/api-runner-web-ui/) · 전체 여정: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) (Phase 7)

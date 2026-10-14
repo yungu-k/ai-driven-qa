@@ -14,9 +14,9 @@ description: 글 쓰는 AI가 아니라 기준을 지키는 AI. 글로벌 테크
 > 기획자가 '무엇을 만들까', QA가 '무엇이 깨질까', 개발자가 '어떻게 구현하나'라면 — Technical Writer는 '이 기록을 남 앞에 내놓아도 되는가'를 담당하는 네 번째 팀원이다.
 
 <div class="not-prose my-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
-  <p class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">시리즈 — AI 팀원 만들기 4부작</p>
+  <p class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">시리즈: AI 팀원 만들기 4부작</p>
   <p class="mt-2 leading-relaxed"><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-planner-teammate/">① 기획자</a><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-qa-engineer-teammate/">② QA 엔지니어</a><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-developer-teammate/">③ 개발자</a><span class="text-muted-foreground"> → </span><strong class="text-accent">④ Technical Writer (이 글)</strong></p>
-  <p class="mt-2 text-xs"><a class="text-muted-foreground hover:text-accent" href="/series/ai-teammate/">이 팀을 왜 나눴는지 — 시리즈 소개 →</a></p>
+  <p class="mt-2 text-xs"><a class="text-muted-foreground hover:text-accent" href="/series/ai-teammate/">시리즈 소개: 이 팀을 왜 나눴는지 →</a></p>
 </div>
 
 ## 배경 — 글 20편이 쌓였는데, 잘 쓴 글인지 아무도 몰랐다
@@ -52,7 +52,7 @@ description: 글 쓰는 AI가 아니라 기준을 지키는 AI. 글로벌 테크
 Technical Writer는 현장을 모른다. 자동화를 만든 세션이 재료 핸드오프(수치·사건·금지 표현·익명화 규칙)를 넘긴다. Writer는 쓰고, 모르는 값은 질문 핸드오프로 되묻는다. 초안은 독립 감사의 게이트를 거치고, 발행은 사람이 승인한다. 말로 전달하면 유실되고, 기억으로 전달하면 오염되니, 문서만 오간다.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="Technical Writer의 발행 파이프라인. 구현 세션이 재료 핸드오프를 넘기면 Technical Writer가 집필하고, 모르는 값은 질문 핸드오프로 구현 세션에 되묻는다. 초안은 독립 감사 에이전트의 게이트(수치 대조, 금지 표현, 익명화)를 거치고, 마지막에 사람이 발행을 승인한다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">발행 파이프라인 — 문서로만 오가고, 쓴 사람은 검사하지 못한다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">발행 파이프라인: 문서로만 오가고, 쓴 사람은 검사하지 못한다</figcaption>
   <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
     <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-muted-foreground">구현 세션<br/><span class="text-[10px]">재료 핸드오프</span></span>
     <span aria-hidden="true" class="text-muted-foreground">⇄</span>
@@ -102,4 +102,4 @@ Technical Writer는 현장을 모른다. 자동화를 만든 세션이 재료 �
 
 ---
 
-→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 7
+→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) (Phase 7)

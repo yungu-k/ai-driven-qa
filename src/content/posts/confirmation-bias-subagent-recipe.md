@@ -7,7 +7,7 @@ featured: false
 draft: false
 tags:
   - ai-workflow
-description: 컨텍스트 격리 검증을 실제로 작동시킨 5원칙과 감사자 브리핑 템플릿 — AI 확증편향을 프롬프트가 아니라 구조로 잡는 실전 레시피. 이 구조로 "수행 불가 33건"이 0이 됐다.
+description: 컨텍스트 격리 검증을 실제로 작동시킨 5원칙과 감사자 브리핑 템플릿. AI 확증편향을 프롬프트가 아니라 구조로 잡는 실전 레시피. 이 구조로 "수행 불가 33건"이 0이 됐다.
 ---
 
 > [AI도 확증편향에 빠진다](/posts/ai-confirmation-bias-subagents/)에서 "왜" 컨텍스트를 공유하지 않는 별도 AI에게 반증을 시켜야 하는지를 다뤘다. 이 글은 그 구조를 실제로 작동시킨 다섯 가지 — 첫 패스에서만 25건을 잡아낸, 그대로 따라 할 수 있는 레시피다.
@@ -27,7 +27,7 @@ description: 컨텍스트 격리 검증을 실제로 작동시킨 5원칙과 감
 5. **돌아온 지적을 그대로 믿지 않는다**: 메인이 원문을 재대조한 뒤 채택한다.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="병렬 팬아웃 도식. 메인 세션이 큰 작업을 겹치지 않는 구역으로 쪼개, 결과물과 원본 소스만 담아 여러 독립 감사자에게 동시에 던진다. 각 감사자는 담당 구역만 소스와 1대1로 대조해 반증을 돌려주고, 메인이 원문을 재대조한 뒤 채택한다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">병렬 팬아웃 — 구역을 갈라 던지고, 반증을 메인이 재대조 후 채택</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">병렬 팬아웃: 구역을 갈라 던지고, 반증을 메인이 재대조 후 채택</figcaption>
   <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
     <span class="rounded-lg border-2 border-accent bg-accent/10 px-3 py-2 font-semibold text-accent">메인 세션<span class="block text-[10px] font-normal text-muted-foreground">구역 분할 + 결과물·소스만</span></span>
     <span aria-hidden="true" class="text-muted-foreground">→ 팬아웃 →</span>
@@ -88,4 +88,4 @@ AI는 done-state가 없으면 그럴듯한 데서 멈춘다(satisfice). "확인�
 
 ---
 
-→ 배경·이론: [AI도 확증편향에 빠진다 — 서브에이전트로 반증을 구조화하기](/posts/ai-confirmation-bias-subagents/)
+→ 배경·이론: [AI도 확증편향에 빠진다](/posts/ai-confirmation-bias-subagents/)

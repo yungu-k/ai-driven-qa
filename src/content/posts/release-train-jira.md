@@ -30,7 +30,7 @@ description: 2~3주 릴리스 열차 설계를 Jira 보드에 앉히며 에픽·
 **"QA는 별도 단계가 아니라 각 작업의 완료 조건이다."** QA를 옆 라인에 빼두면, 스프린트 안에 미니 워터폴이 생긴다. 그래서 보드의 상태 흐름(개발 완료 → QA → 완료) 안에 넣었다.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="보드 상태 흐름 도식. 백로그, 진행 중, 개발 완료, QA, 완료 다섯 상태가 한 줄로 이어진다. QA는 옆 라인이 아니라 흐름 안에 있고, 완료만 강조되어 있으며 개발 완료는 아직 완료가 아니다">
-  <figcaption class="text-xs font-semibold text-muted-foreground">보드 상태 흐름 — QA는 흐름 안에 있고, '개발 완료'는 완료가 아니다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">보드 상태 흐름: QA는 흐름 안에 있고, '개발 완료'는 완료가 아니다</figcaption>
   <div class="mt-4 flex flex-wrap items-center gap-y-3 text-xs">
     <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-muted-foreground">백로그</span>
     <span aria-hidden="true" class="px-1.5 text-muted-foreground">→</span>
@@ -73,4 +73,4 @@ description: 2~3주 릴리스 열차 설계를 Jira 보드에 앉히며 에픽·
 
 ---
 
-→ 앞 글: [2~3주 릴리스 열차 만들기](/posts/release-train-scrum/) — 열차 체계를 설계한 이야기
+→ 앞 글(열차 체계를 설계한 이야기): [릴리스 열차로 고객 일정에서 배포를 떼어내다](/posts/release-train-scrum/)

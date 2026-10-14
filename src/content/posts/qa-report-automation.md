@@ -33,7 +33,7 @@ description: QA 리포팅을 데이터 수집→집계→시트→PDF→메일 �
 산출물 체인은 이렇게 생겼다. 파란 두 칸이 사람이 개입하는 유일한 지점이고, 나머지는 규격을 따라 자동으로 흐른다:
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="QA 리포트 파이프라인. 티켓 분석, QA Plan, TC 설계까지 자동으로 흐른 뒤 사람이 실장비에서 실행해 결과를 기입한다. 이어 QA Result 집계, PDF 생성, Drive 업로드, 알림 메일이 자동으로 흐르고, 마지막에 사람이 Verdict를 판정하고 서명한다. 사람 개입은 결과 기입과 판정·서명 두 지점뿐이다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">산출물 체인 — 파란 칸(사람) 2곳 외에는 규격이 흘린다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">산출물 체인: 파란 칸(사람) 2곳 외에는 규격이 흘린다</figcaption>
   <div class="mt-4 flex flex-wrap items-center gap-x-1.5 gap-y-2 text-xs">
     <span class="rounded-md border border-border bg-background/60 px-2 py-1 text-muted-foreground">티켓 분석</span>
     <span aria-hidden="true" class="text-muted-foreground">→</span>
@@ -103,4 +103,4 @@ description: QA 리포팅을 데이터 수집→집계→시트→PDF→메일 �
 
 ---
 
-→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 3
+→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) (Phase 3)

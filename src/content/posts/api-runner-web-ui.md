@@ -25,7 +25,7 @@ API 자동화 스위트가 1,000건 규모의 green baseline에 이르자, 이�
 트레이드오프는 분명하다. 순수 HTML/JS로 가면 프레임워크가 공짜로 주던 컴포넌트 재사용·상태 관리를 직접 짜야 한다. 대신 빌드 체인·의존성 업데이트·번들 크기라는 부담이 통째로 사라진다. **화면이 세 장뿐이라 감당 가능한 거래**였다. 화면이 열 장이었다면 반대로 골랐을 것이다.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="Runner Web UI 실행 흐름 도식. 브라우저에서 모듈을 선택하면 경량 웹 서버로 요청이 가고, 서버는 기존 테스트 러너를 자식 프로세스로 spawn한다. 러너의 진행 로그는 SSE 실시간 스트림으로 브라우저에 흘러가고, 완료된 결과는 CLI와 공유하는 리포트 폴더에 저장되어 아카이브 뷰어로 다시 읽힌다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">실행 흐름 — 러너는 새로 안 짜고 spawn으로 재사용, 결과 저장소는 CLI와 공유</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">실행 흐름: 러너는 새로 안 짜고 spawn으로 재사용, 결과 저장소는 CLI와 공유</figcaption>
   <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
     <span class="rounded-lg border border-border bg-background/60 px-3 py-2 text-muted-foreground">브라우저<br/><span class="text-[10px]">모듈 선택</span></span>
     <span aria-hidden="true" class="text-muted-foreground">→</span>
@@ -82,4 +82,4 @@ _빨간 선(FAIL)이 0으로 수렴하는 과정 — 상시 빨간 fail을 걷�
 
 ---
 
-→ 몇 달 뒤의 리뉴얼: [프레임워크를 안 쓴다던 결정을 몇 달 만에 뒤집었다](/posts/api-runner-renewal/) · 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 7
+→ 몇 달 뒤의 리뉴얼: [프레임워크를 안 쓴다던 결정을 몇 달 만에 뒤집었다](/posts/api-runner-renewal/) · 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) (Phase 7)

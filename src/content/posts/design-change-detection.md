@@ -27,7 +27,7 @@ Figma REST API로 페이지별 노드 트리를 JSON 스냅샷으로 저장하�
 - 대상 페이지는 프로젝트별로 설정 가능
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="스냅샷 diff 흐름 도식. 이전 스냅샷과 현재 스냅샷을 프레임의 이름, 숨김 여부, 하위 요소 개수 세 기준으로 비교해, 추가·삭제·변경된 화면만 추려낸다. 그 변경 화면에 대응하는 TC가 있는지 대조하는 것은 감지 위에 얹은 부수 단계다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">스냅샷 diff — 시각(timestamp)이 아니라 노드 트리를 비교한다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">스냅샷 diff: 시각(timestamp)이 아니라 노드 트리를 비교한다</figcaption>
   <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
     <div class="flex flex-col gap-1">
       <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">이전 스냅샷</span>
@@ -92,4 +92,4 @@ Figma REST API로 페이지별 노드 트리를 JSON 스냅샷으로 저장하�
 
 ---
 
-→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 4
+→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) (Phase 4)

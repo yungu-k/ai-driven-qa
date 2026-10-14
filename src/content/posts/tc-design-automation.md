@@ -25,7 +25,7 @@ description: 규격 문서를 정본으로, AI가 Figma 시안을 분석해 Goog
 Figma 분석은 하이브리드 2단계로 잡았다. 메타데이터(노드 트리)만 읽으면 UI 텍스트가 `title`, `description` 같은 제네릭 이름으로 나와 구체적인 TC를 못 쓴다. 반대로 스크린샷만 보면 hidden 노드 필터링이나 구조 완전성을 보장 못 한다. 그래서 메타데이터로 구조·순서를 확보하고, 텍스트가 제네릭한 핵심 화면만 골라 스크린샷으로 보완한다.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="하이브리드 2단계 분석 도식. 1단계는 메타데이터(노드 트리)로 화면 구조와 순서, hidden 노드 필터링을 확보한다. 2단계는 텍스트가 제네릭 이름으로 나오는 핵심 화면만 골라 스크린샷으로 실제 문구를 보완한다. 두 단계를 합쳐 구조 완전성과 구체적 문구를 동시에 얻는다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">하이브리드 2단계 — 구조는 메타데이터로, 문구는 스크린샷으로</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">하이브리드 2단계: 구조는 메타데이터로, 문구는 스크린샷으로</figcaption>
   <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
     <span class="rounded-lg border border-accent/60 bg-accent/5 px-3 py-2 text-foreground">① 메타데이터<span class="block text-[10px] text-muted-foreground">구조·순서 · hidden 필터</span></span>
     <span aria-hidden="true" class="text-muted-foreground">+</span>
@@ -89,4 +89,4 @@ Border는 반드시 맨 마지막, 그리고 채워진 영역에만
 
 ---
 
-→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) — Phase 1
+→ 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) (Phase 1)

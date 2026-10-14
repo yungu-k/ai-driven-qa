@@ -8,7 +8,7 @@ featured: true
 draft: false
 tags:
   - ai-workflow
-description: TC 설계부터 실시간 운영 모니터링, AI 팀원 구축까지 — QA 업무 전체를 AI 협업 워크플로우로 전환한 7단계 여정.
+description: TC 설계부터 실시간 운영 모니터링, AI 팀원 구축까지, QA 업무 전체를 AI 협업 워크플로우로 전환한 7단계 여정.
 ---
 
 > QA 자동화 여정을 외부 독자 관점에서 정리한 글이다. 각 Phase의 배경·접근·시행착오·결과를 구체적으로 풀어서 서술한다.
@@ -56,7 +56,7 @@ QA 엔지니어는 종종 '반복 작업이 많지만 판단이 중요한' 애�
 | Notion | MCP + REST | 회고 기록, 이 블로그의 원본 |
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="MCP 허브 구조 도식. 가운데 단일 AI Agent를 중심으로 Jira, Confluence, Google Sheets, Figma, Notion 다섯 시스템이 방사형으로 연결되어 있다. Agent 하나가 다섯 도구를 모두 제어하므로, 도구를 오갈 때 맥락이 끊기지 않는다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">MCP 허브 — 도구마다 창을 옮기는 대신, Agent 하나가 다섯을 제어한다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">MCP 허브: 도구마다 창을 옮기는 대신, Agent 하나가 다섯을 제어한다</figcaption>
   <div class="mt-4 flex flex-col items-center gap-2 text-xs">
     <div class="flex flex-wrap justify-center gap-2">
       <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">Jira</span>

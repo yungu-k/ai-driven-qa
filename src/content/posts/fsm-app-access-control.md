@@ -7,7 +7,7 @@ featured: false
 draft: true
 tags:
   - operations
-description: 현장 서비스 이력 앱을 React + Supabase로 짓고 외부 파트너에게 열었다. 그 순간 앱의 중심이 화면에서 DB로 옮겨갔다 — 가입 경로 3개, 관문 1개, 접근 제어에만 쓴 마이그레이션 4개의 기록.
+description: 현장 서비스 이력 앱을 React + Supabase로 짓고 외부 파트너에게 열었다. 그 순간 앱의 중심이 화면에서 DB로 옮겨갔다. 가입 경로 3개, 관문 1개, 접근 제어에만 쓴 마이그레이션 4개의 기록.
 ---
 
 > 현장 엔지니어가 장비 서비스 이력을 남기는 사내 웹앱을 지었다. 화면 9개, 런타임 의존성 4개, 인프라 비용 0원. 이 앱을 외부 파트너사에게 열기로 한 순간, 스키마 마이그레이션 29개 중 4개를 새 기능이 아니라 **누가 무엇을 보는가**에 썼다.
@@ -69,7 +69,7 @@ $$;
 값어치는 Google 로그인을 붙일 때 드러났다. 접근 제어 코드를 **한 줄도 고치지 않았다.** 가입 경로를 늘려도 관문 수는 안 늘기 때문이다.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="인증·인가 흐름 도식. Google OAuth, 이메일과 비밀번호 가입, 비밀번호 재설정 세 가지 가입 경로가 모두 auth.users 테이블의 행 삽입 하나로 수렴한다. 그 삽입에 붙은 트리거가 프로필을 승인 대기 상태로 만든다. 이후 모든 데이터 접근은 DB의 행 수준 보안 정책 두 조건을 통과해야 한다 — 승인됐는가, 그리고 이 사업장을 담당하는가. 화면의 승인 대기 안내는 차단이 아니라 안내일 뿐이다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">가입 경로 3개 → 관문 1개 — 차단은 화면이 아니라 DB가 한다</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">가입 경로 3개 → 관문 1개: 차단은 화면이 아니라 DB가 한다</figcaption>
   <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
     <div class="flex flex-col gap-1.5">
       <span class="rounded-md border border-border bg-background/60 px-2.5 py-1 text-muted-foreground">Google OAuth</span>
