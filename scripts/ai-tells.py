@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AI 티 측정기 — docs/WRITING_STANDARD.md §4-1 의 문지기 (N1·N2·N3·N4·N5·N9).
+"""AI 티 측정기 — docs/WRITING_STANDARD.md §4-1 의 문지기 (N1·N2·N3·N4·N5·N9·N10).
 
 사용
   python3 scripts/ai-tells.py src/content/posts/<slug>.md [...]   상한 초과가 있으면 종료 코드 1
@@ -37,6 +37,15 @@ N5_STRONG = ["에 있어", "가지고 있", "되어지", "지게 되", "있을 �
 # N5 [보통]
 N5_MODERATE = ["에 대해", "를 통해", "을 통해", "와 관련하여", "과 관련하여", "에 기반하", "바탕으로",
                "에 의해", "을 위해", "를 위해", "에서의", "으로의", "으로부터의", "넘어"]
+# N10 결과를 색으로 부르기(「15건이 초록이었다」) — 한 번도 안 된다. 결과는 통과/실패로 쓴다(2026-10-14 오너 결정).
+COLOR_WORDS = re.compile(r"초록|빨강|빨간|빨갛|빨개|\bgreen\b|\bred\b", re.I)
+# 실제 색을 말하는 문장만 허용한다. 이름이 아니라 그 문장에 실제로 있는 글자 그대로 적는다 —
+# 이 글자가 든 문장이면 색 낱말이 몇 개든 통과하므로, 넓은 낱말(「대시보드」 같은)은 넣지 않는다.
+COLOR_ALLOW = [
+    "작은 초록 배지",          # ai-designer-teammate: PASS 배지의 실제 색
+    "장비 고장 빨간불",        # ai-developer-teammate: 관제판 패널 색
+    "같은 장비가 또 빨개지면",  # ai-developer-teammate: 같은 패널
+]
 
 # 「[」는 넣지 않는다 — 링크로 시작하는 문단도 산문이다. 넣었더니 그 문단이 통째로 안 세져,
 # 교정 세션이 링크를 문장 뒤로 옮겨 수치를 맞추는 일이 생겼다(2026-10-14).
@@ -95,6 +104,9 @@ def measure(text):
         if len(ss) >= 2 and len(ss[-1]) <= PUNCH_MAX_CHARS:
             punch.append(ss[-1])
 
+    colors = [s for p in paras for s in sentences(p)
+              if COLOR_WORDS.search(s) and not any(a in s for a in COLOR_ALLOW)]
+
     lens = [len(s) for p in paras for s in sentences(p)]
     sd = statistics.pstdev(lens) if len(lens) >= 2 else 0.0
 
@@ -115,12 +127,14 @@ def measure(text):
     for w, c in n5m.items():
         if c > CAP_MODERATE:
             viol.append(f"N5[보통] 「{w}」 {c} > {CAP_MODERATE}")
+    for s in colors:
+        viol.append(f"N10 색으로 부른 결과: {s[:60]}")
 
     return {
         "chars": chars, "bold": len(bolds), "bold_k": len(bolds) / k,
         "dash": dashes, "dash_k": dashes / k, "anira": anira,
         "n4": {**n4s, **n4m}, "n5": {**n5s, **n5m},
-        "punch": punch, "sd": sd, "viol": viol,
+        "punch": punch, "sd": sd, "viol": viol, "colors": colors,
     }
 
 
@@ -142,12 +156,16 @@ BAD = """
 이 결과는 우리에게 시사하는 바가 크다 — 주목할 만하다. 이 접근에 있어 우리는 경쟁력을 가지고 있다. 이를 통해 판단되어진다. 그 뿐만이 아니라 이게 핵심이다.
 
 데이터에 대해 분석했다. 규제에 대해 논의했다. 성과에 대해 보고했다 — **놀라운** 결과다. 차이는 분명하다.
+
+3분 뒤에 검사 15건이 초록이었다.
 """
 
 GOOD = """
 수집기는 세션이 남긴 기록만 읽는다. 이름을 묻지 않는다. 메시지를 보낸 쪽과 받은 쪽의 기록을 맞춰 보면 누가 누구인지 저절로 풀린다.
 
 첫날 이벤트가 48건 쌓였다. 구성을 보니 재기동 4회에 12명이 곱해진 가짜 출근이었고 진짜 활동은 0건이었다. 합계만 보면 둘은 같은 숫자로 보인다.
+
+판정은 표 한 칸 안의 작은 초록 배지였다. 검사 15건이 모두 통과했다.
 """
 
 
@@ -156,7 +174,9 @@ def selftest():
     print("selftest — 더미 글로 측정기가 보는지 확인")
     report("더미(AI 티)", bad, True)
     report("더미(깨끗)", good, True)
-    ok = bool(bad["viol"]) and not good["viol"] and len(bad["punch"]) >= 1
+    # N10 은 따로 단언한다 — 다른 위반이 빨강을 내면 N10 이 눈멀어도 위 조건은 참이다
+    ok = (bool(bad["viol"]) and not good["viol"] and len(bad["punch"]) >= 1
+          and len(bad["colors"]) == 1 and not good["colors"])
     print("selftest:", "PASS (빨강·초록 둘 다 나온다)" if ok else "FAIL — 측정기가 아무것도 안 보고 있다")
     return 0 if ok else 2
 

@@ -108,4 +108,4 @@ AI 팀원은 결함 등록을 제안했다. 사람의 답은 달랐다. 「아�
 
 참고: [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (FSE 2025 Industry)
 
-→ 앞 이야기: [수동 26건이 1건이 되자, 초록을 의심하기 시작했다](/posts/kiosk-screen-automation-renewal/) · 전체 여정: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/)
+→ 앞 이야기: [수동 26건이 1건이 되자, 통과를 의심하기 시작했다](/posts/kiosk-screen-automation-renewal/) · 전체 여정: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/)
