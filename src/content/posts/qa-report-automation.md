@@ -101,7 +101,7 @@ description: QA 리포팅을 데이터 수집→집계→시트→PDF→메일 �
 
 **남은 일.** 실장비에서 직접 실행해 결과를 기입하는 구간은 여전히 자동화 밖이다. 다만 경계는 이 글 뒤로 한 칸 움직였다. 자동화 스위트 쪽은 2026-09 리뉴얼로 빌드 감지→실행→시트 기입→실패 원인 리포트까지 사람 손 없이 돌고, Jira 결함 등록만은 초안을 만들어 놓고 사람 승인을 기다린다. 판정과 서명을 사람에게 남긴다는 이 글의 원칙이, 실행이 전자동이 된 뒤에도 마지막 관문으로 살아남은 셈이다.
 
-이 글에서 쓴 리포트 규격은 [qa-spec-kit의 QA_REPORT.md](https://github.com/yungu-k/qa-spec-kit/blob/main/QA_REPORT.md)에, PDF 템플릿은 [HOTFIX_REPORT_TEMPLATE.md](https://github.com/yungu-k/qa-spec-kit/blob/main/HOTFIX_REPORT_TEMPLATE.md)에 공개해 두었다. 회사와 고객사 정보만 지운 실제 규격이다.
+이 글에서 쓴 리포트 규격과 PDF 리포트 HTML 템플릿은 [qa-spec-kit의 QA_REPORT.md](https://github.com/yungu-k/qa-spec-kit/blob/main/QA_REPORT.md)에 공개해 두었다. 템플릿(§11.4)은 실제로 발행한 Sign-off 리포트에서 데이터와 고객사 정보만 걷어 낸 뼈대이고, Hotfix·현장 리포트도 같은 뼈대를 쓴다.
 
 ---
 
