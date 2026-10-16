@@ -62,20 +62,34 @@ const stats = [
         class="mb-3 inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium tracking-wide text-muted-foreground"
       >
         <span class="inline-block h-1.5 w-1.5 rounded-full bg-accent"></span>
-        QA Engineer × AI Agent
+        QA Engineer × Agentic AI
       </p>
       <h1
         class="text-4xl leading-[1.15] font-extrabold tracking-tight sm:text-5xl"
       >
-        반복은 <span class="text-accent">AI</span>에게,<br />
-        판단은 <span class="text-accent">사람</span>에게
+        AI와 함께 <span class="text-accent">만들고</span>,<br />
+        검증한 것만 <span class="text-accent">믿는다</span>
       </h1>
       <p
         class="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg"
       >
-        QA 실무에서 TC 설계·운영 관제·AI 팀원까지 직접 굴려본 것만,
+        QA 엔지니어가 AI 팀원과 기획·개발·디자인까지 직접 굴려본 것만,
         <span class="whitespace-nowrap">과장 없이 실측으로 씁니다.</span>
       </p>
+      {/* 일을 나누는 방식(2026-10-16) — 「반복은 AI, 판단은 사람」에서 셋으로 갈렸다 */}
+      <ul class="mt-5 flex flex-wrap gap-2 text-xs sm:text-sm" aria-label="일을 나누는 방식">
+        {[
+          ["반복", "스크립트"],
+          ["판단", "AI"],
+          ["결정", "사람"],
+        ].map(([work, who]) => (
+          <li class="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-3 py-1">
+            <span class="text-muted-foreground">{work}</span>
+            <span aria-hidden="true" class="text-muted-foreground/70">→</span>
+            <span class="font-semibold text-foreground">{who}</span>
+          </li>
+        ))}
+      </ul>
       <div class="mt-5">
         <LinkButton
           href="/posts/repetition-to-ai-judgment-to-human/"

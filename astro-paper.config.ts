@@ -5,7 +5,7 @@ export default defineAstroPaperConfig({
     url: "https://ai-driven-qa.vercel.app/",
     title: "AI-Driven QA",
     description:
-      "반복은 AI에게, 판단은 사람에게 — QA 자동화와 AI 협업의 실전 기록",
+      "AI와 함께 만들고, 검증한 것만 믿는다 — QA 엔지니어의 Agentic AI 실전 기록",
     author: "공윤구",
     profile: "",
     ogImage: "default-og.png",
