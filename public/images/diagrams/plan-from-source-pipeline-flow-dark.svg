@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 736 404" role="img" aria-labelledby="t">
+  <title id="t">빌드에서 기획서까지 한 줄로 이어지는 파이프라인. 시나리오 반영 칸을 열면 셋으로 나뉘고, AI 가 글을 고치는 칸은 가운데 하나뿐이다.</title>
+  <g font-family="Pretendard Variable, Pretendard, Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR, sans-serif">
+
+    <!-- ── 한 줄 흐름 (칸 6개 — 736px 에서 라벨이 시스템 폰트로도 안 깨지는 밀도. 칸을 더 늘리면 넘친다) ── -->
+    <g>
+      <rect x="14" y="28" width="94" height="56" rx="8" fill="#161b26" stroke="#9aa3b5" stroke-width="1.5"/>
+      <text x="61" y="52" font-size="15" font-weight="700" fill="#e6e8ee" text-anchor="middle">개발 커밋</text>
+      <text x="61" y="71" font-size="12" fill="#9aa3b5" text-anchor="middle">개발 브랜치</text>
+      <rect x="122" y="28" width="94" height="56" rx="8" fill="#161b26" stroke="#9aa3b5" stroke-width="1.5"/>
+      <text x="169" y="52" font-size="15" font-weight="700" fill="#e6e8ee" text-anchor="middle">빌드 서버</text>
+      <text x="169" y="71" font-size="12" fill="#9aa3b5" text-anchor="middle">성공 빌드</text>
+      <rect x="230" y="28" width="108" height="56" rx="8" fill="#161b26" stroke="#9aa3b5" stroke-width="1.5"/>
+      <text x="284" y="52" font-size="15" font-weight="700" fill="#e6e8ee" text-anchor="middle">테스트 서버</text>
+      <text x="284" y="71" font-size="12" fill="#9aa3b5" text-anchor="middle">화면 캡처</text>
+      <rect x="352" y="28" width="126" height="56" rx="8" fill="#161b26" stroke="#9aa3b5" stroke-width="1.5"/>
+      <text x="415" y="52" font-size="15" font-weight="700" fill="#e6e8ee" text-anchor="middle">시나리오 반영</text>
+      <text x="415" y="71" font-size="12" fill="#9aa3b5" text-anchor="middle">30분마다</text>
+      <rect x="492" y="28" width="112" height="56" rx="8" fill="#161b26" stroke="#9aa3b5" stroke-width="1.5"/>
+      <text x="548" y="52" font-size="15" font-weight="700" fill="#e6e8ee" text-anchor="middle">기획서 생성</text>
+      <text x="548" y="71" font-size="12" fill="#9aa3b5" text-anchor="middle">HTML · Figma</text>
+      <rect x="618" y="28" width="106" height="56" rx="8" fill="#161b26" stroke="#9aa3b5" stroke-width="1.5"/>
+      <text x="671" y="52" font-size="15" font-weight="700" fill="#e6e8ee" text-anchor="middle">팀 알림</text>
+      <text x="671" y="71" font-size="12" fill="#9aa3b5" text-anchor="middle">반영·보류·실패</text>
+
+      <!-- 화살표 (화살촉은 path — 글리프 금지) -->
+      <g stroke="#9aa3b5" stroke-width="2" fill="none">
+        <line x1="108" y1="56" x2="116" y2="56"/>
+        <line x1="216" y1="56" x2="224" y2="56"/>
+        <line x1="338" y1="56" x2="346" y2="56"/>
+        <line x1="478" y1="56" x2="486" y2="56"/>
+        <line x1="604" y1="56" x2="612" y2="56"/>
+      </g>
+      <g fill="#9aa3b5">
+        <path d="M122 56 l-9 -5 v10 z"/>
+        <path d="M230 56 l-9 -5 v10 z"/>
+        <path d="M352 56 l-9 -5 v10 z"/>
+        <path d="M492 56 l-9 -5 v10 z"/>
+        <path d="M618 56 l-9 -5 v10 z"/>
+      </g>
+    </g>
+
+    <!-- ── 「시나리오 반영」 칸을 연 것 (확대 상자) ── -->
+    <g stroke="#9aa3b5" stroke-width="1.5" fill="none">
+      <line x1="352" y1="84" x2="14" y2="120"/>
+      <line x1="478" y1="84" x2="724" y2="120"/>
+    </g>
+    <rect x="14" y="120" width="710" height="138" rx="12" fill="#10141d" stroke="#9aa3b5" stroke-width="1.5"/>
+    <text x="30" y="146" font-size="13" fill="#9aa3b5">시나리오 반영 — 30분마다 · 사람 승인 없음 · 일을 셋으로 나눴다</text>
+
+    <!-- 칸 1: 스크립트 -->
+    <rect x="30" y="166" width="216" height="60" rx="8" fill="#161b26" stroke="#9aa3b5" stroke-width="1.5"/>
+    <text x="46" y="190" font-size="13" font-weight="700" fill="#e6e8ee">줄 번호 옮기기</text>
+    <rect x="160" y="176" width="70" height="18" rx="9" fill="#161b26" stroke="#9aa3b5" stroke-width="1"/>
+    <text x="195" y="189" font-size="12" font-weight="600" fill="#9aa3b5" text-anchor="middle">스크립트</text>
+    <text x="46" y="212" font-size="12" fill="#9aa3b5">옮긴 줄의 글자를 대조</text>
+
+    <!-- 칸 2: AI — 이 그림에서 강조색을 쓰는 유일한 자리 -->
+    <rect x="262" y="166" width="216" height="60" rx="8" fill="#1d2135" stroke="#8b93ff" stroke-width="2"/>
+    <text x="278" y="190" font-size="13" font-weight="700" fill="#e6e8ee">바뀐 줄 고치기</text>
+    <rect x="432" y="176" width="30" height="18" rx="9" fill="#8b93ff"/>
+    <text x="447" y="189" font-size="12" font-weight="600" fill="#10141d" text-anchor="middle">AI</text>
+    <text x="278" y="212" font-size="12" fill="#9aa3b5">바뀐 줄만 받는다</text>
+
+    <!-- 칸 3: 스크립트 -->
+    <rect x="494" y="166" width="216" height="60" rx="8" fill="#161b26" stroke="#9aa3b5" stroke-width="1.5"/>
+    <text x="510" y="190" font-size="13" font-weight="700" fill="#e6e8ee">대조 10가지</text>
+    <rect x="624" y="176" width="70" height="18" rx="9" fill="#161b26" stroke="#9aa3b5" stroke-width="1"/>
+    <text x="659" y="189" font-size="12" font-weight="600" fill="#9aa3b5" text-anchor="middle">스크립트</text>
+    <text x="510" y="212" font-size="12" fill="#9aa3b5">장부 · 인용 · 용어 검사</text>
+
+    <!-- 칸 사이 차례 -->
+    <g fill="#9aa3b5">
+      <path d="M260 196 l-8 -5 v10 z"/>
+      <path d="M492 196 l-8 -5 v10 z"/>
+    </g>
+    <g stroke="#9aa3b5" stroke-width="2">
+      <line x1="246" y1="196" x2="252" y2="196"/>
+      <line x1="478" y1="196" x2="484" y2="196"/>
+    </g>
+
+    <text x="30" y="246" font-size="12" fill="#9aa3b5">AI 가 「고쳤다」고 말한 내용을 믿지 않고, 문서 사본과 장부를 맞대 판정한다</text>
+
+    <!-- ── 곁다리: 멈추는 문 · 되돌리기 ── -->
+    <line x1="14" y1="282" x2="724" y2="282" stroke="#9aa3b5" stroke-width="1" opacity="0.45"/>
+
+    <text x="14" y="304" font-size="12" font-weight="600" fill="#e6e8ee">멈추는 문 3개</text>
+    <g fill="#9aa3b5">
+      <circle cx="20" cy="320" r="2"/><circle cx="20" cy="338" r="2"/><circle cx="20" cy="356" r="2"/>
+    </g>
+    <g font-size="12" fill="#9aa3b5">
+      <text x="32" y="324">멈춤 스위치 — 파일 하나면 전체 정지</text>
+      <text x="32" y="342">바뀐 행이 30개를 넘으면 사람 호출</text>
+      <text x="32" y="360">대조가 하나라도 실패하면 이전 기획서 유지</text>
+    </g>
+
+    <text x="396" y="304" font-size="12" font-weight="600" fill="#e6e8ee">되돌리기 = 명령 한 줄</text>
+    <g fill="#9aa3b5"><circle cx="402" cy="320" r="2"/><circle cx="402" cy="338" r="2"/></g>
+    <g font-size="12" fill="#9aa3b5">
+      <text x="414" y="324">반영 한 번 = 커밋 하나 + 태그 하나</text>
+      <text x="414" y="342">시나리오 · 기획서 · Figma 가 함께 이전 판으로</text>
+    </g>
+
+    <!-- ── 범례 ── -->
+    <g>
+      <rect x="14" y="376" width="30" height="18" rx="9" fill="#8b93ff"/>
+      <text x="29" y="389" font-size="12" font-weight="600" fill="#10141d" text-anchor="middle">AI</text>
+      <text x="52" y="389" font-size="12" fill="#e6e8ee">판단</text>
+      <rect x="108" y="376" width="70" height="18" rx="9" fill="#161b26" stroke="#9aa3b5" stroke-width="1"/>
+      <text x="143" y="389" font-size="12" font-weight="600" fill="#9aa3b5" text-anchor="middle">스크립트</text>
+      <text x="186" y="389" font-size="12" fill="#e6e8ee">옮기기 · 대조</text>
+    </g>
+  </g>
+</svg>
