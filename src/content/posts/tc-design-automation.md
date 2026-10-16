@@ -87,6 +87,8 @@ Border는 반드시 맨 마지막, 그리고 채워진 영역에만
 - **API 한계는 빨리 파악해 '수동 영역'으로 분리**하면 우회에 매달리는 시간이 줄어든다.
 - 좋은 정책도 틀렸다 싶으면 버려라. TC를 사람 등급으로 가르던 규칙을 폐기한 게, 오히려 산출물을 더 튼튼하게 만들었다.
 
+이 글에서 쓴 TC 설계 규격은 [qa-spec-kit의 TC_DESIGN_GUIDE.md](https://github.com/yungu-k/qa-spec-kit/blob/main/TC_DESIGN_GUIDE.md)에 공개해 두었다. 회사와 고객사 정보만 지운 실제 규격이라, 그대로 가져가 팀에 맞게 고쳐 쓰면 된다.
+
 ---
 
 → 전체 여정에서 이 글의 위치: [QA 자동화 여정기](/posts/repetition-to-ai-judgment-to-human/) (Phase 1)
