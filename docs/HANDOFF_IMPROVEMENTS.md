@@ -108,6 +108,6 @@ release-train 분할 · ai-confirmation 분할 · qa-report/bug-report/tc-design
 ## 주의사항 (집행 세션)
 
 - 수치는 **절대 창작 금지** — [저자 확인] 미답변 항목은 건드리지 말 것. 이 블로그의 신뢰는 실측에서 나온다.
-- 회사 민감 정보 익명화 원칙 유지 (Genting/Clonix 실명·데이터 금지).
+- 회사 민감 정보 익명화 원칙 유지 (고객사·회사 실명·데이터 금지).
 - 빌드: `pnpm` 전용 (npm 금지). push = Vercel 자동배포이므로 로컬 `pnpm build` 검증 후 push.
 - 수정 후 해당 포스트의 감사 파일 항목에 처리 표시(✅)를 남길 것 — 다음 감사 라운드의 diff 기준.
