@@ -36,7 +36,12 @@ const homePath = getRelativeLocaleUrl(locale, "");
 
 const stats = [
   { value: careerLabel(), label: "QA 경력" },
-  { value: "1,100+", label: "통과한 자동화 테스트" },
+  {
+    // qa-spec-kit 루트의 규격 md 수(README·CLAUDE 제외, 2026-10-21 기준 7). 규격을 더하거나 빼면 같이 고친다.
+    value: "7종",
+    label: "AI가 따르는 QA 규격",
+    href: "https://github.com/yungu-k/qa-spec-kit",
+  },
   { value: `${sortedPosts.length}편`, label: "실전 기록" },
   {
     // 수·근거 링크는 `data/aiTeam.ts` 한 곳에서 읽는다 — 세는 축(직접 설계한 AI 팀원 =
