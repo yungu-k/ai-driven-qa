@@ -231,6 +231,8 @@ W14 를 「경계한다」로만 두면 지켜지지 않는다. 2026-08-21 전�
 
 기록 (2026-07-29): 현행 featured = repetition·db-index·kiosk-infra·field-service. 재선별 권고안 = db-index(A-·기술 깊이) + ai-confirmation(A-·AI 통찰) + bug-report(B+·자동화) + repetition(허브) — **R2 집행 완료 후 등급 재확인하고 확정할 것** (kiosk-infra·field-service 는 B라 F2 미달, 상향 시 재경합).
 
+기록 (2026-10-21, Dean 승인): 현행 featured = repetition(허브, 「반복은 스크립트, 판단은 AI, 결정은 사람」으로 개편) · db-index(A-·기술 깊이) · ai-confirmation(A-·AI 통찰) · kiosk-screen-automation-renewal(A-·자동화, bug-report 와 교체 — 슬로건 「검증한 것만 믿는다」에 맞춤) · ai-teammate-web-e2e(AI 팀 운영 — 링크드인 「AI Agent Orchestration」의 결과물). 다음 후보: plan-from-source-pipeline(실전 절 복원 뒤, AI 활용 축).
+
 ## 9. 퇴고 체크리스트 (감사용 요약)
 
 **구조**: S1(도입 3문단+수치) · S4(대안 검토) · S5(헤딩 스캔) · S7(마무리 3종) · S8(분량)
