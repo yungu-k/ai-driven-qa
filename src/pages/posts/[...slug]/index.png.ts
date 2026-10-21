@@ -80,7 +80,7 @@ export const GET: APIRoute = async ({ props }) => {
                     },
                   },
                 },
-                { type: "span", props: { children: "QA Engineer × AI Agent" } },
+                { type: "span", props: { children: "AI-Native QA Engineer" } },
               ],
             },
           },
