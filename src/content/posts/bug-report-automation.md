@@ -3,7 +3,7 @@ author: 공윤구
 pubDatetime: 2026-04-10T09:17:00.000Z
 title: 버그 한 건 쓰는 데 5분에서 1분으로
 slug: bug-report-automation
-featured: true
+featured: false
 draft: false
 tags:
   - qa-process

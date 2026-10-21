@@ -4,7 +4,7 @@ pubDatetime: 2026-08-05T09:00:00.000Z
 title: 수동 26건이 1건이 되자, 통과를 의심하기 시작했다
 subtitle: 키오스크 화면 자동화 리뉴얼
 slug: kiosk-screen-automation-renewal
-featured: false
+featured: true
 draft: false
 tags:
   - test-automation
