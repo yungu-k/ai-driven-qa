@@ -93,14 +93,18 @@ Figma 갱신을 사람 없이 돌리는 데서 같은 문제를 두 번 만났�
 
 ## 기획서는 한 번 쓰고 끝나는 문서가 아니었다
 
-정석은 기획을 하고 개발을 하는 것이다. 그런데 기획서를 고칠 사람이 없으면 기획서는 첫 판에서 멈춘다. 우리는 그 뒤의 변경을 코드 쪽에서 거꾸로 거슬러 올라가 기획서에 다시 담았다. 만들어 놓고 보니 쓸 곳이 분명했다. 새로 온 팀원에게 보여 줄 문서가 생겼고, TC를 설계할 때 손님의 흐름을 찾아볼 곳이 생겼다. 새 빌드마다 시나리오와 기획서가 함께 다시 만들어지니, 기획서가 첫 판에서 멈출 일도 없어졌다.
+정석은 기획을 하고 개발을 하는 것이다. 그런데 기획서를 고칠 사람이 없으면 기획서는 첫 판에서 멈춘다. 나는 그 뒤의 변경을 코드 쪽에서 거꾸로 거슬러 올라가 기획서에 다시 담았다. 만들어 놓고 보니 쓸 곳이 분명했다. 새로 온 팀원에게 보여 줄 문서가 생겼고, TC를 설계할 때 손님의 흐름을 찾아볼 곳이 생겼다. 새 빌드마다 시나리오와 기획서가 함께 다시 만들어지니, 기획서가 첫 판에서 멈출 일도 없어졌다.
 
 이 일을 하면서 내 일의 경계도 흐려졌다. 나는 QA 엔지니어다. 그런데 이번에는 시나리오를 정의하고(기획), 파이프라인을 만들고(개발), 어디까지 자동으로 갈지 정했다(PM). 셋 다 AI 팀원과 같이 했다.
 
-이런 변화는 우리만의 이야기가 아니다. Meta에서는 일부 제품 관리자(PM)가 스스로를 「AI Builder」라고 소개하기 시작했다. 10년 넘게 PM을 한 사람이 「오늘부터 Meta에서 내 풀타임 직무는 AI Builder」라고 썼다. 회사의 공식 직함은 여전히 PM이다. LinkedIn은 한발 더 나가, 신입 PM 육성 프로그램을 없애고 코딩·디자인·기획을 함께 가르치는 「Associate Product Builder」 프로그램으로 바꿨다. 「PM이 명세를 쓰고, 디자이너가 그리고, 엔지니어가 구현하던」 조립 라인이 사라지고 있다는 보도도 나왔다. 우리 파이프라인은 그 조립 라인을 거꾸로 돌린 셈이다. 구현에서 시나리오로, 시나리오에서 기획서로.
+이런 변화는 나만의 이야기가 아니다. Meta에서는 일부 제품 관리자(PM)가 스스로를 「AI Builder」라고 소개하기 시작했다. 10년 넘게 PM을 한 사람이 「오늘부터 Meta에서 내 풀타임 직무는 AI Builder」라고 썼다. 회사의 공식 직함은 여전히 PM이다. LinkedIn은 한발 더 나가, 신입 PM 육성 프로그램을 없애고 코딩·디자인·기획을 함께 가르치는 「Associate Product Builder」 프로그램으로 바꿨다. 「PM이 명세를 쓰고, 디자이너가 그리고, 엔지니어가 구현하던」 조립 라인이 사라지고 있다는 보도도 나왔다. 내 파이프라인은 그 조립 라인을 거꾸로 돌린 셈이다. 구현에서 시나리오로, 시나리오에서 기획서로.
 
 ## 참고 자료
 
 - **Slashdot** (Business Insider 보도 요약): [Several Meta Employees Have Started Calling Themselves 'AI Builders'](https://tech.slashdot.org/story/26/02/20/1815253/several-meta-employees-have-started-calling-themselves-ai-builders) (2026.02)
 - **The San Francisco Standard**: ['Engineer' is so 2025. In AI land, everyone's a 'builder' now](https://sfstandard.com/2026/03/05/engineer-2025-ai-land-everyone-s-builder-now/) (2026.03)
 - **Lenny's Newsletter**: [Why LinkedIn is replacing PMs](https://www.lennysnewsletter.com/p/why-linkedin-is-replacing-pms) (2025.12)
+
+---
+
+→ 소스에서 기획서를 되살린 첫 시도: [AI 기획자 팀원 만들기](/posts/ai-planner-teammate/)
