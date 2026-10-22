@@ -14,8 +14,8 @@ description: 글 쓰는 AI가 아니라 기준을 지키는 AI. 글로벌 테크
 > 기획자가 '무엇을 만들까', QA가 '무엇이 깨질까', 개발자가 '어떻게 구현하나'라면 — Technical Writer는 '이 기록을 남 앞에 내놓아도 되는가'를 담당하는 네 번째 팀원이다.
 
 <div class="not-prose my-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
-  <p class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">시리즈: AI 팀원 만들기 4부작</p>
-  <p class="mt-2 leading-relaxed"><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-planner-teammate/">① 기획자</a><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-qa-engineer-teammate/">② QA 엔지니어</a><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-developer-teammate/">③ 개발자</a><span class="text-muted-foreground"> → </span><strong class="text-accent">④ Technical Writer (이 글)</strong></p>
+  <p class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">시리즈: AI 팀원 만들기 5부작</p>
+  <p class="mt-2 leading-relaxed"><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-planner-teammate/">① 기획자</a><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-qa-engineer-teammate/">② QA 엔지니어</a><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-developer-teammate/">③ 개발자</a><span class="text-muted-foreground"> → </span><strong class="text-accent">④ Technical Writer (이 글)</strong><span class="text-muted-foreground"> → </span><a class="text-foreground underline decoration-border underline-offset-4 hover:text-accent" href="/posts/ai-designer-teammate/">⑤ 디자이너</a></p>
   <p class="mt-2 text-xs"><a class="text-muted-foreground hover:text-accent" href="/series/ai-teammate/">시리즈 소개: 이 팀을 왜 나눴는지 →</a></p>
 </div>
 
