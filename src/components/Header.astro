@@ -207,10 +207,20 @@ const isActive = (path: string) => {
     let fired = false;
     let startX = 0;
     let startY = 0;
+    // 안드로이드 인앱 브라우저(카카오톡 등)는 링크를 길게 누르면 자체 메뉴(열기·다른 브라우저로 열기)를
+    // 띄운다. contextmenu 막기·-webkit-touch-callout 이 안 듣는다 — 그 웹뷰는 「누른 자리가 링크인가」를
+    // 길게 누른 시점에 본다. ⇒ 손가락이 닿아 있는 동안만 href 를 떼어 둔다. 손을 떼면(pointerup) 바로
+    // 돌려 놓으므로 그 뒤에 오는 click 은 평소처럼 첫 화면으로 간다.
+    let heldHref: string | null = null;
+    const restoreHref = () => {
+      if (heldHref !== null) logo.setAttribute("href", heldHref);
+      heldHref = null;
+    };
 
     const cancel = () => {
       clearTimeout(timer);
       logo.classList.remove("egg-charging");
+      restoreHref();
     };
 
     logo.addEventListener("pointerdown", e => {
@@ -218,10 +228,15 @@ const isActive = (path: string) => {
       fired = false;
       startX = e.clientX;
       startY = e.clientY;
+      if (e.pointerType !== "mouse") {
+        heldHref = logo.getAttribute("href");
+        logo.removeAttribute("href");
+      }
       logo.classList.add("egg-charging");
       timer = window.setTimeout(() => {
         fired = true;
         logo.classList.remove("egg-charging");
+        restoreHref();
         window.location.href = "/lab/";
       }, HOLD_MS);
     });
