@@ -1,0 +1,1181 @@
+---
+// UI 버그 찾기 — 틀린 그림 찾기의 QA 판. 그림 파일 없이 가짜 앱 화면을 HTML/CSS 로 짜고,
+// 「실제 빌드」 쪽에만 코드로 버그를 심는다. 규칙은 engine.ts, 단계 데이터는 levels.ts.
+import LabLayout from "@/lab/LabLayout.astro";
+import { LEVELS } from "@/lab/ui-bug-hunt/levels";
+
+const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
+---
+
+<LabLayout title="UI 버그 찾기" description="기획서와 실제 빌드를 비교해 숨은 UI 버그를 찾는 게임">
+  <section class="ub-root" id="ub-root">
+    <header class="ub-head">
+      <h1 class="ub-title">UI 버그 찾기</h1>
+      <p class="ub-sub">기획서와 실제 빌드, 어디가 다를까요?</p>
+    </header>
+
+    <div class="ub-intro" data-ub="intro">
+      <ol class="ub-how">
+        <li><b>기획서</b>는 정상 화면, <b>실제 빌드</b>엔 버그가 숨어 있어요.</li>
+        <li>실제 빌드에서 이상한 곳을 <b>탭</b>하세요. 맞으면 동그라미가 그려져요.</li>
+        <li>엉뚱한 곳을 누르면 <b>실수</b>로 세요. 막히면 힌트!</li>
+      </ol>
+      <p class="ub-count">단계 {LEVELS.length}개 · 버그 {bugCount}개</p>
+      <button type="button" class="ub-cta" data-ub="start">시작하기</button>
+    </div>
+
+    <div class="ub-play" data-ub="play" hidden>
+      <div class="ub-hud">
+        <span class="ub-pill" data-ub="stage"></span>
+        <span class="ub-pill">찾음 <b data-ub="found"></b></span>
+        <span class="ub-pill">실수 <b data-ub="miss">0</b></span>
+        <span class="ub-pill" data-ub="time">0초</span>
+      </div>
+      <p class="ub-brief" data-ub="brief"></p>
+
+      <div class="ub-tabs" role="tablist" aria-label="화면 고르기">
+        <button type="button" role="tab" class="ub-tab" data-tab="spec" aria-selected="false">📄 기획서</button>
+        <button type="button" role="tab" class="ub-tab" data-tab="build" aria-selected="true">🛠 실제 빌드</button>
+      </div>
+
+      <div class="ub-boards" data-ub="boards" data-view="build">
+        <div class="ub-board ub-board-spec">
+          <div class="ub-board-label">📄 기획서 <small>정상</small></div>
+          <div class="ub-screen" data-ub="spec"></div>
+        </div>
+        <div class="ub-board ub-board-build">
+          <div class="ub-board-label">🛠 실제 빌드 <small>여기를 탭</small></div>
+          <div class="ub-screen ub-screen-build" data-ub="build"></div>
+        </div>
+      </div>
+
+      <p class="ub-toast" data-ub="toast" aria-live="polite"></p>
+
+      <div class="ub-actions" data-ub="actions">
+        <button type="button" class="ub-btn-soft" data-ub="hint">💡 힌트</button>
+        <button type="button" class="ub-btn-soft" data-ub="skip">넘기기</button>
+      </div>
+
+      <div class="ub-result" data-ub="result" hidden>
+        <p class="ub-result-title" data-ub="result-title"></p>
+        <dl class="ub-stats" data-ub="result-stats"></dl>
+        <ul class="ub-missed" data-ub="result-missed"></ul>
+        <button type="button" class="ub-cta" data-ub="next">다음 단계 →</button>
+      </div>
+
+      <ol class="ub-found-list" data-ub="list"></ol>
+    </div>
+
+    <div class="ub-final" data-ub="final" hidden>
+      <p class="ub-final-kicker">최종 결과</p>
+      <p class="ub-rank" data-ub="rank"></p>
+      <dl class="ub-stats" data-ub="final-stats"></dl>
+      <table class="ub-table">
+        <thead><tr><th>단계</th><th>찾음</th><th>실수</th><th>시간</th></tr></thead>
+        <tbody data-ub="final-rows"></tbody>
+      </table>
+      <button type="button" class="ub-cta" data-ub="again">처음부터 다시</button>
+    </div>
+  </section>
+</LabLayout>
+
+<script>
+  import {
+    createGame,
+    currentLevel,
+    currentRun,
+    levelDone,
+    tap,
+    hint,
+    skip,
+    nextLevel,
+    levelResult,
+    summary,
+    formatTime,
+    bugAt,
+    areaOf,
+    renderSpec,
+    renderBuild,
+    type Game,
+  } from "@/lab/ui-bug-hunt/engine";
+  import { LEVELS } from "@/lab/ui-bug-hunt/levels";
+
+  const CIRCLED = "①②③④⑤⑥⑦⑧⑨";
+  let cleanup: (() => void) | null = null;
+
+  function init() {
+    cleanup?.();
+    const root = document.getElementById("ub-root");
+    if (!root) return;
+
+    const ac = new AbortController();
+    const on = <K extends keyof HTMLElementEventMap>(
+      el: Element | Document,
+      type: K,
+      fn: (e: HTMLElementEventMap[K]) => void
+    ) => el.addEventListener(type, fn as EventListener, { signal: ac.signal });
+    const timers = new Set<number>();
+    const later = (fn: () => void, ms: number) => {
+      const id = window.setTimeout(() => {
+        timers.delete(id);
+        fn();
+      }, ms);
+      timers.add(id);
+    };
+    let clock = 0;
+
+    const $ = <T extends HTMLElement = HTMLElement>(k: string) =>
+      root.querySelector<T>(`[data-ub="${k}"]`)!;
+    const el = {
+      intro: $("intro"),
+      play: $("play"),
+      final: $("final"),
+      stage: $("stage"),
+      found: $("found"),
+      miss: $("miss"),
+      time: $("time"),
+      brief: $("brief"),
+      boards: $("boards"),
+      spec: $("spec"),
+      build: $("build"),
+      toast: $("toast"),
+      actions: $("actions"),
+      result: $("result"),
+      resultTitle: $("result-title"),
+      resultStats: $("result-stats"),
+      resultMissed: $("result-missed"),
+      next: $<HTMLButtonElement>("next"),
+      list: $("list"),
+      rank: $("rank"),
+      finalStats: $("final-stats"),
+      finalRows: $("final-rows"),
+    };
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>(".ub-tab")];
+
+    let g: Game | null = null;
+
+    const esc = (s: string) =>
+      s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+    const stats = (pairs: [string, string][]) =>
+      pairs.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
+
+    function setView(v: "spec" | "build") {
+      el.boards.dataset.view = v;
+      for (const t of tabs) t.setAttribute("aria-selected", String(t.dataset.tab === v));
+    }
+
+    function toast(msg: string, tone: "good" | "bad" | "info") {
+      el.toast.textContent = msg;
+      el.toast.dataset.tone = tone;
+    }
+
+    function hud() {
+      if (!g) return;
+      const lv = currentLevel(g);
+      const run = currentRun(g);
+      el.stage.textContent = `${g.index + 1}/${g.levels.length} · ${lv.title}`;
+      el.found.textContent = `${run.found.length}/${lv.bugs.length}`;
+      el.miss.textContent = String(run.misses);
+      el.time.textContent = `⏱ ${formatTime(levelResult(g, g.index, performance.now()).ms)}`;
+    }
+
+    function areaEl(id: string) {
+      const lv = g && currentLevel(g);
+      const b = lv?.bugs.find(x => x.id === id);
+      return b ? el.build.querySelector<HTMLElement>(areaOf(b)) : null;
+    }
+
+    function startLevel() {
+      if (!g) return;
+      const lv = currentLevel(g);
+      el.spec.innerHTML = renderSpec(lv);
+      el.build.innerHTML = renderBuild(lv);
+      el.brief.innerHTML = `<b>${esc(lv.app)}</b> — ${esc(lv.brief)}`;
+      el.list.innerHTML = "";
+      el.result.hidden = true;
+      el.actions.hidden = false;
+      toast("실제 빌드에서 기획서와 다른 곳을 탭하세요.", "info");
+      setView("build");
+      hud();
+    }
+
+    function addFound(n: number, desc: string) {
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="ub-num">${CIRCLED[n - 1] ?? n}</span> ${esc(desc)}`;
+      el.list.append(li);
+    }
+
+    function showResult(missed: { desc: string; id: string }[]) {
+      if (!g) return;
+      const r = levelResult(g, g.index, performance.now());
+      el.actions.hidden = true;
+      el.result.hidden = false;
+      el.resultTitle.textContent =
+        missed.length === 0 ? "🎉 다 찾았어요!" : `못 찾은 버그 ${missed.length}개 — 점선으로 표시했어요`;
+      el.resultStats.innerHTML = stats([
+        ["찾음", `${r.found}/${r.total}`],
+        ["실수", String(r.misses)],
+        ["힌트", String(r.hints)],
+        ["시간", formatTime(r.ms)],
+      ]);
+      el.resultMissed.innerHTML = missed.map(b => `<li>${esc(b.desc)}</li>`).join("");
+      for (const b of missed) areaEl(b.id)?.classList.add("ub-missed-ring");
+      const last = g.index + 1 >= g.levels.length;
+      el.next.textContent = last ? "최종 결과 보기 →" : "다음 단계 →";
+      hud();
+      el.next.focus({ preventScroll: true });
+    }
+
+    function showFinal() {
+      if (!g) return;
+      const now = performance.now();
+      const s = summary(g, now);
+      el.play.hidden = true;
+      el.final.hidden = false;
+      el.rank.textContent = s.rank;
+      el.finalStats.innerHTML = stats([
+        ["찾은 버그", `${s.found}/${s.total}`],
+        ["실수", String(s.misses)],
+        ["힌트", String(s.hints)],
+        ["걸린 시간", formatTime(s.ms)],
+      ]);
+      el.finalRows.innerHTML = g.levels
+        .map((lv, i) => {
+          const r = levelResult(g!, i, now);
+          return `<tr><td>${esc(lv.title)}</td><td>${r.found}/${r.total}</td><td>${r.misses}</td><td>${formatTime(r.ms)}</td></tr>`;
+        })
+        .join("");
+    }
+
+    function begin() {
+      g = createGame(LEVELS, performance.now());
+      el.intro.hidden = true;
+      el.final.hidden = true;
+      el.play.hidden = false;
+      startLevel();
+    }
+
+    // 실제 빌드 화면 탭
+    on(el.build, "click", e => {
+      if (!g || levelDone(g)) return;
+      const target = e.target instanceof Element ? e.target : null;
+      const id = bugAt(currentLevel(g), target);
+      const r = tap(g, id, performance.now());
+      if (r.kind === "found") {
+        const area = areaEl(r.bug.id);
+        area?.classList.remove("ub-hinted");
+        area?.classList.add("ub-hit");
+        const n = currentRun(g).found.length;
+        area?.setAttribute("data-ub-n", CIRCLED[n - 1] ?? String(n));
+        addFound(n, r.bug.desc);
+        toast(`${CIRCLED[n - 1] ?? n} ${r.bug.desc}`, "good");
+        if (r.cleared) showResult([]);
+      } else if (r.kind === "again") {
+        toast("이미 찾은 버그예요.", "info");
+      } else if (r.kind === "miss") {
+        const box = el.build.getBoundingClientRect();
+        const m = document.createElement("span");
+        m.className = "ub-miss";
+        m.textContent = "✕";
+        m.style.left = `${e.clientX - box.left}px`;
+        m.style.top = `${e.clientY - box.top}px`;
+        el.build.append(m);
+        later(() => m.remove(), 700);
+        toast("여긴 기획서와 같아요. (실수 +1)", "bad");
+      }
+      hud();
+    });
+
+    // 길게 누르기 메뉴 막기
+    on(el.boards, "contextmenu", e => e.preventDefault());
+
+    for (const t of tabs) on(t, "click", () => setView(t.dataset.tab === "spec" ? "spec" : "build"));
+
+    on($("start"), "click", begin);
+    on($("again"), "click", begin);
+
+    on($("hint"), "click", () => {
+      if (!g) return;
+      const b = hint(g);
+      if (!b) return;
+      setView("build");
+      const area = areaEl(b.id);
+      if (area) {
+        area.classList.remove("ub-hinted");
+        void area.offsetWidth; // 같은 힌트를 다시 눌러도 다시 흔들리게
+        area.classList.add("ub-hinted");
+        later(() => area.classList.remove("ub-hinted"), 1600);
+      }
+      toast("💡 흔들리는 곳을 잘 보세요.", "info");
+      hud();
+    });
+
+    on($("skip"), "click", () => {
+      if (!g) return;
+      const missed = skip(g, performance.now());
+      showResult(missed);
+    });
+
+    on(el.next, "click", () => {
+      if (!g) return;
+      if (nextLevel(g, performance.now())) {
+        startLevel();
+        root.scrollIntoView({ block: "start", behavior: "auto" });
+      } else if (g.over) showFinal();
+    });
+
+    clock = window.setInterval(() => {
+      if (g && !g.over && !el.play.hidden) hud();
+    }, 250);
+
+    cleanup = () => {
+      ac.abort();
+      for (const id of timers) clearTimeout(id);
+      timers.clear();
+      clearInterval(clock);
+      cleanup = null;
+    };
+  }
+
+  document.addEventListener("astro:page-load", init);
+  document.addEventListener("astro:before-swap", () => cleanup?.());
+</script>
+
+<style is:global>
+  /* ── 게임 틀(블로그 토큰) ─────────────────────────── */
+  .ub-root {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ub-root [hidden] {
+    display: none !important;
+  }
+  .ub-head {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .ub-title {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0;
+  }
+  .ub-sub {
+    margin: 4px 0 0;
+    color: var(--muted-foreground);
+    font-size: 14px;
+  }
+  .ub-intro {
+    border: 2px dashed var(--border);
+    border-radius: 20px;
+    padding: 20px 18px;
+    text-align: center;
+  }
+  .ub-how {
+    text-align: left;
+    margin: 0 auto 12px;
+    padding-left: 1.3em;
+    max-width: 30em;
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .ub-count {
+    color: var(--muted-foreground);
+    font-size: 13px;
+    margin: 0 0 14px;
+  }
+  .ub-cta {
+    display: inline-block;
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 26px;
+    font: inherit;
+    font-weight: 800;
+    font-size: 16px;
+    color: #1c1c21;
+    background: var(--lab-gold);
+    box-shadow: 0 3px 0 #c99a12;
+    cursor: pointer;
+  }
+  .ub-cta:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #c99a12;
+  }
+  .ub-hud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+  }
+  .ub-pill {
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--muted);
+    white-space: nowrap;
+  }
+  .ub-brief {
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted-foreground);
+    margin: 10px 0 12px;
+  }
+  .ub-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 14px;
+    background: var(--muted);
+    margin-bottom: 12px;
+  }
+  .ub-tab {
+    border: 0;
+    border-radius: 10px;
+    padding: 9px 4px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    background: transparent;
+    color: var(--muted-foreground);
+    cursor: pointer;
+  }
+  .ub-tab[aria-selected="true"] {
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .ub-board-label {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .ub-board-label small {
+    font-weight: 500;
+    color: var(--muted-foreground);
+    margin-left: 4px;
+  }
+  .ub-board-build .ub-board-label {
+    color: var(--accent);
+  }
+  .ub-screen {
+    position: relative;
+  }
+  .ub-screen-build {
+    cursor: crosshair;
+  }
+  /* 좁은 화면: 탭으로 하나씩 */
+  @media (max-width: 719.98px) {
+    .ub-boards[data-view="build"] .ub-board-spec,
+    .ub-boards[data-view="spec"] .ub-board-build {
+      display: none;
+    }
+    .ub-board-label {
+      display: none;
+    }
+  }
+  /* 넓은 화면: 나란히 */
+  @media (min-width: 720px) {
+    .ub-tabs {
+      display: none;
+    }
+    .ub-boards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+  }
+  .ub-toast {
+    min-height: 2.8em;
+    margin: 12px 0 8px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    text-align: center;
+    background: var(--muted);
+  }
+  .ub-toast[data-tone="good"] {
+    background: color-mix(in srgb, var(--lab-green) 28%, transparent);
+  }
+  .ub-toast[data-tone="bad"] {
+    background: color-mix(in srgb, var(--lab-pink) 26%, transparent);
+  }
+  .ub-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  .ub-btn-soft {
+    border: 1px solid var(--border);
+    background: var(--background);
+    color: var(--foreground);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .ub-result,
+  .ub-final {
+    border: 2px solid var(--lab-purple);
+    border-radius: 20px;
+    padding: 16px;
+    text-align: center;
+  }
+  .ub-result-title {
+    font-weight: 800;
+    font-size: 17px;
+    margin: 0 0 10px;
+  }
+  .ub-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin: 0 0 12px;
+  }
+  .ub-stats div {
+    background: var(--muted);
+    border-radius: 12px;
+    padding: 8px 2px;
+  }
+  .ub-stats dt {
+    font-size: 11px;
+    color: var(--muted-foreground);
+  }
+  .ub-stats dd {
+    margin: 2px 0 0;
+    font-weight: 800;
+    font-size: 15px;
+  }
+  .ub-missed {
+    text-align: left;
+    font-size: 13px;
+    margin: 0 0 12px;
+    padding-left: 1.2em;
+    color: var(--muted-foreground);
+  }
+  .ub-missed:empty {
+    display: none;
+  }
+  .ub-found-list {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0 0;
+    font-size: 14px;
+  }
+  .ub-found-list li {
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .ub-num {
+    color: var(--lab-pink);
+    font-weight: 800;
+  }
+  .ub-final-kicker {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted-foreground);
+  }
+  .ub-rank {
+    font-size: 26px;
+    font-weight: 900;
+    margin: 4px 0 12px;
+    color: var(--accent);
+  }
+  .ub-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .ub-table th,
+  .ub-table td {
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ub-table th {
+    color: var(--muted-foreground);
+    font-weight: 600;
+  }
+
+  /* 맞힘·빗나감·힌트 표시 */
+  .ub-hit {
+    position: relative;
+    outline: 3px solid var(--lab-pink) !important;
+    outline-offset: 2px;
+    border-radius: 10px;
+    animation: ub-pop 0.35s ease-out;
+  }
+  .ub-missed-ring {
+    outline: 2px dashed var(--lab-purple) !important;
+    outline-offset: 2px;
+    border-radius: 10px;
+  }
+  .ub-hinted {
+    outline: 3px dashed var(--lab-gold) !important;
+    outline-offset: 2px;
+    border-radius: 10px;
+    animation: ub-shake 0.5s ease-in-out 3;
+  }
+  .ub-miss {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 50%;
+    font-weight: 900;
+    font-size: 15px;
+    color: #fff;
+    background: #e5484d;
+    pointer-events: none;
+    animation: ub-fade 0.7s ease-out forwards;
+  }
+  @keyframes ub-pop {
+    from {
+      outline-offset: 12px;
+      outline-color: transparent;
+    }
+  }
+  @keyframes ub-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px) rotate(-1deg);
+    }
+    75% {
+      transform: translateX(4px) rotate(1deg);
+    }
+  }
+  @keyframes ub-fade {
+    to {
+      opacity: 0;
+      transform: translate(-50%, -80%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ub-hit,
+    .ub-miss {
+      animation: none;
+    }
+    .ub-miss {
+      opacity: 0.85;
+    }
+    .ub-hinted {
+      animation: none;
+    }
+  }
+
+  /* ── 가짜 앱 화면(고정 색 — 실제 앱처럼 보이게) ─────── */
+  .ub-app {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+    background: #fff;
+    color: #1f2430;
+    border: 1px solid #e3e6ec;
+    border-radius: 26px;
+    padding: 10px 16px 18px;
+    box-shadow: 0 6px 20px rgb(20 24 40 / 0.1);
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: left;
+    overflow: hidden;
+    letter-spacing: -0.01em;
+  }
+  .ub-app * {
+    border-color: #e6e8ee;
+  }
+  .ub-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 0 4px 10px;
+  }
+  .ub-status-icons {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+  }
+  .ub-status-icons i {
+    display: block;
+    width: 3px;
+    background: #1f2430;
+    border-radius: 1px;
+  }
+  .ub-status-icons i:nth-child(1) {
+    height: 5px;
+  }
+  .ub-status-icons i:nth-child(2) {
+    height: 7px;
+  }
+  .ub-status-icons i:nth-child(3) {
+    height: 9px;
+  }
+  .ub-status-icons b {
+    display: block;
+    width: 18px;
+    height: 9px;
+    margin-left: 4px;
+    border: 1.5px solid #1f2430;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #1f2430 70%, transparent 70%);
+    background-clip: content-box;
+    padding: 1px;
+  }
+  .ub-topbar {
+    display: grid;
+    grid-template-columns: 24px 1fr 24px;
+    align-items: center;
+    text-align: center;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 2px 0 10px;
+  }
+  .ub-back {
+    font-size: 24px;
+    line-height: 1;
+    text-align: left;
+    color: #6b7280;
+  }
+  .ub-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 900;
+    color: #fff;
+    background: #2fa36b;
+    flex: none;
+  }
+  .ub-btn {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .ub-sum {
+    margin-top: 12px;
+    background: #f6f7f9;
+    border-radius: 14px;
+    padding: 8px 12px;
+  }
+  .ub-sum-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 13px;
+    padding: 4px 0;
+    color: #4a5060;
+  }
+  .ub-sum-total {
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px dashed #cfd3db;
+    color: #1f2430;
+    font-weight: 800;
+    font-size: 15px;
+  }
+
+  /* 로그인 */
+  .ub-login-logo {
+    text-align: center;
+    font-size: 40px;
+    margin-top: 6px;
+  }
+  .ub-login-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: #6b4220;
+  }
+  .ub-login-sub {
+    text-align: center;
+    font-size: 13px;
+    color: #8a8f9c;
+    margin-bottom: 16px;
+  }
+  .ub-field {
+    margin-bottom: 10px;
+  }
+  .ub-field-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0 0 4px 2px;
+  }
+  .ub-input {
+    border: 1px solid #d9dce3;
+    background: #f8f9fb;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  .ub-x-shift {
+    margin-left: 14px;
+  }
+  .ub-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 14px;
+    font-size: 13px;
+  }
+  .ub-check-text {
+    color: #4a5060;
+  }
+  .ub-check .ub-box {
+    background: #8a5a2b;
+  }
+  .ub-check-text.ub-x-faint {
+    color: #dcdde2;
+  }
+  .ub-btn-primary {
+    background: #8a5a2b;
+    color: #fff;
+  }
+  .ub-btn-ghost {
+    margin-top: 8px;
+    border: 1.5px solid #8a5a2b !important;
+    color: #8a5a2b;
+  }
+  .ub-btn-ghost.ub-x-cut {
+    /* 9em 이면 Pretendard 에서 글자가 다 들어가 버그가 안 보였다(10-23 QA) — 글꼴이 달라도 잘리게 넉넉히 좁힌다 */
+    width: 6.5em;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 6px;
+    padding-right: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+  }
+  .ub-link {
+    display: inline-block;
+  }
+  .ub-login-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: #6b7280;
+  }
+
+  /* 장바구니 */
+  .ub-topbar-count {
+    justify-self: end;
+    font-size: 11px;
+    min-width: 20px;
+    height: 20px;
+    line-height: 20px;
+    border-radius: 999px;
+    background: #2fa36b;
+    color: #fff;
+  }
+  .ub-cart-all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 4px 0 8px;
+    border-bottom: 1px solid #eef0f3;
+  }
+  .ub-cart-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eef0f3;
+  }
+  .ub-thumb {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: #fff4d6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+  .ub-thumb.ub-x-broken {
+    background: #f1f2f4;
+    border: 1px dashed #c3c7cf;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 8px;
+    color: #9aa0ab;
+    overflow: hidden;
+  }
+  .ub-broken-icon {
+    width: 16px;
+    height: 13px;
+    border: 1.5px solid #b5bac4;
+    border-radius: 2px;
+    background: linear-gradient(135deg, transparent 45%, #b5bac4 45% 55%, transparent 55%);
+  }
+  .ub-broken-alt {
+    max-width: 48px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .ub-cart-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .ub-cart-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ub-cart-unit {
+    font-size: 12px;
+    color: #8a8f9c;
+  }
+  .ub-stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+    padding: 1px 8px;
+    border: 1px solid #dfe2e8 !important;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+  .ub-stepper b {
+    color: #1f2430;
+  }
+  .ub-line-price {
+    flex: none;
+    font-weight: 700;
+    white-space: nowrap;
+    padding: 4px 0;
+  }
+  .ub-btn-cart {
+    margin-top: 12px;
+    background: #2fa36b;
+    color: #fff;
+  }
+  .ub-btn-cart.ub-x-key {
+    font-family: ui-monospace, monospace;
+    font-weight: 600;
+  }
+
+  /* 프로필 */
+  .ub-prof-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f1f4ff;
+    border-radius: 16px;
+  }
+  .ub-avatar {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #ffe1ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+  }
+  .ub-prof-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .ub-prof-name {
+    font-size: 16px;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ub-prof-name.ub-x-spill {
+    overflow: visible;
+    text-overflow: clip;
+  }
+  .ub-prof-id {
+    font-size: 12px;
+    color: #7a8091;
+  }
+  .ub-chip {
+    flex: none;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.55);
+    border: 1px solid #c4cdfb !important;
+    color: #4b5bd6;
+  }
+  .ub-set-group {
+    margin-top: 12px;
+    border: 1px solid #eceef2 !important;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .ub-set-row,
+  .ub-menu-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 11px 14px;
+    border-bottom: 1px solid #f0f1f4;
+  }
+  .ub-set-group > :last-child {
+    border-bottom: 0;
+  }
+  .ub-set-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ub-set-state {
+    font-size: 12px;
+    font-weight: 700;
+    color: #4b5bd6;
+  }
+  .ub-switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    border-radius: 999px;
+    background: #d1d5db;
+  }
+  .ub-switch i {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+  }
+  .ub-switch.is-on {
+    background: #5b6cff;
+  }
+  .ub-switch.is-on i {
+    left: 18px;
+  }
+  .ub-set-value {
+    color: #6b7280;
+    font-variant-numeric: tabular-nums;
+  }
+  .ub-menu-row {
+    justify-content: flex-start;
+  }
+  .ub-menu-icon {
+    width: 22px;
+    text-align: center;
+    flex: none;
+  }
+  .ub-chev {
+    margin-left: auto;
+    color: #a0a6b2;
+    font-size: 18px;
+    line-height: 1;
+  }
+  /* 셀 경계가 바깥 상자에 잘려도 동그라미가 보이게 */
+  .ub-set-group:has(.ub-hit, .ub-missed-ring, .ub-hinted) {
+    overflow: visible;
+  }
+
+  /* 예약 */
+  .ub-stay-hero {
+    height: 84px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #cfe8ff, #e6f6e4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 30px;
+  }
+  .ub-stay-name {
+    font-size: 17px;
+    font-weight: 800;
+    margin-top: 10px;
+  }
+  .ub-stay-meta {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  .ub-stay-meta span {
+    display: inline-block;
+    padding: 0 2px;
+  }
+  .ub-dates {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .ub-date {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #e3e6ec !important;
+    border-radius: 12px;
+    padding: 8px 10px;
+  }
+  .ub-date-label {
+    font-size: 11px;
+    color: #8a8f9c;
+  }
+  .ub-date-day {
+    font-size: 15px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .ub-date-time {
+    font-size: 12px;
+    color: #6b7280;
+  }
+  .ub-date-arrow {
+    color: #a0a6b2;
+    flex: none;
+  }
+  .ub-sum-row.ub-x-left {
+    justify-content: flex-start;
+    gap: 14px;
+  }
+  .ub-minus {
+    color: #e0484f;
+  }
+  .ub-free-cancel {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 12px;
+    color: #2f8f63;
+  }
+  .ub-btn-stay {
+    margin-top: 8px;
+    background: #6a4cff;
+    color: #fff;
+  }
+  .ub-btn-stay.ub-x-pale {
+    background: #ffe9a8;
+    color: #fff;
+  }
+</style>

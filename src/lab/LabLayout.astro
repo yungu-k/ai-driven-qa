@@ -1,0 +1,78 @@
+---
+// 실험실(/lab) 페이지 틀. 블로그 본문과 섞이지 않게 하는 장치를 여기 한곳에 모은다:
+//  - noindex: 검색엔진에 안 나온다(이스터에그로만 들어온다)
+//  - data-pagefind-ignore="all": 블로그 검색 색인에서 뺀다
+//  - 블로그 헤더·푸터 없음 — 블로그로 돌아가는 링크만 둔다
+// 사이트맵 제외는 astro.config.ts 의 sitemap filter 가 맡는다.
+import Layout from "@/layouts/Layout.astro";
+
+type Props = {
+  title: string;
+  description?: string;
+  /** 실험실 첫 화면이면 true — 뒤로 가기가 블로그로 간다 */
+  isIndex?: boolean;
+};
+
+const { title, description, isIndex = false } = Astro.props;
+---
+
+<Layout title={`${title} | 실험실`} description={description}>
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+  <div class="lab-root" data-pagefind-ignore="all">
+    <nav class="lab-bar">
+      {
+        isIndex ? (
+          <a href="/" class="lab-back">← 블로그로</a>
+        ) : (
+          <a href="/lab/" class="lab-back" data-astro-reload>
+            ← 실험실
+          </a>
+        )
+      }
+      <span class="lab-badge">LAB</span>
+    </nav>
+    <main id="main-content" class="lab-main">
+      <slot />
+    </main>
+  </div>
+</Layout>
+
+<style is:global>
+  .lab-root {
+    --lab-green: #7bd389;
+    --lab-gold: #ffd24d;
+    --lab-purple: #b39dff;
+    --lab-pink: #ff8fab;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 16px 48px;
+  }
+  .lab-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .lab-back {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    text-decoration: none;
+  }
+  .lab-back:hover {
+    color: var(--accent);
+  }
+  .lab-badge {
+    font-family: var(--font-code), monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px dashed var(--accent);
+    color: var(--accent);
+  }
+</style>

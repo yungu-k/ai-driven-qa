@@ -48,7 +48,11 @@ const isActive = (path: string) => {
   <div
     class="border-border bg-background relative flex w-full items-baseline justify-between border-b py-4 sm:items-center sm:py-6"
   >
+    {/* 이스터에그: 로고를 5초 꾹 누르면 실험실(/lab)로 간다. 짧게 누르면 평소처럼 첫 화면.
+        HTML 주석으로 두면 모든 페이지 소스에 실려 나가 숨긴 뜻이 없다 */}
     <a
+      id="site-logo"
+      draggable="false"
       href={getRelativeLocaleUrl(locale, "")}
       class="absolute py-1 text-xl leading-8 font-semibold whitespace-nowrap sm:static sm:my-auto sm:text-2xl sm:leading-none"
     >
@@ -192,4 +196,103 @@ const isActive = (path: string) => {
   toggleNav();
 
   document.addEventListener("astro:after-swap", toggleNav);
+
+  // 로고 길게 누르기 → 실험실. 손가락이 움직이면(스크롤) 취소한다
+  const HOLD_MS = 5000;
+  function logoEgg() {
+    const logo = document.querySelector<HTMLAnchorElement>("#site-logo");
+    if (!logo) return;
+
+    let timer = 0;
+    let fired = false;
+    let startX = 0;
+    let startY = 0;
+
+    const cancel = () => {
+      clearTimeout(timer);
+      logo.classList.remove("egg-charging");
+    };
+
+    logo.addEventListener("pointerdown", e => {
+      if (e.button !== 0) return;
+      fired = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      logo.classList.add("egg-charging");
+      timer = window.setTimeout(() => {
+        fired = true;
+        logo.classList.remove("egg-charging");
+        window.location.href = "/lab/";
+      }, HOLD_MS);
+    });
+    logo.addEventListener("pointermove", e => {
+      if (Math.hypot(e.clientX - startX, e.clientY - startY) > 12) cancel();
+    });
+    ["pointerup", "pointercancel", "pointerleave"].forEach(t =>
+      logo.addEventListener(t, cancel)
+    );
+    // 길게 누르면 뜨는 메뉴(링크 미리보기·저장)를 막는다
+    logo.addEventListener("contextmenu", e => e.preventDefault());
+    // 이스터에그가 터진 뒤 손을 떼며 생기는 click 은 첫 화면 이동을 막는다
+    logo.addEventListener("click", e => {
+      if (!fired) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    });
+  }
+
+  logoEgg();
+  document.addEventListener("astro:after-swap", logoEgg);
 </script>
+
+<style is:global>
+  #site-logo {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  /* 누르고 있는 동안: 1.5초까지 조용히, 그 뒤 점점 크게 흔들린다 — 「뭔가 일어나고 있다」 */
+  #site-logo.egg-charging {
+    display: inline-block;
+    animation: egg-charge 5s linear forwards;
+  }
+  @keyframes egg-charge {
+    0%,
+    30% {
+      transform: none;
+    }
+    40% {
+      transform: rotate(-1deg);
+    }
+    50% {
+      transform: rotate(1.5deg) scale(1.02);
+    }
+    60% {
+      transform: rotate(-2deg) scale(1.04);
+    }
+    70% {
+      transform: rotate(3deg) scale(1.06);
+    }
+    80% {
+      transform: rotate(-4deg) scale(1.08);
+    }
+    90% {
+      transform: rotate(5deg) scale(1.1);
+      color: var(--accent);
+    }
+    100% {
+      transform: rotate(0) scale(1.14);
+      color: var(--accent);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #site-logo.egg-charging {
+      animation: egg-calm 5s linear forwards;
+    }
+    @keyframes egg-calm {
+      to {
+        color: var(--accent);
+      }
+    }
+  }
+</style>

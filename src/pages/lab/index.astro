@@ -1,0 +1,190 @@
+---
+import LabLayout from "@/lab/LabLayout.astro";
+import { SPRITES } from "@/lab/bug-whack/sprites";
+import { faceFor, fillFor } from "@/lab/merge-2048/faces";
+
+// 목록 아이콘: 2048 은 타일 한 장, UI 버그 찾기는 돋보기 속 버그
+const tileIcon = `<svg viewBox="0 0 100 100" aria-hidden="true">
+  <rect x="4" y="4" width="92" height="92" rx="20" fill="${fillFor(8)}"/>
+  <svg x="14" y="6" width="72" height="72">${faceFor(8)}</svg>
+  <text x="50" y="86" text-anchor="middle" font-size="22" font-weight="800" fill="#1c1c21"
+        font-family="Pretendard Variable, Pretendard, sans-serif">2048</text>
+</svg>`;
+const lensIcon = `<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path d="M64 64 L90 90" stroke="#5b45c9" stroke-width="11" stroke-linecap="round"/>
+  <circle cx="42" cy="42" r="32" fill="#fff" stroke="#5b45c9" stroke-width="7"/>
+  <svg x="17" y="17" width="50" height="50">${SPRITES.bug}</svg>
+</svg>`;
+
+// 게임 목록. 다 만든 것만 싣는다 — 반쯤 만든 게임이 걸려 있으면 방치된 방처럼 보인다.
+const GAMES = [
+  {
+    slug: "bug-whack",
+    title: "버그 잡기",
+    blurb: "30초 동안 튀어나오는 버그를 톡톡. 「기능」은 건드리면 안 돼요.",
+    icon: SPRITES.bug,
+    made: "Claude Code 와 같이 만들었습니다. 규칙 코드와 화면 코드를 나눠서, 규칙에는 30초 판을 순식간에 돌려 보는 테스트를 붙였습니다.",
+    tested: "점수 계산, 같은 버그 두 번 잡기, 끝난 뒤 누르기 등 규칙 10가지. 규칙을 일부러 틀리게 바꿨을 때 테스트가 잡아내는지도 봤습니다.",
+  },
+  {
+    slug: "merge-2048",
+    title: "버그 2048",
+    blurb: "같은 버그끼리 밀어서 합쳐요. 2048 이 되면 출시!",
+    icon: tileIcon,
+    made: "규칙(밀기·합치기·끝 판정)과 화면을 나눠 만들었습니다. 버그가 클수록 표정이 바뀝니다.",
+    tested: "한 번에 두 번 합쳐지지 않는지, 안 움직였는데 새 타일이 나오지 않는지 등 규칙 12가지. 휴대폰에서 밀 때 페이지가 같이 스크롤되지 않는지, 큰 숫자가 칸 안에 드는지도 봤습니다.",
+  },
+  {
+    slug: "ui-bug-hunt",
+    title: "UI 버그 찾기",
+    blurb: "기획서와 실제 화면을 비교해 숨은 UI 버그를 찾아요. 4단계, 버그 16개.",
+    icon: lensIcon,
+    made: "그림 대신 HTML 로 가짜 앱 화면을 짜고, 한쪽에만 코드로 버그를 심었습니다. 글자 잘림, 합계 계산 틀림, 요일 틀림처럼 실제로 자주 보는 버그들입니다.",
+    tested: "기획서 쪽에는 버그가 하나도 없는지, 버그마다 화면이 정말 달라지는지, 장바구니 합계와 달력 요일이 맞는지 등 28가지.",
+  },
+];
+---
+
+<LabLayout title="실험실" description="블로그 한구석의 작은 게임들" isIndex>
+  <section class="lab-hero">
+    <p class="lab-eyebrow">여기까지 찾아오셨네요</p>
+    <h1 class="lab-title">실험실</h1>
+    <p class="lab-lede">
+      AI 와 같이 만들어 본 작은 게임을 모아 둔 곳입니다. 글보다 가볍게, 눌러 보는 기록.
+    </p>
+  </section>
+
+  <ul class="lab-list">
+    {
+      GAMES.map(g => (
+        <li class="lab-item">
+          <a href={`/lab/${g.slug}/`} class="lab-card" data-astro-reload>
+            <span class="lab-icon" set:html={g.icon} />
+            <span class="lab-card-body">
+              <span class="lab-card-title">{g.title}</span>
+              <span class="lab-card-blurb">{g.blurb}</span>
+            </span>
+            <span class="lab-play" aria-hidden="true">
+              ▶
+            </span>
+          </a>
+          <details class="lab-notes">
+            <summary>어떻게 만들었나</summary>
+            <p>
+              <b>만든 방법</b> {g.made}
+            </p>
+            <p>
+              <b>시험한 것</b> {g.tested}
+            </p>
+          </details>
+        </li>
+      ))
+    }
+  </ul>
+</LabLayout>
+
+<style is:global>
+  .lab-hero {
+    margin: 8px 0 28px;
+  }
+  .lab-eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .lab-title {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 4px 0 10px;
+  }
+  .lab-lede {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--muted-foreground);
+  }
+  .lab-list {
+    display: grid;
+    gap: 16px;
+  }
+  .lab-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--muted) 55%, var(--background));
+    text-decoration: none;
+    color: inherit;
+    transition:
+      border-color 0.15s,
+      transform 0.15s;
+  }
+  .lab-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .lab-icon {
+    width: 56px;
+    height: 56px;
+    flex: none;
+  }
+  .lab-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  .lab-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    flex: 1;
+  }
+  .lab-card-title {
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .lab-card-blurb {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--muted-foreground);
+  }
+  .lab-play {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-foreground);
+    font-size: 13px;
+  }
+  .lab-notes {
+    margin: 8px 6px 0;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--muted-foreground);
+  }
+  .lab-notes summary {
+    cursor: pointer;
+    font-weight: 600;
+    width: fit-content;
+  }
+  .lab-notes p {
+    margin-top: 6px;
+  }
+  .lab-notes b {
+    color: var(--foreground);
+    margin-right: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lab-card {
+      transition: none;
+    }
+    .lab-card:hover {
+      transform: none;
+    }
+  }
+</style>

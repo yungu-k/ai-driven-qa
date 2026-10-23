@@ -1,0 +1,692 @@
+---
+import LabLayout from "@/lab/LabLayout.astro";
+import { HOLE_COUNT } from "@/lab/bug-whack/engine";
+---
+
+<LabLayout title="버그 잡기" description="30초 동안 튀어나오는 버그를 잡는 작은 게임">
+  <div class="bw" id="bw">
+    <header class="bw-head">
+      <h1 class="bw-title">버그 잡기</h1>
+      <button type="button" class="bw-sound" id="bw-sound" aria-pressed="false">
+        소리 끔
+      </button>
+    </header>
+
+    <div class="bw-hud" aria-live="off">
+      <div class="bw-stat">
+        <span class="bw-stat-label">점수</span>
+        <span class="bw-stat-value" id="bw-score">0</span>
+      </div>
+      <div class="bw-timer" aria-hidden="true"><div class="bw-timer-fill" id="bw-timer"></div></div>
+      <div class="bw-stat bw-stat-right">
+        <span class="bw-stat-label">최고</span>
+        <span class="bw-stat-value" id="bw-best">-</span>
+      </div>
+    </div>
+
+    <div class="bw-stage">
+      <div class="bw-board" id="bw-board">
+        {
+          Array.from({ length: HOLE_COUNT }, (_, i) => (
+            <button type="button" class="bw-cell" data-i={i} aria-label={`구멍 ${i + 1}`} tabindex="-1">
+              <span class="bw-pit" />
+              <span class="bw-mole" />
+              <span class="bw-dirt" />
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="bw-overlay" id="bw-overlay">
+        <div class="bw-card" id="bw-card-start">
+          <p class="bw-card-title">30초 동안 버그를 잡으세요</p>
+          <ul class="bw-legend">
+            <li><span class="bw-legend-icon" data-kind="bug"></span>버그 <b>+1</b></li>
+            <li><span class="bw-legend-icon" data-kind="gold"></span>황금 버그 <b>+3</b></li>
+            <li><span class="bw-legend-icon" data-kind="feature"></span>기능은 건드리지 마세요 <b>−2</b></li>
+          </ul>
+          <button type="button" class="bw-btn" data-action="start">시작</button>
+          <p class="bw-hint">키보드: 1~9 또는 Q W E / A S D / Z X C</p>
+        </div>
+
+        <div class="bw-card" id="bw-card-count" hidden>
+          <p class="bw-count" id="bw-count">3</p>
+        </div>
+
+        <div class="bw-card" id="bw-card-pause" hidden>
+          <p class="bw-card-title">잠깐 멈췄어요</p>
+          <button type="button" class="bw-btn" data-action="resume">계속</button>
+        </div>
+
+        <div class="bw-card" id="bw-card-result" hidden>
+          <p class="bw-rank" id="bw-rank"></p>
+          <p class="bw-final"><span id="bw-final">0</span>점</p>
+          <p class="bw-newbest" id="bw-newbest" hidden>최고 기록!</p>
+          <dl class="bw-report">
+            <div><dt>잡은 버그</dt><dd id="bw-r-caught">0</dd></div>
+            <div><dt>운영에 나간 버그</dt><dd id="bw-r-escaped">0</dd></div>
+            <div><dt>건드린 기능</dt><dd id="bw-r-feature">0</dd></div>
+          </dl>
+          <button type="button" class="bw-btn" data-action="start">한 판 더</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</LabLayout>
+
+<script>
+  import {
+    createGame,
+    tick,
+    hit,
+    remainingMs,
+    rankFor,
+    DURATION_MS,
+    type Kind,
+    type State,
+  } from "@/lab/bug-whack/engine";
+  import { SPRITES } from "@/lab/bug-whack/sprites";
+
+  const BEST_KEY = "lab.bug-whack.best";
+  const SOUND_KEY = "lab.bug-whack.sound";
+  const KEYS = ["q", "w", "e", "a", "s", "d", "z", "x", "c"];
+
+  const store = {
+    get(k: string) {
+      try {
+        return localStorage.getItem(k);
+      } catch {
+        return null;
+      }
+    },
+    set(k: string, v: string) {
+      try {
+        localStorage.setItem(k, v);
+      } catch {
+        /* 막혀 있어도 게임은 돈다 */
+      }
+    },
+  };
+
+  // ── 소리: 기본은 꺼짐. 켜는 순간(사용자 조작 안)에 AudioContext 를 만든다 ──
+  let audio: AudioContext | null = null;
+  let soundOn = store.get(SOUND_KEY) === "1";
+  function beep(freq: number, ms: number, type: OscillatorType = "sine", gain = 0.08) {
+    if (!soundOn || !audio) return;
+    const t = audio.currentTime;
+    const o = audio.createOscillator();
+    const g = audio.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, t);
+    o.frequency.exponentialRampToValueAtTime(freq * 1.5, t + ms / 1000);
+    g.gain.setValueAtTime(gain, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + ms / 1000);
+    o.connect(g).connect(audio.destination);
+    o.start(t);
+    o.stop(t + ms / 1000);
+  }
+  const SFX: Record<Kind, () => void> = {
+    bug: () => beep(520, 90, "triangle"),
+    gold: () => {
+      beep(660, 90, "triangle");
+      setTimeout(() => beep(990, 120, "triangle"), 80);
+    },
+    feature: () => beep(140, 220, "square", 0.05),
+  };
+
+  function init() {
+    const root = document.getElementById("bw");
+    if (!root || root.dataset.ready) return;
+    root.dataset.ready = "1";
+
+    const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+    const cells = [...root.querySelectorAll<HTMLButtonElement>(".bw-cell")];
+    const moles = cells.map(c => c.querySelector<HTMLElement>(".bw-mole")!);
+    const scoreEl = $("bw-score");
+    const bestEl = $("bw-best");
+    const timerEl = $("bw-timer");
+    const overlay = $("bw-overlay");
+    const cards = {
+      start: $("bw-card-start"),
+      count: $("bw-card-count"),
+      pause: $("bw-card-pause"),
+      result: $("bw-card-result"),
+    };
+    const soundBtn = $<HTMLButtonElement>("bw-sound");
+
+    root.querySelectorAll<HTMLElement>(".bw-legend-icon").forEach(el => {
+      el.innerHTML = SPRITES[el.dataset.kind as Kind];
+    });
+
+    let best = Number(store.get(BEST_KEY) ?? 0) || 0;
+    bestEl.textContent = best > 0 ? String(best) : "-";
+
+    // 게임 시계 = performance.now() − 멈춰 있던 시간. 멈춤 동안 tick 을 안 부르면 끝.
+    let state: State | null = null;
+    let phase: "idle" | "count" | "play" | "pause" | "over" = "idle";
+    let pausedTotal = 0;
+    let pausedAt = 0;
+    let raf = 0;
+    const timers = new Set<number>();
+    const later = (fn: () => void, ms: number) => {
+      const id = window.setTimeout(() => {
+        timers.delete(id);
+        fn();
+      }, ms);
+      timers.add(id);
+    };
+    const clock = () => performance.now() - pausedTotal;
+    const shown: (Kind | null)[] = cells.map(() => null);
+
+    function showCard(name: keyof typeof cards | null) {
+      overlay.hidden = name === null;
+      for (const [k, el] of Object.entries(cards)) el.hidden = k !== name;
+    }
+
+    function renderSound() {
+      soundBtn.textContent = soundOn ? "소리 켬" : "소리 끔";
+      soundBtn.setAttribute("aria-pressed", String(soundOn));
+    }
+    renderSound();
+    soundBtn.addEventListener("click", () => {
+      soundOn = !soundOn;
+      store.set(SOUND_KEY, soundOn ? "1" : "0");
+      if (soundOn && !audio) {
+        try {
+          audio = new AudioContext();
+        } catch {
+          soundOn = false;
+        }
+      }
+      audio?.resume();
+      renderSound();
+      if (soundOn) beep(520, 90, "triangle");
+    });
+
+    function clearBoard() {
+      cells.forEach((c, i) => {
+        c.classList.remove("is-up", "is-hit");
+        moles[i].innerHTML = "";
+        shown[i] = null;
+      });
+    }
+
+    function render() {
+      if (!state) return;
+      state.holes.forEach((h, i) => {
+        if (h.kind === shown[i]) return;
+        const cell = cells[i];
+        if (h.kind) {
+          moles[i].innerHTML = SPRITES[h.kind];
+          cell.dataset.kind = h.kind;
+          cell.classList.remove("is-hit");
+          cell.classList.add("is-up");
+        } else {
+          cell.classList.remove("is-up");
+        }
+        shown[i] = h.kind;
+      });
+      scoreEl.textContent = String(state.stats.score);
+      timerEl.style.transform = `scaleX(${remainingMs(state, clock()) / DURATION_MS})`;
+    }
+
+    function loop() {
+      if (phase !== "play" || !state) return;
+      tick(state, clock(), Math.random);
+      render();
+      if (state.over) return finish();
+      raf = requestAnimationFrame(loop);
+    }
+
+    function start() {
+      audio?.resume();
+      clearBoard();
+      scoreEl.textContent = "0";
+      timerEl.style.transform = "scaleX(1)";
+      phase = "count";
+      showCard("count");
+      const countEl = $("bw-count");
+      let n = 3;
+      countEl.textContent = String(n);
+      const step = () => {
+        n--;
+        if (n > 0) {
+          countEl.textContent = String(n);
+          beep(440, 70);
+          later(step, 550);
+        } else {
+          phase = "play";
+          pausedTotal = 0;
+          state = createGame(clock());
+          showCard(null);
+          beep(880, 120);
+          raf = requestAnimationFrame(loop);
+        }
+      };
+      beep(440, 70);
+      later(step, 550);
+    }
+
+    function pause() {
+      if (phase !== "play") return;
+      phase = "pause";
+      pausedAt = performance.now();
+      cancelAnimationFrame(raf);
+      showCard("pause");
+    }
+
+    function resume() {
+      if (phase !== "pause") return;
+      pausedTotal += performance.now() - pausedAt;
+      phase = "play";
+      showCard(null);
+      raf = requestAnimationFrame(loop);
+    }
+
+    function finish() {
+      if (!state) return;
+      phase = "over";
+      clearBoard();
+      const { score, caught, escaped, featureHits } = state.stats;
+      $("bw-final").textContent = String(score);
+      $("bw-rank").textContent = rankFor(score);
+      $("bw-r-caught").textContent = String(caught);
+      $("bw-r-escaped").textContent = String(escaped);
+      $("bw-r-feature").textContent = String(featureHits);
+      const isBest = score > best;
+      $("bw-newbest").hidden = !isBest;
+      if (isBest) {
+        best = score;
+        store.set(BEST_KEY, String(best));
+        bestEl.textContent = String(best);
+      }
+      beep(660, 160);
+      later(() => beep(880, 220), 140);
+      showCard("result");
+    }
+
+    function floatText(cell: HTMLElement, text: string, kind: Kind) {
+      const el = document.createElement("span");
+      el.className = "bw-float";
+      el.dataset.kind = kind;
+      el.textContent = text;
+      cell.appendChild(el);
+      later(() => el.remove(), 700);
+    }
+
+    const LABEL: Record<Kind, string> = { bug: "+1", gold: "+3", feature: "그건 기능이에요! −2" };
+
+    function press(i: number) {
+      if (phase !== "play" || !state) return;
+      const kind = hit(state, i, clock());
+      if (!kind) return;
+      const cell = cells[i];
+      cell.classList.add("is-hit");
+      cell.classList.remove("is-up");
+      shown[i] = null;
+      floatText(cell, LABEL[kind], kind);
+      SFX[kind]();
+      if (navigator.vibrate && kind === "feature") navigator.vibrate(60);
+      scoreEl.textContent = String(state.stats.score);
+    }
+
+    // pointerdown: click 보다 빠르다(터치 지연 없음). 손가락 여럿도 각각 들어온다
+    const onDown = (e: PointerEvent) => {
+      const cell = (e.target as HTMLElement).closest<HTMLElement>(".bw-cell");
+      if (!cell) return;
+      e.preventDefault();
+      press(Number(cell.dataset.i));
+    };
+    const board = $("bw-board");
+    board.addEventListener("pointerdown", onDown);
+    board.addEventListener("contextmenu", e => e.preventDefault());
+
+    overlay.addEventListener("click", e => {
+      const action = (e.target as HTMLElement).closest<HTMLElement>("[data-action]")?.dataset.action;
+      if (action === "start") start();
+      if (action === "resume") resume();
+    });
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+      const k = e.key.toLowerCase();
+      if (phase === "play") {
+        let i = KEYS.indexOf(k);
+        if (i < 0 && /^[1-9]$/.test(k)) i = Number(k) - 1;
+        if (i >= 0) {
+          e.preventDefault();
+          press(i);
+        } else if (k === "escape" || k === "p") pause();
+      } else if ((k === "enter" || k === " ") && (phase === "idle" || phase === "over")) {
+        if ((e.target as HTMLElement)?.closest?.("button")) return; // 버튼 자체의 Enter 와 겹치지 않게
+        e.preventDefault();
+        start();
+      }
+    };
+    const onVisibility = () => {
+      if (document.hidden) pause();
+    };
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("blur", pause);
+
+    showCard("start");
+
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        cancelAnimationFrame(raf);
+        timers.forEach(id => clearTimeout(id));
+        window.removeEventListener("keydown", onKey);
+        window.removeEventListener("blur", pause);
+        document.removeEventListener("visibilitychange", onVisibility);
+        audio?.close();
+        audio = null;
+      },
+      { once: true }
+    );
+  }
+
+  document.addEventListener("astro:page-load", init);
+</script>
+
+<style is:global>
+  .bw {
+    max-width: 440px;
+    margin: 0 auto;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .bw-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .bw-title {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .bw-sound {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
+  }
+  .bw-sound[aria-pressed="true"] {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .bw-hud {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .bw-stat {
+    display: flex;
+    flex-direction: column;
+    min-width: 52px;
+  }
+  .bw-stat-right {
+    align-items: flex-end;
+  }
+  .bw-stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted-foreground);
+  }
+  .bw-stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .bw-timer {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--muted);
+    overflow: hidden;
+  }
+  .bw-timer-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--lab-pink), var(--lab-gold), var(--lab-green));
+    transform-origin: left center;
+    border-radius: inherit;
+  }
+
+  .bw-stage {
+    position: relative;
+  }
+  .bw-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 14px;
+    border-radius: 22px;
+    background: color-mix(in srgb, var(--lab-green) 22%, var(--background));
+    border: 2px solid color-mix(in srgb, var(--lab-green) 45%, var(--background));
+    touch-action: manipulation;
+  }
+  .bw-cell {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 18px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* 구멍: 아래쪽 타원. 캐릭터는 그 뒤에서 올라온다 */
+  .bw-pit {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: 8%;
+    height: 26%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 35%, #3b2a20, #1f1611 70%);
+  }
+  .bw-mole {
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: 16%;
+    height: 72%;
+    transform: translateY(110%);
+    transition: transform 0.12s ease-out;
+    pointer-events: none;
+  }
+  .bw-mole svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  /* 흙 앞단 — 캐릭터 아래가 구멍 속에 묻혀 보이게 */
+  .bw-dirt {
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    bottom: 0;
+    height: 17%;
+    border-radius: 0 0 16px 16px;
+    background: color-mix(in srgb, var(--lab-green) 22%, var(--background));
+  }
+  .bw-cell.is-up .bw-mole {
+    transform: translateY(0);
+  }
+  .bw-cell.is-hit .bw-mole {
+    transform: translateY(0) scale(1.15, 0.6);
+    transform-origin: bottom center;
+    opacity: 0;
+    transition:
+      transform 0.18s ease-out,
+      opacity 0.18s ease-in 0.06s;
+  }
+
+  .bw-float {
+    position: absolute;
+    left: 50%;
+    top: 24%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--foreground);
+    text-shadow: 0 1px 0 var(--background);
+    pointer-events: none;
+    animation: bw-float 0.7s ease-out forwards;
+  }
+  .bw-float[data-kind="gold"] {
+    color: #c98a00;
+  }
+  .bw-float[data-kind="feature"] {
+    font-size: 12px;
+    color: #5b45c9;
+    background: var(--background);
+    padding: 2px 6px;
+    border-radius: 6px;
+    text-shadow: none;
+  }
+  [data-theme="dark"] .bw-float[data-kind="feature"] {
+    color: var(--lab-purple);
+  }
+  @keyframes bw-float {
+    from {
+      opacity: 1;
+      translate: 0 0;
+    }
+    to {
+      opacity: 0;
+      translate: 0 -26px;
+    }
+  }
+
+  .bw-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    border-radius: 22px;
+    background: color-mix(in srgb, var(--background) 78%, transparent);
+    backdrop-filter: blur(3px);
+  }
+  .bw-overlay[hidden],
+  .bw-card[hidden] {
+    display: none;
+  }
+  .bw-card {
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+    padding: 22px 18px;
+    border-radius: 18px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 30px rgb(0 0 0 / 0.08);
+  }
+  .bw-card-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .bw-legend {
+    display: grid;
+    gap: 8px;
+    text-align: left;
+    margin: 0 auto 18px;
+    width: fit-content;
+    font-size: 14px;
+  }
+  .bw-legend li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bw-legend-icon {
+    width: 30px;
+    height: 30px;
+    flex: none;
+  }
+  .bw-legend-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  .bw-btn {
+    font-size: 16px;
+    font-weight: 700;
+    padding: 11px 32px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+  .bw-btn:hover {
+    filter: brightness(1.08);
+  }
+  .bw-hint {
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--muted-foreground);
+  }
+  @media (hover: none) {
+    .bw-hint {
+      display: none;
+    }
+  }
+  .bw-count {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .bw-rank {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .bw-final {
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1.15;
+  }
+  .bw-newbest {
+    font-size: 13px;
+    font-weight: 700;
+    color: #c98a00;
+  }
+  .bw-report {
+    display: grid;
+    gap: 6px;
+    margin: 14px 0 18px;
+    font-size: 14px;
+  }
+  .bw-report div {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 6px;
+  }
+  .bw-report dt {
+    color: var(--muted-foreground);
+  }
+  .bw-report dd {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bw-mole,
+    .bw-cell.is-hit .bw-mole {
+      transition: none;
+    }
+    .bw-float {
+      animation-duration: 0.01s;
+    }
+  }
+</style>

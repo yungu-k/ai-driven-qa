@@ -25,7 +25,10 @@ export default defineConfig({
     mdx(),
     sitemap({
       filter: page =>
-        config.features?.showArchives !== false || !page.endsWith("/archives/"),
+        // 실험실은 이스터에그로만 들어온다 — 사이트맵에 실으면 숨긴 의미가 없다
+        !new URL(page).pathname.startsWith("/lab/") &&
+        (config.features?.showArchives !== false ||
+          !page.endsWith("/archives/")),
     }),
   ],
   i18n: {
