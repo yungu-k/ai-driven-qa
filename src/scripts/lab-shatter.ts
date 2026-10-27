@@ -9,6 +9,8 @@
 //   5.0 s  깨짐(취소 불가) → 낙하 + 뒤에서 부팅 글자 → 마지막 조각이 나가면 /lab/
 // 손을 떼거나 12px 넘게 움직이면 5초 전 어느 단계에서든 취소.
 
+import { sfx, unlock } from "@/lab/sound";
+
 const HOLD_MS = 5000;
 const PREFETCH_AT = 1500;
 const CRACK_AT = 3000;
@@ -428,6 +430,8 @@ function fire(h: Hold) {
   const built = h.built ?? buildShards(h.geo ?? makeCells(h.cx, h.cy, shardGrid()));
   h.built = null;
   showBehind();
+  // 깨지는 소리(B5 대안, Dean 10-27). 실험실 SOUND 를 끈 사람에겐 안 난다
+  sfx.glass();
   const last = shatter(built, h.cx, h.cy, W, H);
   h.timers.push(window.setTimeout(() => goLab(true), Math.max(last, 1300) + 100));
 }
@@ -475,6 +479,8 @@ export function initLogoEgg() {
       built: null,
     };
     hold = h;
+    // 누르는 지금이 브라우저가 소리를 허락하는 순간 — 5초 뒤 유리 소리를 위해 미리 깨운다
+    if (!h.reduce) unlock();
     // 안드로이드 인앱 브라우저(카카오톡 등)는 링크를 길게 누르면 자체 메뉴(열기·다른 브라우저로 열기)를
     // 띄운다. contextmenu 막기·-webkit-touch-callout 이 안 듣는다 — 그 웹뷰는 「누른 자리가 링크인가」를
     // 길게 누른 시점에 본다. ⇒ 손가락이 닿아 있는 동안만 href 를 떼어 둔다. 손을 떼면(pointerup) 바로

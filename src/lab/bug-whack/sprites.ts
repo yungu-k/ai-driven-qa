@@ -1,56 +1,110 @@
-// 캐릭터 그림. 색만이 아니라 **모양**으로도 갈린다(동그라미 = 버그, 별 = 기능) — 색을 못 갈라도 놀 수 있게.
+// 캐릭터 그림 — 16×16 픽셀(Dean 10-27: 게임 안 캐릭터도 픽셀로). 실험실 목록 아이콘과 같은 결.
+// 색만이 아니라 **모양**으로도 갈린다(동그란 몸 = 버그, 별 = 기능) — 색을 못 갈라도 놀 수 있게.
+// 그림은 글자 격자로 적는다: 한 글자 = 한 칸, "." = 빈칸, 나머지는 팔레트의 색.
 
-const eyes = (cx1: number, cx2: number, cy: number) => `
-  <circle cx="${cx1}" cy="${cy}" r="9" fill="#fff"/>
-  <circle cx="${cx2}" cy="${cy}" r="9" fill="#fff"/>
-  <circle cx="${cx1 + 2}" cy="${cy + 1}" r="4.6" fill="#1c1c21"/>
-  <circle cx="${cx2 + 2}" cy="${cy + 1}" r="4.6" fill="#1c1c21"/>
-  <circle cx="${cx1 + 3.6}" cy="${cy - 1.2}" r="1.6" fill="#fff"/>
-  <circle cx="${cx2 + 3.6}" cy="${cy - 1.2}" r="1.6" fill="#fff"/>`;
+type Palette = Record<string, string>;
 
-const cheeks = (cy: number) => `
-  <ellipse cx="31" cy="${cy}" rx="5" ry="3" fill="#ff8fab" opacity=".75"/>
-  <ellipse cx="69" cy="${cy}" rx="5" ry="3" fill="#ff8fab" opacity=".75"/>`;
+function pixelArt(rows: string[], pal: Palette, extra = ""): string {
+  let rects = "";
+  rows.forEach((row, y) => {
+    // 같은 색이 이어지면 한 rect 로 묶는다(칸 수만큼 rect 를 만들지 않게)
+    let x = 0;
+    while (x < row.length) {
+      const c = row[x];
+      let w = 1;
+      while (x + w < row.length && row[x + w] === c) w++;
+      if (c !== "." && pal[c]) rects += `<rect x="${x}" y="${y}" width="${w}" height="1" fill="${pal[c]}"/>`;
+      x += w;
+    }
+  });
+  return `<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${rects}${extra}</svg>`;
+}
 
-const legs = (stroke: string) => `
-  <g stroke="${stroke}" stroke-width="4" stroke-linecap="round" fill="none">
-    <path d="M24 70 q-9 2 -12 9"/><path d="M76 70 q9 2 12 9"/>
-    <path d="M22 58 q-10 -1 -15 4"/><path d="M78 58 q10 -1 15 4"/>
-  </g>`;
+// 버그: 더듬이 · 둥근 몸 · 큰 눈 · 볼터치 · 다리 6개
+const BUG = [
+  "....c......c....",
+  ".....d....d.....",
+  ".....gggggg.....",
+  "....gggggggg....",
+  "...gggggggggg...",
+  "..dgwwggggwwgd..",
+  ".ddgwkggggwkgdd.",
+  "...gggggggggg...",
+  "...pggkggkggp...",
+  "..dgggkkkkgggd..",
+  ".ddggggggggggdd.",
+  "...ssssssssss...",
+  "....ssssssss....",
+  "...d..d..d..d...",
+  "................",
+  "................",
+];
 
-const antennae = (stroke: string) => `
-  <g stroke="${stroke}" stroke-width="3.5" stroke-linecap="round" fill="none">
-    <path d="M40 26 q-6 -14 -14 -14"/><path d="M60 26 q6 -14 14 -14"/>
-  </g>
-  <circle cx="25" cy="12" r="4.5" fill="${stroke}"/><circle cx="75" cy="12" r="4.5" fill="${stroke}"/>`;
+// 황금 버그: 같은 몸에 왕관 · 반짝이
+const GOLD = [
+  "....o.o..o.o..*.",
+  "....oooooooo.*w*",
+  ".....yyyyyy...*.",
+  "....yyyyyyyy....",
+  "...yyyyyyyyyy...",
+  "..dywwyyyywwyd..",
+  ".ddywkyyyywkydd.",
+  "...yyyyyyyyyy...",
+  "...pyykyykyyp...",
+  "..dyyykkkkyyyd..",
+  ".ddyyyyyyyyyydd.",
+  "...ssssssssss...",
+  "....ssssssss....",
+  "...d..d..d..d...",
+  "................",
+  "................",
+];
 
-const roundBug = (body: string, belly: string, line: string, extra = "") => `
-<svg viewBox="0 0 100 100" aria-hidden="true">
-  ${legs(line)}${antennae(line)}
-  <ellipse cx="50" cy="58" rx="32" ry="30" fill="${body}" stroke="${line}" stroke-width="3"/>
-  <ellipse cx="50" cy="70" rx="19" ry="13" fill="${belly}"/>
-  ${eyes(39, 61, 50)}${cheeks(62)}
-  <path d="M45 65 q5 5 10 0" stroke="#1c1c21" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-  ${extra}
-</svg>`;
+// 기능: 별 + 「기능」 이름표. 건드리면 안 되는 것 — 버그와 모양이 확 다르다
+const FEATURE = [
+  ".......vv.......",
+  ".......vv.......",
+  "......vvvv......",
+  ".vvvvvvvvvvvvvv.",
+  "..vvvwvvvvwvvv..",
+  "...vvkvvvvkvvv..",
+  "....vvvvvvvvv...",
+  "....vvvnnvvvv...",
+  "...vvvvvvvvvvv..",
+  "...vvvv..vvvvv..",
+  "..vvv......vvv..",
+  "..vv........vv..",
+  "................",
+  "..nnnnnnnnnnnn..",
+  "..nnnnnnnnnnnn..",
+  "..nnnnnnnnnnnn..",
+];
 
 export const SPRITES = {
-  bug: roundBug("#7bd389", "#b8efc0", "#2f7a46"),
-  gold: roundBug(
-    "#ffd24d",
-    "#fff0b3",
-    "#b8860b",
-    `<path d="M36 30 l5 -12 l9 9 l9 -9 l5 12 z" fill="#ffb800" stroke="#b8860b" stroke-width="2.5" stroke-linejoin="round"/>
-     <circle cx="84" cy="34" r="3" fill="#fff8d6"/><path d="M84 25 v18 M75 34 h18" stroke="#fff8d6" stroke-width="2" stroke-linecap="round"/>`
+  bug: pixelArt(BUG, {
+    c: "#3ee8ff",
+    d: "#2f7a46",
+    g: "#5dff8a",
+    s: "#2fbf5f",
+    w: "#ffffff",
+    k: "#0a0a14",
+    p: "#ff8fab",
+  }),
+  gold: pixelArt(GOLD, {
+    o: "#ffb800",
+    "*": "#fff3b0",
+    w: "#ffffff",
+    d: "#b8860b",
+    y: "#ffd23f",
+    s: "#e0a800",
+    k: "#0a0a14",
+    p: "#ff8fab",
+  }),
+  feature: pixelArt(
+    FEATURE,
+    // 눈은 흰자+검은 눈동자, 입은 진보라 — 검은 칸만 쓰면 어두운 판에서 구멍처럼 보인다(10-27 QA)
+    { v: "#b39dff", w: "#ffffff", k: "#0a0a14", n: "#5b45c9" },
+    `<text x="8" y="15.4" text-anchor="middle" font-size="3.4" font-weight="700" fill="#fff"
+       font-family="LabPixel, Pretendard Variable, sans-serif">기능</text>`
   ),
-  feature: `
-<svg viewBox="0 0 100 100" aria-hidden="true">
-  <path d="M50 10 l11.5 23.5 l26 3.8 l-18.8 18.3 l4.4 25.9 L50 69.3 L26.9 81.5 l4.4 -25.9 L12.5 37.3 l26 -3.8 z"
-        fill="#b39dff" stroke="#5b45c9" stroke-width="3" stroke-linejoin="round"/>
-  ${eyes(41, 59, 44)}
-  <path d="M45 56 q5 5 10 0" stroke="#1c1c21" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-  <rect x="27" y="80" width="46" height="17" rx="8.5" fill="#5b45c9"/>
-  <text x="50" y="93" text-anchor="middle" font-size="12" font-weight="700" fill="#fff"
-        font-family="Pretendard Variable, Pretendard, sans-serif">기능</text>
-</svg>`,
 } as const;

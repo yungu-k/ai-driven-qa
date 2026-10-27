@@ -80,7 +80,9 @@ const GAMES = [
 </LabLayout>
 
 <script>
-  // HI-SCORE: 게임들이 남긴 최고 기록 중 가장 큰 것(장식). 동전 넣기: 카드를 누르면 CREDIT 00 → 01
+  // HI-SCORE: 게임들이 남긴 최고 기록 중 가장 큰 것(장식). 동전 넣기: 카드를 누르면 CREDIT 00 → 01 + 「띠링」
+  import { sfx, unlock } from "@/lab/sound";
+
   const BEST_KEYS = ["lab.bug-whack.best", "lab:merge-2048:best"];
 
   function read(k: string) {
@@ -88,26 +90,6 @@ const GAMES = [
       return Number(localStorage.getItem(k)) || 0;
     } catch {
       return 0;
-    }
-  }
-
-  function coinSound() {
-    try {
-      if (localStorage.getItem("lab.sound") !== "1") return;
-      const a = new AudioContext();
-      const t = a.currentTime;
-      const o = a.createOscillator();
-      const g = a.createGain();
-      o.type = "square";
-      o.frequency.setValueAtTime(988, t);
-      o.frequency.setValueAtTime(1319, t + 0.06);
-      g.gain.setValueAtTime(0.12, t);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
-      o.connect(g).connect(a.destination);
-      o.start(t);
-      o.stop(t + 0.18);
-    } catch {
-      /* 소리는 덤 */
     }
   }
 
@@ -123,7 +105,8 @@ const GAMES = [
         e.preventDefault();
         const credit = document.querySelector("[data-lab-credit]");
         if (credit) credit.textContent = "CREDIT 01";
-        coinSound();
+        unlock();
+        sfx.coin();
         setTimeout(() => (window.location.href = a.href), 180);
       });
     });

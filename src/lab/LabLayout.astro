@@ -41,7 +41,10 @@ const { title, description, isIndex = false } = Astro.props;
           </a>
         )
       }
-      <span class="lab-credit" data-lab-credit>CREDIT 00</span>
+      <span class="lab-bar-right">
+        <button type="button" class="lab-sound" data-lab-sound aria-pressed="true">SOUND ON</button>
+        <span class="lab-credit" data-lab-credit>CREDIT 00</span>
+      </span>
     </nav>
     <main id="main-content" class="lab-main">
       <slot />
@@ -49,6 +52,34 @@ const { title, description, isIndex = false } = Astro.props;
   </div>
   <div class="lab-crt" aria-hidden="true"></div>
 </Layout>
+
+<script>
+  // 실험실 전체 소리 켬/끔(기본 켜짐). 값은 src/lab/sound.ts 가 읽는다
+  import { isSoundOn, setSoundOn, sfx, unlock } from "@/lab/sound";
+
+  function initSoundToggle() {
+    const btn = document.querySelector<HTMLButtonElement>("[data-lab-sound]");
+    if (!btn || btn.dataset.ready) return;
+    btn.dataset.ready = "1";
+    const render = () => {
+      const on = isSoundOn();
+      btn.textContent = on ? "SOUND ON" : "SOUND OFF";
+      btn.setAttribute("aria-pressed", String(on));
+    };
+    render();
+    btn.addEventListener("click", () => {
+      setSoundOn(!isSoundOn());
+      render();
+      unlock();
+      sfx.hit();
+    });
+    // 첫 조작에서 소리를 깨운다(브라우저는 누르기 전 소리를 막는다)
+    document.addEventListener("pointerdown", unlock, { once: true, capture: true });
+    document.addEventListener("keydown", unlock, { once: true, capture: true });
+  }
+
+  document.addEventListener("astro:page-load", initSoundToggle);
+</script>
 
 <style is:global>
   /* ── 오락실 토큰(A1). 대비는 규격 표의 실측값 — --arc-dim·--arc-line 은 읽는 글에 쓰지 않는다 ── */
@@ -105,6 +136,28 @@ const { title, description, isIndex = false } = Astro.props;
   .lab-back:hover,
   .lab-back:focus-visible {
     color: var(--arc-text);
+  }
+  .lab-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .lab-sound {
+    font-family: var(--font-num);
+    font-size: 12px;
+    line-height: 20px;
+    padding: 0 6px;
+    color: var(--arc-muted);
+    box-shadow: inset 0 0 0 2px var(--arc-line);
+    cursor: pointer;
+  }
+  .lab-sound[aria-pressed="true"] {
+    color: var(--arc-green);
+    box-shadow: inset 0 0 0 2px var(--arc-green);
+  }
+  .lab-sound:focus-visible {
+    outline: 2px solid var(--arc-cyan);
+    outline-offset: 2px;
   }
   .lab-credit {
     font-family: var(--font-num);

@@ -101,6 +101,8 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
     type Game,
   } from "@/lab/ui-bug-hunt/engine";
   import { LEVELS } from "@/lab/ui-bug-hunt/levels";
+  // 소리 켬/끔은 실험실 위 막대 SOUND 버튼이 전체로 맡는다 — 게임 안엔 소리 버튼을 두지 않는다
+  import { sfx, unlock } from "@/lab/sound";
 
   const CIRCLED = "①②③④⑤⑥⑦⑧⑨";
   let cleanup: (() => void) | null = null;
@@ -261,6 +263,7 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
 
     // 실제 빌드 화면 탭
     on(el.build, "click", e => {
+      unlock();
       if (!g || levelDone(g)) return;
       const target = e.target instanceof Element ? e.target : null;
       const id = bugAt(currentLevel(g), target);
@@ -273,10 +276,15 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
         area?.setAttribute("data-ub-n", CIRCLED[n - 1] ?? String(n));
         addFound(n, r.bug.desc);
         toast(`${CIRCLED[n - 1] ?? n} ${r.bug.desc}`, "good");
-        if (r.cleared) showResult([]);
+        // 마지막 하나는 「단계 다 찾음」 소리 하나만 — 두 소리가 겹치지 않게
+        if (r.cleared) {
+          sfx.gold();
+          showResult([]);
+        } else sfx.hit();
       } else if (r.kind === "again") {
         toast("이미 찾은 버그예요.", "info");
       } else if (r.kind === "miss") {
+        sfx.miss();
         const box = el.build.getBoundingClientRect();
         const m = document.createElement("span");
         m.className = "ub-miss";
@@ -293,15 +301,22 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
     // 길게 누르기 메뉴 막기
     on(el.boards, "contextmenu", e => e.preventDefault());
 
-    for (const t of tabs) on(t, "click", () => setView(t.dataset.tab === "spec" ? "spec" : "build"));
+    for (const t of tabs) on(t, "click", () => (unlock(), setView(t.dataset.tab === "spec" ? "spec" : "build")));
 
-    on($("start"), "click", begin);
-    on($("again"), "click", begin);
+    const startClick = () => {
+      unlock();
+      sfx.start();
+      begin();
+    };
+    on($("start"), "click", startClick);
+    on($("again"), "click", startClick);
 
     on($("hint"), "click", () => {
+      unlock();
       if (!g) return;
       const b = hint(g);
       if (!b) return;
+      sfx.tick();
       setView("build");
       const area = areaEl(b.id);
       if (area) {
@@ -316,16 +331,21 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
 
     on($("skip"), "click", () => {
       if (!g) return;
+      unlock();
       const missed = skip(g, performance.now());
       showResult(missed);
     });
 
     on(el.next, "click", () => {
       if (!g) return;
+      unlock();
       if (nextLevel(g, performance.now())) {
         startLevel();
         root.scrollIntoView({ block: "start", behavior: "auto" });
-      } else if (g.over) showFinal();
+      } else if (g.over) {
+        sfx.result();
+        showFinal();
+      }
     });
 
     clock = window.setInterval(() => {

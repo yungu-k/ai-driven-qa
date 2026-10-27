@@ -52,6 +52,8 @@ import LabLayout from "@/lab/LabLayout.astro";
     type MoveResult,
   } from "@/lab/merge-2048/engine";
   import { faceFor, fillFor, captionFor } from "@/lab/merge-2048/faces";
+  // 켬/끔은 실험실 위 막대의 SOUND 버튼이 전체로 맡는다 — 여기엔 소리 버튼을 두지 않는다
+  import { sfx, unlock } from "@/lab/sound";
 
   const BEST_KEY = "lab:merge-2048:best";
 
@@ -167,11 +169,25 @@ import LabLayout from "@/lab/LabLayout.astro";
     }
 
     function go(dir: Dir) {
+      const wasOver = s.over;
+      const wasPaused = paused(s);
       const r = move(s, dir, Math.random);
-      if (r.moved) render(r);
+      // 안 움직이는 쪽으로 밀면 소리도 없다
+      if (!r.moved) return;
+      render(r);
+      // 한 수에 소리 하나: 출시 > 끝 > 합치기
+      if (!wasPaused && paused(s)) sfx.result();
+      else if (!wasOver && s.over) sfx.miss();
+      else if (r.merged.length) {
+        const top = Math.max(...r.merged.map(i => s.board[i]));
+        if (top >= 128) sfx.gold();
+        else sfx.hit();
+      }
     }
 
     function restart() {
+      unlock();
+      sfx.start();
       s = createGame(Math.random);
       announced = "";
       live.textContent = "";
@@ -188,6 +204,7 @@ import LabLayout from "@/lab/LabLayout.astro";
         const dir = KEYS[e.key];
         if (!dir) return;
         e.preventDefault();
+        unlock();
         go(dir);
       },
       { signal }
@@ -199,6 +216,7 @@ import LabLayout from "@/lab/LabLayout.astro";
       "pointerdown",
       e => {
         if (e.button !== 0) return;
+        unlock();
         start = { x: e.clientX, y: e.clientY, id: e.pointerId };
         try {
           board.setPointerCapture(e.pointerId);

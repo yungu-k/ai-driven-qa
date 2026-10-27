@@ -7,9 +7,6 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
   <div class="bw" id="bw">
     <header class="bw-head">
       <h1 class="bw-title">버그 잡기</h1>
-      <button type="button" class="arc-btn arc-btn-ghost bw-sound" id="bw-sound" aria-pressed="false">
-        소리 끔
-      </button>
     </header>
 
     <div class="bw-hud" aria-live="off">
@@ -86,10 +83,9 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     type State,
   } from "@/lab/bug-whack/engine";
   import { SPRITES } from "@/lab/bug-whack/sprites";
+  import { sfx, unlock } from "@/lab/sound";
 
   const BEST_KEY = "lab.bug-whack.best";
-  // 소리 켬/끔은 실험실 전체가 한 값을 쓴다(규격 A7)
-  const SOUND_KEY = "lab.sound";
   const KEYS = ["q", "w", "e", "a", "s", "d", "z", "x", "c"];
 
   const store = {
@@ -109,30 +105,11 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     },
   };
 
-  // ── 소리: 기본은 꺼짐. 켜는 순간(사용자 조작 안)에 AudioContext 를 만든다 ──
-  let audio: AudioContext | null = null;
-  let soundOn = store.get(SOUND_KEY) === "1";
-  function beep(freq: number, ms: number, type: OscillatorType = "sine", gain = 0.08) {
-    if (!soundOn || !audio) return;
-    const t = audio.currentTime;
-    const o = audio.createOscillator();
-    const g = audio.createGain();
-    o.type = type;
-    o.frequency.setValueAtTime(freq, t);
-    o.frequency.exponentialRampToValueAtTime(freq * 1.5, t + ms / 1000);
-    g.gain.setValueAtTime(gain, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + ms / 1000);
-    o.connect(g).connect(audio.destination);
-    o.start(t);
-    o.stop(t + ms / 1000);
-  }
+  // 소리는 실험실 공용(src/lab/sound.ts) — 켬/끔은 위 막대의 SOUND 버튼. 기본 켜짐
   const SFX: Record<Kind, () => void> = {
-    bug: () => beep(520, 90, "triangle"),
-    gold: () => {
-      beep(660, 90, "triangle");
-      setTimeout(() => beep(990, 120, "triangle"), 80);
-    },
-    feature: () => beep(140, 220, "square", 0.05),
+    bug: sfx.hit,
+    gold: sfx.gold,
+    feature: sfx.miss,
   };
 
   function init() {
@@ -153,7 +130,6 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
       pause: $("bw-card-pause"),
       result: $("bw-card-result"),
     };
-    const soundBtn = $<HTMLButtonElement>("bw-sound");
 
     root.querySelectorAll<HTMLElement>(".bw-legend-icon").forEach(el => {
       el.innerHTML = SPRITES[el.dataset.kind as Kind];
@@ -183,26 +159,6 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
       overlay.hidden = name === null;
       for (const [k, el] of Object.entries(cards)) el.hidden = k !== name;
     }
-
-    function renderSound() {
-      soundBtn.textContent = soundOn ? "소리 켬" : "소리 끔";
-      soundBtn.setAttribute("aria-pressed", String(soundOn));
-    }
-    renderSound();
-    soundBtn.addEventListener("click", () => {
-      soundOn = !soundOn;
-      store.set(SOUND_KEY, soundOn ? "1" : "0");
-      if (soundOn && !audio) {
-        try {
-          audio = new AudioContext();
-        } catch {
-          soundOn = false;
-        }
-      }
-      audio?.resume();
-      renderSound();
-      if (soundOn) beep(520, 90, "triangle");
-    });
 
     function clearBoard() {
       cells.forEach((c, i) => {
@@ -241,7 +197,7 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     }
 
     function start() {
-      audio?.resume();
+      unlock(); // 누른 자리에서 소리를 깨운다
       clearBoard();
       scoreEl.textContent = "0";
       timerEl.style.width = "100%";
@@ -254,18 +210,18 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
         n--;
         if (n > 0) {
           countEl.textContent = String(n);
-          beep(440, 70);
+          sfx.tick();
           later(step, 550);
         } else {
           phase = "play";
           pausedTotal = 0;
           state = createGame(clock());
           showCard(null);
-          beep(880, 120);
+          sfx.start();
           raf = requestAnimationFrame(loop);
         }
       };
-      beep(440, 70);
+      sfx.tick();
       later(step, 550);
     }
 
@@ -302,8 +258,7 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
         store.set(BEST_KEY, String(best));
         bestEl.textContent = String(best);
       }
-      beep(660, 160);
-      later(() => beep(880, 220), 140);
+      sfx.result();
       showCard("result");
     }
 
@@ -337,6 +292,7 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
       const cell = (e.target as HTMLElement).closest<HTMLElement>(".bw-cell");
       if (!cell) return;
       e.preventDefault();
+      unlock();
       press(Number(cell.dataset.i));
     };
     const board = $("bw-board");
@@ -382,8 +338,6 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
         window.removeEventListener("keydown", onKey);
         window.removeEventListener("blur", pause);
         document.removeEventListener("visibilitychange", onVisibility);
-        audio?.close();
-        audio = null;
       },
       { once: true }
     );
