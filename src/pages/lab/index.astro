@@ -37,6 +37,17 @@ const GAMES = [
     made: "그림 대신 HTML 로 가짜 앱 화면을 짜고, 한쪽에만 코드로 버그를 심었습니다. 글자 잘림, 합계 계산 틀림, 요일 틀림처럼 실제로 자주 보는 버그들입니다.",
     tested: "기획서 쪽에는 버그가 하나도 없는지, 버그마다 화면이 정말 달라지는지, 장바구니 합계와 달력 요일이 맞는지 등 28가지.",
   },
+  {
+    slug: "release-defense",
+    title: "릴리스 디펜스",
+    blurb: "검사를 세워 버그를 막고 운영을 지켜요. 맵 5장을 깨면 다음 버전, 끝이 없어요.",
+    icon: px(
+      `<rect x="3" y="2" width="10" height="2" fill="#9a64f0"/><rect x="2" y="4" width="12" height="9" fill="#3a1a6b"/><rect x="4" y="6" width="8" height="5" fill="#123a66"/><rect x="5" y="7" width="6" height="1" fill="#6ee6ff"/><rect x="5" y="9" width="6" height="1" fill="#7ee87e"/><rect x="1" y="13" width="14" height="1" fill="#ffd86b"/><rect x="0" y="14" width="2" height="1" fill="#ff5e5b"/><rect x="14" y="14" width="2" height="1" fill="#ff5e5b"/>`
+    ),
+    made: "디자인 세션이 실제 타워 디펜스 게임들을 조사해 규격과 움직이는 시안을 만들고, 구현 세션이 옮겼습니다. 규칙(엔진)은 그림과 떼어 내 숫자 시뮬레이션으로 난이도를 맞췄습니다.",
+    tested: "옮긴 엔진이 시안 엔진과 한 프레임도 다르지 않은지 4만 번 넘게 맞대 봤고, 방어 계산·환급·보스 방패·분열 등 규칙 10가지와 랭킹·저장 규칙 9가지를 시험합니다. 기준 봇이 첫 바퀴 맵 5장을 다 깨는지도 매번 봅니다.",
+    hiscore: true,
+  },
 ];
 ---
 
@@ -57,6 +68,7 @@ const GAMES = [
             <span class="arc-cab-body">
               <span class="arc-cab-title">{g.title}</span>
               <span class="arc-cab-blurb">{g.blurb}</span>
+              {g.hiscore && <span class="arc-cab-hi" data-defense-hi hidden />}
             </span>
             <span class="arc-btn arc-cab-start">START</span>
           </a>
@@ -112,7 +124,24 @@ const GAMES = [
     });
   }
 
+  // 릴리스 디펜스 카드의 HI-SCORE 한 줄(D5): 모두가 보는 랭킹의 1위. 서버가 없거나 기록이 없으면 안 보인다
+  async function defenseHi() {
+    const el = document.querySelector<HTMLElement>("[data-defense-hi]");
+    if (!el) return;
+    try {
+      const res = await fetch("/api/defense-rank");
+      if (!res.ok) return;
+      const top = ((await res.json()) as { rows?: { name: string; lap: number }[] }).rows?.[0];
+      if (!top || !/^[A-Z0-9]{3}$/.test(top.name) || !Number.isInteger(top.lap)) return;
+      el.textContent = `HI-SCORE ${top.name} v${top.lap}.0`;
+      el.hidden = false;
+    } catch {
+      /* 장식이라 조용히 넘어간다 */
+    }
+  }
+
   document.addEventListener("astro:page-load", init);
+  document.addEventListener("astro:page-load", defenseHi);
 </script>
 
 <style is:global>
@@ -124,6 +153,12 @@ const GAMES = [
     box-shadow:
       inset 0 0 0 2px var(--arc-pink),
       0 0 16px rgba(255, 95, 210, 0.35);
+  }
+  .arc-cab-hi {
+    display: block;
+    margin-top: 4px;
+    font-family: var(--font-num);
+    color: var(--arc-coin);
   }
   .arc-eyebrow {
     color: var(--arc-cyan);

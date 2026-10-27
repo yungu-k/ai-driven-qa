@@ -14,9 +14,11 @@ type Props = {
   description?: string;
   /** 실험실 첫 화면이면 true — 뒤로 가기가 블로그로 가고, 부팅 화면을 받는다 */
   isIndex?: boolean;
+  /** 화면을 꽉 채우는 게임이면 true — 위 막대·CRT 덮개·폭 제한 없이 게임이 스스로 그린다(돌아가기·소리는 게임 안 메뉴) */
+  bare?: boolean;
 };
 
-const { title, description, isIndex = false } = Astro.props;
+const { title, description, isIndex = false, bare = false } = Astro.props;
 ---
 
 <Layout title={`${title} | 실험실`} description={description}>
@@ -30,8 +32,8 @@ const { title, description, isIndex = false } = Astro.props;
     }
   </style>
   {isIndex && <BootScreen />}
-  <div class="lab-root" data-pagefind-ignore="all">
-    <nav class="lab-bar">
+  <div class:list={["lab-root", { "lab-root-bare": bare }]} data-pagefind-ignore="all">
+    {!bare && (<nav class="lab-bar">
       {
         isIndex ? (
           <a href="/" class="lab-back">◀ 블로그로</a>
@@ -45,12 +47,12 @@ const { title, description, isIndex = false } = Astro.props;
         <button type="button" class="lab-sound" data-lab-sound aria-pressed="true">SOUND ON</button>
         <span class="lab-credit" data-lab-credit>CREDIT 00</span>
       </span>
-    </nav>
+    </nav>)}
     <main id="main-content" class="lab-main">
       <slot />
     </main>
   </div>
-  <div class="lab-crt" aria-hidden="true"></div>
+  {!bare && <div class="lab-crt" aria-hidden="true"></div>}
 </Layout>
 
 <script>
@@ -122,6 +124,10 @@ const { title, description, isIndex = false } = Astro.props;
   }
   .lab-root button {
     font-family: inherit;
+  }
+  .lab-root-bare {
+    max-width: none;
+    padding: 0;
   }
   .lab-bar {
     display: flex;

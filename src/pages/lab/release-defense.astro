@@ -1,0 +1,66 @@
+---
+// 릴리스 디펜스 — 버그를 막아 운영(게이트)을 지키는 타워 디펜스. 끝없는 바퀴(v1.0, v2.0 …) + 랭킹.
+// 규격 docs/lab-defense-spec.md · 규칙 src/lab/release-defense/engine.ts · 화면 game.ts · 그림 art-*.js · 겉모양 ui.css
+// 화면을 꽉 채우는 게임이라 실험실 위 막대 없이(bare) 그린다. 돌아가기·그만두기는 게임 안 메뉴.
+import LabLayout from "@/lab/LabLayout.astro";
+import "@/lab/release-defense/ui.css";
+---
+
+<LabLayout title="릴리스 디펜스" description="버그를 막아 운영을 지키는 타워 디펜스" bare>
+  <div id="app">
+    <header id="hud">
+      <div class="gate" title="운영 게이트">
+        <canvas id="gateIco" width="12" height="12"></canvas>
+        <div class="bar" id="gateBar"><i></i></div>
+        <span class="num" id="gateNum">100</span>
+      </div>
+      <span class="coin num" id="money">0</span>
+      <span class="tag num" id="waveNo">W 0/10</span>
+      <button class="ghost hudbtn" id="speed" aria-pressed="false" title="빠르게">1×</button>
+      <button class="ghost hudbtn" id="menuBtn" aria-haspopup="dialog" aria-controls="menu" title="메뉴">≡</button>
+    </header>
+    <div id="mapwrap">
+      <canvas id="cv" width="180" height="240" aria-label="맵. 빈 칸을 눌러 검사를 짓는다"></canvas>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div id="wave">
+      <div class="legs" id="legs" aria-label="전설(가지고 있는 동안 계속 듣는다)"></div>
+      <span class="tag">다음</span>
+      <div id="preview"></div>
+      <button class="btn" id="call">▶ 부르기</button>
+    </div>
+    <section id="panel" aria-live="polite"></section>
+  </div>
+
+  <div class="over on" id="start">
+    <div class="box">
+      <p class="sub" id="startSub">v1.0 · 개발 서버</p>
+      <h1 class="title">릴리스 디펜스</h1>
+      <p class="hi" id="hi" hidden>HI-SCORE <span id="hiName"></span> <span id="hiLap"></span></p>
+      <div class="dex" id="dex"></div>
+      <p class="sub">작은 버그는 조금 새도 괜찮다.<br />큰 버그를 놓치면 운영이 무너진다.</p>
+      <div id="startActs"></div>
+    </div>
+  </div>
+
+  <div class="over" id="result">
+    <div class="box" id="resultBox"></div>
+  </div>
+
+  <div class="over sheet" id="menu" role="dialog" aria-modal="true" aria-label="메뉴">
+    <div class="box menu">
+      <h2 class="mtitle">PAUSE</h2>
+      <p class="sub" id="menuWhere"></p>
+      <a class="btn ghost mrow" id="mLab" href="/lab/" data-astro-reload><i class="mi mi-back"></i>실험실로</a>
+      <button class="btn ghost mrow" id="mSnd" aria-pressed="true"><i class="mi mi-snd"></i>소리<span class="mstate">켬</span></button>
+      <button class="btn ghost mrow" id="mReduce" aria-pressed="false"><i class="mi mi-motion"></i>줄인 동작<span class="mstate">끔</span></button>
+      <button class="btn ghost mrow danger" id="mQuit"><i class="mi mi-flag"></i>그만두기 → 랭크 등록</button>
+      <button class="btn mrow" id="mResume">▶ 계속</button>
+    </div>
+  </div>
+</LabLayout>
+
+<script>
+  import { initGame } from "@/lab/release-defense/game";
+  initGame();
+</script>
