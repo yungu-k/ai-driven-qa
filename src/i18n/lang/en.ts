@@ -36,7 +36,7 @@ export default {
   footer: {
     copyright: "Copyright",
     allRightsReserved: "All rights reserved.",
-    easterEgg: "There's an easter egg hidden somewhere on this blog. A QA should be able to find it.",
+    easterEgg: "There's an easter egg hidden somewhere on this blog. The curious ones will find it.",
   },
   pages: {
     tagTitle: "Tag",

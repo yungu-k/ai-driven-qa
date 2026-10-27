@@ -36,7 +36,7 @@ export default {
   footer: {
     copyright: "Copyright",
     allRightsReserved: "All rights reserved.",
-    easterEgg: "이 블로그에는 이스터에그가 하나 숨어 있습니다. QA 라면 찾으실 거예요.",
+    easterEgg: "이 블로그에는 이스터에그가 하나 숨어 있습니다. 호기심 많은 분이라면 찾으실 거예요.",
   },
   pages: {
     tagTitle: "태그",
