@@ -5,8 +5,10 @@
 //
 // 타임라인(누르기 시작 = 0):
 //   1.5 s  /lab/ 미리 받기(<link rel=prefetch>)          — 흔들림은 CSS egg-charge 가 맡는다
+//   1.8 s  파편을 미리 만들어 숨겨 둔다(B3-2, 2판-b)      — 메인 스레드를 400–1000 ms 막지만 이때는
+//          합성 단계에서 도는 흔들림뿐이라 안 보인다. 4.3 s 에 두면 금 2단계가 그동안 멈췄다
 //   3.0 s  꺾인 방사형 금이 1.25 s 동안 툭툭 45% 까지(흰 멍·거미줄·굵은 안쪽 금은 첫 0.2 s)
-//   4.3 s  금 끝까지 + 고리 금·잔금 0.65 s, 파편을 미리 만들어 숨겨 둔다
+//   4.3 s  금 끝까지 + 고리 금·잔금 0.65 s
 //   5.0 s  깨짐(취소 불가) → 낙하 + 뒤에서 부팅 글자 → 마지막 조각이 나가면 /lab/
 // 손을 떼거나 12px 넘게 움직이면 5초 전 어느 단계에서든 취소.
 
@@ -15,7 +17,8 @@ import { sfx, unlock } from "@/lab/sound";
 const HOLD_MS = 5000;
 const PREFETCH_AT = 1500;
 const CRACK_AT = 3000;
-const PREBUILD_AT = 4300;
+const PREBUILD_AT = 1800;
+const CRACK2_AT = 4300;
 const LAB_URL = "/lab/";
 const FX = "lab-fx"; // 이 모듈이 body 에 붙이는 모든 것 — 정리할 때 이 클래스로 찾는다
 
@@ -707,9 +710,14 @@ export function initLogoEgg() {
       h.timers.push(
         window.setTimeout(() => {
           if (hold !== h || !h.geo) return;
-          if (h.svg) growCracks(h.svg, 2);
-          h.built = buildShards(h.geo); // 숨긴 채 미리(B3-2). 숨기는 법은 buildShards() 의 무대 주석
+          // 숨긴 채 미리(B3-2). 숨기는 법은 buildShards() 의 무대 주석. 금 svg 는 아직 없어 복제본에 안 섞인다
+          h.built = buildShards(h.geo);
         }, PREBUILD_AT)
+      );
+      h.timers.push(
+        window.setTimeout(() => {
+          if (hold === h && h.svg) growCracks(h.svg, 2);
+        }, CRACK2_AT)
       );
     }
     h.timers.push(
