@@ -1,11 +1,12 @@
 // 로고 이스터에그 — 5초 꾹 누르면 블로그가 유리처럼 깨지고 /lab 으로 들어간다.
 // 규격: docs/lab-arcade-spec.md B1–B4·C. 기준 구현: docs/lab-arcade-mock.html 의
-// makeCells()·crackSvg()·buildShards()·shatter()·showBoot(). 바뀐 점은 그 자리에 주석으로 적었다.
+// buildShards()·shatter()·showBoot(), 금(makeCells()·crackSvg()·growCracks())은 2판 docs/lab-crack-v2.html.
+// 바뀐 점은 그 자리에 주석으로 적었다.
 //
 // 타임라인(누르기 시작 = 0):
 //   1.5 s  /lab/ 미리 받기(<link rel=prefetch>)          — 흔들림은 CSS egg-charge 가 맡는다
-//   3.0 s  방사형 금이 1.2 s 동안 55% 까지
-//   4.3 s  금 끝까지 + 고리 금 0.45 s, 파편을 미리 만들어 숨겨 둔다
+//   3.0 s  꺾인 방사형 금이 1.25 s 동안 툭툭 45% 까지(흰 멍·거미줄·굵은 안쪽 금은 첫 0.2 s)
+//   4.3 s  금 끝까지 + 고리 금·잔금 0.65 s, 파편을 미리 만들어 숨겨 둔다
 //   5.0 s  깨짐(취소 불가) → 낙하 + 뒤에서 부팅 글자 → 마지막 조각이 나가면 /lab/
 // 손을 떼거나 12px 넘게 움직이면 5초 전 어느 단계에서든 취소.
 
@@ -29,7 +30,16 @@ const BOOT_LINES = [
 ];
 
 type Pt = [number, number];
-type Geo = { cells: Pt[][]; pts: Pt[][]; ang: number[] };
+type Geo = {
+  cells: Pt[][];
+  rayPts: Pt[][];
+  cross: number[][];
+  rings: Pt[][][];
+  twigs: Pt[][][];
+  web: Pt[][][];
+  cx: number;
+  cy: number;
+};
 type Piece = { el: HTMLDivElement; cx: number; cy: number; y0: number };
 type Built = { stage: HTMLDivElement; pieces: Piece[] };
 
@@ -68,64 +78,184 @@ function shardGrid() {
   return narrow || weak ? { rays: 6, rings: 2 } : { rays: 6, rings: 3 };
 }
 
-// 충격점에서 방사선 × 동심 고리로 칸을 나눈다. 금과 파편 경계가 같은 선이다(시안 makeCells 그대로).
-function makeCells(
-  cx: number,
-  cy: number,
-  { rays, rings }: { rays: number; rings: number }
-): Geo {
+// ── 금 2판(B2 2판, Dean 10-27 「금이 너무 직선」) — 기준 구현 docs/lab-crack-v2.html 「옮길 부분」 ──
+// 주 균열(방사선)은 꺾이며 뻗고, 고리 금은 호를 따라 출렁인다. 파편 칸은 이 꺾인 선을 그대로 쓴다.
+// 잔금(twig)·거미줄(web)·흰 멍(haze)은 장식이라 칸과 무관하다.
+const rnd = (a: number, b: number) => a + Math.random() * (b - a);
+const polar = (cx: number, cy: number, r: number, a: number): Pt => [
+  cx + Math.cos(a) * r,
+  cy + Math.sin(a) * r,
+];
+
+// 칸 다각형이 스스로 꼬이면(변끼리 교차) 이웃 칸과 겹친다 → makeCells 가 꺾임을 줄여 다시 만든다.
+// 시안 1차에서 실제로 났다(1280px, 격자 점이 칸 셋에 동시에 들어감)
+function segX(a: Pt, b: Pt, c: Pt, d: Pt) {
+  const o = (p: Pt, q: Pt, r: Pt) =>
+    Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]));
+  return o(a, b, c) * o(a, b, d) < 0 && o(c, d, a) * o(c, d, b) < 0;
+}
+function isSimple(P: Pt[]) {
+  const n = P.length;
+  for (let i = 0; i < n; i++)
+    for (let j = i + 2; j < n; j++) {
+      if (i === 0 && j === n - 1) continue; // 이웃 변(첫·끝)은 꼭짓점을 같이 쓴다
+      if (segX(P[i], P[(i + 1) % n], P[j], P[(j + 1) % n])) return false;
+    }
+  return true;
+}
+
+type Grid = { rays: number; rings: number };
+
+function makeCells(cx: number, cy: number, grid: Grid): Geo {
+  for (let wob = 1; wob > 0.05; wob *= 0.6) {
+    const g = makeCellsOnce(cx, cy, grid, wob);
+    if (g.cells.every(isSimple)) return g;
+  }
+  return makeCellsOnce(cx, cy, grid, 0); // 꺾임 0 = 1판과 같은 곧은 칸(항상 단순)
+}
+
+function makeCellsOnce(cx: number, cy: number, { rays, rings }: Grid, wob: number): Geo {
   const W = viewW();
   const H = viewH();
   const diag = Math.hypot(W, H);
-  const far = diag * 2;
+  const far = diag * 2; // 바깥 칸이 화면 모서리까지 덮도록
+  const corner = Math.max(
+    ...([[0, 0], [W, 0], [0, H], [W, H]] as Pt[]).map(([x, y]) => Math.hypot(x - cx, y - cy))
+  );
   const step = (Math.PI * 2) / rays;
   const base = Math.random() * step;
-  const ang = Array.from(
-    { length: rays },
-    (_, i) => base + i * step + (Math.random() - 0.5) * step * 0.5
-  );
-  const radii: number[] = [];
-  for (let k = 0; k < rings - 1; k++) radii.push(diag * (0.16 + 0.3 * k));
-  radii.push(far);
-  const P = (k: number, i: number): Pt => {
-    const a = ang[i % rays];
-    const r = radii[k] * (k === rings - 1 ? 1 : 0.85 + Math.random() * 0.3);
-    return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+  const ang = Array.from({ length: rays }, (_, i) => base + i * step + rnd(-0.2, 0.2) * step);
+  const maxDev = step * 0.2 * wob; // 방사선이 제 쐐기 밖으로 못 나간다 → 이웃과 안 엇갈림
+
+  // 고리 반지름: 방사선마다 ±12% 흔들림. 맨 바깥은 far
+  const ringR: number[][] = [];
+  for (let k = 0; k < rings - 1; k++)
+    ringR.push(ang.map(() => diag * (0.16 + 0.3 * k) * rnd(0.88, 1.12)));
+
+  // 방사선 한 줄: 첫 마디 10–16px, 마디마다 1.25배(최대 110px). 꺾임은 「직전 꺾임의 40% + 새 흔들림」(지그재그)
+  // 화면 밖(corner + 60)부터는 꺾을 필요가 없어 far 로 곧게 뻗는다
+  const rayPts: Pt[][] = [];
+  const cross: number[][] = [];
+  ang.forEach((a0, i) => {
+    const pts: Pt[] = [[cx, cy]];
+    const cr: number[] = [];
+    let r = 0;
+    let seg = rnd(10, 16);
+    let dev = 0;
+    let k = 0;
+    for (;;) {
+      let rn = r + seg;
+      const ringHere = k < rings - 1 && rn >= ringR[k][i];
+      if (ringHere) rn = ringR[k][i];
+      if (!ringHere && r > corner + 60) {
+        pts.push(polar(cx, cy, far, a0 + dev));
+        break;
+      }
+      const amp = (seg * 0.42 * wob) / Math.max(rn, 1); // 마디 길이의 42% 만큼 옆으로
+      dev = Math.max(-maxDev, Math.min(maxDev, dev * 0.4 + rnd(-1, 1) * amp));
+      pts.push(polar(cx, cy, rn, a0 + dev));
+      if (ringHere) {
+        cr.push(pts.length - 1);
+        k++;
+      }
+      r = rn;
+      seg = Math.min(seg * 1.25, 110); // 먼 데서도 110px 마다 한 번은 꺾인다
+    }
+    rayPts.push(pts);
+    cross.push(cr);
+  });
+
+  // 고리 한 칸(방사선 i → i+1): 호 위 중간점 2개, 반지름 ±6% 흔들림
+  const ringSeg = (k: number, i: number): Pt[] => {
+    const j = (i + 1) % rays;
+    const A = rayPts[i][cross[i][k]];
+    const B = rayPts[j][cross[j][k]];
+    const aA = Math.atan2(A[1] - cy, A[0] - cx);
+    let aB = Math.atan2(B[1] - cy, B[0] - cx);
+    while (aB < aA) aB += Math.PI * 2;
+    const rA = Math.hypot(A[0] - cx, A[1] - cy);
+    const rB = Math.hypot(B[0] - cx, B[1] - cy);
+    const mid = [1, 2].map(t =>
+      polar(cx, cy, (rA + ((rB - rA) * t) / 3) * (1 + rnd(-0.06, 0.06) * wob), aA + ((aB - aA) * t) / 3)
+    );
+    return [A, ...mid, B];
   };
-  const pts = radii.map((_, k) => ang.map((_, i) => P(k, i)));
+  const ringRows: Pt[][][] = [];
+  for (let k = 0; k < rings - 1; k++) ringRows.push(ang.map((_, i) => ringSeg(k, i)));
+
+  // 칸: 방사선 i 의 한 구간 → 고리 → 방사선 i+1 거꾸로 → 안쪽 고리 거꾸로
+  const slice = (i: number, from: number, to: number) => rayPts[i].slice(from, to + 1);
   const cells: Pt[][] = [];
   for (let k = 0; k < rings; k++)
     for (let i = 0; i < rays; i++) {
       const j = (i + 1) % rays;
-      cells.push(
-        k === 0
-          ? [[cx, cy], pts[0][i], pts[0][j]]
-          : [pts[k - 1][i], pts[k][i], pts[k][j], pts[k - 1][j]]
-      );
+      const iFrom = k === 0 ? 0 : cross[i][k - 1];
+      const jFrom = k === 0 ? 0 : cross[j][k - 1];
+      const iTo = k < rings - 1 ? cross[i][k] : rayPts[i].length - 1;
+      const jTo = k < rings - 1 ? cross[j][k] : rayPts[j].length - 1;
+      const outer =
+        k < rings - 1
+          ? ringRows[k][i].slice(1, -1)
+          : [polar(cx, cy, far, (ang[i] + ang[j] + (j < i ? Math.PI * 2 : 0)) / 2)]; // 바깥: far 위 중간점 하나
+      const inner = k === 0 ? [] : ringRows[k - 1][i].slice(1, -1).reverse();
+      const poly = [...slice(i, iFrom, iTo), ...outer, ...slice(j, jFrom, jTo).reverse(), ...inner];
+      if (k === 0) poly.pop(); // 충격점이 두 번 들어가지 않게
+      cells.push(poly);
     }
-  return { cells, pts, ang };
+
+  // 잔금: 방사선 꼭짓점(충격점에서 24px ~ 화면 안 60%) 중 35% 에서 25–50° 로 갈라진다. 방사선당 최대 3
+  const twigs = rayPts.map(pts => {
+    const out: Pt[][] = [];
+    for (let n = 2; n < pts.length - 1 && out.length < 3; n++) {
+      const [x, y] = pts[n];
+      const d = Math.hypot(x - cx, y - cy);
+      if (d < 24 || d > corner * 0.6 || Math.random() > 0.35) continue;
+      const dir =
+        Math.atan2(y - pts[n - 1][1], x - pts[n - 1][0]) +
+        (Math.random() < 0.5 ? -1 : 1) * rnd(0.45, 0.85);
+      const len = Math.hypot(x - pts[n - 1][0], y - pts[n - 1][1]) * rnd(0.5, 0.9);
+      const m: Pt = [x + Math.cos(dir) * len * 0.55, y + Math.sin(dir) * len * 0.55];
+      const dir2 = dir + rnd(-0.35, 0.35);
+      out.push([[x, y], m, [m[0] + Math.cos(dir2) * len * 0.45, m[1] + Math.sin(dir2) * len * 0.45]]);
+    }
+    return out;
+  });
+
+  // 거미줄: 충격점 둘레 반지름 12·26px 두 바퀴, 칸마다 70% 확률로만(끊긴 거미줄)
+  const web = [12, 26].map(R =>
+    ang
+      .map((a, i): Pt[] | null => {
+        if (Math.random() > 0.7) return null;
+        const b = ang[(i + 1) % rays] + (i === rays - 1 ? Math.PI * 2 : 0);
+        return [
+          polar(cx, cy, R * rnd(0.85, 1.15), a),
+          polar(cx, cy, R * rnd(0.9, 1.25), (a + b) / 2),
+          polar(cx, cy, R * rnd(0.85, 1.15), b),
+        ];
+      })
+      .filter((s): s is Pt[] => s !== null)
+  );
+
+  return { cells, rayPts, cross, rings: ringRows, twigs, web, cx, cy };
 }
 
-// 금: 검은 3px + 흰 1.2px 두 겹이라 라이트·다크 블로그 둘 다에서 보인다(D7)
-function crackSvg(cx: number, cy: number, geo: Geo): SVGSVGElement {
+const D = (pts: Pt[]) => "M" + pts.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" L");
+
+// 금: 종류별로 한 path 에 여러 획을 묶고 그림자·빛 두 겹. 굵기는 종류별(Header.astro .lab-crack)
+// path 수 = (안쪽 6 + 바깥 6 + 잔금 ≤6 + 고리 (고리 수 − 1) + 거미줄 ≤2) × 2 → 고리 2 에서 42, 고리 3 에서 44
+function crackSvg(geo: Geo): SVGSVGElement {
   const ns = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(ns, "svg");
   svg.setAttribute("class", `${FX} lab-crack`);
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("width", String(viewW()));
   svg.setAttribute("height", String(viewH()));
-  const lines: { d: string; ring: boolean }[] = [];
-  geo.ang.forEach((_, i) => {
-    let d = `M${cx},${cy}`;
-    geo.pts.forEach(row => {
-      d += ` L${row[i][0]},${row[i][1]}`;
-    });
-    lines.push({ d, ring: false });
-  });
-  geo.pts.slice(0, -1).forEach(row => {
-    lines.push({ d: "M" + row.map(p => p.join(",")).join(" L") + " Z", ring: true });
-  });
-  for (const { d, ring } of lines) {
+  // 충격점 흰 멍(유리가 하얗게 바스러진 자리). 다크에서 특히 「맞았다」가 보인다
+  svg.innerHTML =
+    `<defs><radialGradient id="lab-haze"><stop offset="0" stop-color="#fff" stop-opacity=".55"/>` +
+    `<stop offset=".45" stop-color="#fff" stop-opacity=".18"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>` +
+    `<circle class="haze" cx="${geo.cx}" cy="${geo.cy}" r="34" fill="url(#lab-haze)"/>`;
+  const add = (d: string, kind: string, ray?: number) => {
     for (const cls of ["sh", "hl"]) {
       const p = document.createElementNS(ns, "path");
       p.setAttribute("d", d);
@@ -133,28 +263,100 @@ function crackSvg(cx: number, cy: number, geo: Geo): SVGSVGElement {
       p.setAttribute("pathLength", "1");
       p.style.strokeDasharray = "1";
       p.style.strokeDashoffset = "1";
-      if (ring) p.dataset.ring = "1";
+      p.dataset.kind = kind;
+      if (ray !== undefined) p.dataset.ray = String(ray);
       svg.appendChild(p);
     }
-  }
+  };
+  geo.rayPts.forEach((pts, i) => {
+    const c0 = geo.cross[i][0] ?? pts.length - 1;
+    add(D(pts.slice(0, c0 + 1)), "near", i); // 충격점 → 첫 고리: 굵게
+    // 그 바깥: 가늘게. 마지막 점(far, 화면 한참 밖)은 칸에만 쓰고 그리지 않는다 —
+    // 그리면 path 길이의 절반 넘게가 화면 밖이라 「45% 까지」가 실제론 화면 끝에 닿는다
+    add(D(pts.slice(c0, -1)), "far", i);
+    if (geo.twigs[i].length) add(geo.twigs[i].map(D).join(" "), "twig", i);
+  });
+  geo.rings.forEach(row =>
+    add(row.map((seg, n) => (n ? D(seg).replace("M", "L") : D(seg))).join(" "), "ring")
+  );
+  geo.web.forEach(row => {
+    if (row.length) add(row.map(D).join(" "), "web");
+  });
   document.body.appendChild(svg);
   return svg;
 }
 
-// 1단계(3.0 s): 방사선만 55% 까지 1.2 s. 2단계(4.3 s): 방사선 나머지 + 고리 0.45 s.
-// 시안은 2단계에서 방사선도 처음(offset 1)부터 다시 그려 한 번 깜빡였다 — 여기선 이어 그린다.
+// 툭툭 자라기: 값이 「빠르게 점프(50–90ms) → 멈춤」을 되풀이하는 키프레임을 만든다.
+// jumps = [[시각ms, 도달 비율0..1], ...]. 다음 단계는 data-at 에 적어 둔 비율에서 이어 간다.
+function stepFrames(from: number, jumps: [number, number][], dur: number) {
+  const kf: Keyframe[] = [{ offset: 0, strokeDashoffset: 1 - from }];
+  let cur = from;
+  let last = 0;
+  for (const [t0, to] of jumps) {
+    // 앞 점프가 끝나기 전에 다음 시각이 오면 밀어낸다 — offset 이 거꾸로 가면 animate() 가 TypeError 를
+    // 던지고 그 뒤 금이 전부 안 그려진다(시안 1차에서 실제로 남). 이 줄을 빼지 말 것
+    const t = Math.max(t0, last);
+    const len = Math.min(90, Math.max(50, (to - cur) * 400));
+    kf.push({ offset: Math.min(t / dur, 1), strokeDashoffset: 1 - cur });
+    kf.push({ offset: Math.min((t + len) / dur, 1), strokeDashoffset: 1 - to });
+    cur = to;
+    last = t + len;
+  }
+  kf.push({ offset: 1, strokeDashoffset: 1 - cur });
+  return { kf, end: cur };
+}
+function grow(p: SVGPathElement, jumps: [number, number][], dur: number) {
+  const from = +(p.dataset.at || 0);
+  const { kf, end } = stepFrames(from, jumps, dur);
+  p.animate(kf, { duration: dur, fill: "forwards", easing: "linear" });
+  p.dataset.at = String(end);
+}
+
+// 1단계(3.0 s, 1250ms): 「쩍」 — 충격점 멍·거미줄·굵은 금이 120ms 안에, 바깥 금은 방사선마다 제각각 세 번 툭툭 (~45%)
+// 2단계(4.3 s, 650ms): 바깥 금 두 번 더 툭툭 끝까지, 고리 금이 돌며 이어지고, 잔금이 갈라진다
 function growCracks(svg: SVGSVGElement, phase: 1 | 2) {
+  const byRay: Record<string, Record<string, SVGPathElement[]>> = {};
   svg.querySelectorAll<SVGPathElement>("path").forEach(p => {
-    const ring = p.dataset.ring === "1";
-    if (phase === 1 && ring) return;
-    const from = phase === 1 || ring ? 1 : 0.45;
-    const to = phase === 1 ? 0.45 : 0;
-    p.animate([{ strokeDashoffset: from }, { strokeDashoffset: to }], {
-      duration: phase === 1 ? 1200 : 450,
-      easing: "cubic-bezier(.2,.8,.2,1)",
-      fill: "forwards",
-    });
+    const k = p.dataset.kind || "";
+    const r = p.dataset.ray ?? "x";
+    ((byRay[r] ||= {})[k] ||= []).push(p); // sh·hl 두 겹은 같은 리듬
   });
+  if (phase === 1) {
+    const haze = svg.querySelector<SVGCircleElement>(".haze");
+    if (haze) {
+      haze.style.transformBox = "fill-box";
+      haze.style.transformOrigin = "center";
+      haze.animate([{ opacity: 0, transform: "scale(.4)" }, { opacity: 1, transform: "none" }], {
+        duration: 140,
+        fill: "forwards",
+        easing: "cubic-bezier(.2,.8,.2,1)",
+      });
+    }
+    for (const r in byRay) {
+      const g = byRay[r];
+      (g.web || []).forEach(p => grow(p, [[20, 1]], 1250));
+      (g.near || []).forEach(p => grow(p, [[0, 0.55], [110, 1]], 1250));
+      if (g.far) {
+        const t = [rnd(150, 420), rnd(480, 800), rnd(860, 1150)].sort((a, b) => a - b);
+        const l = [rnd(0.08, 0.16), rnd(0.2, 0.32), rnd(0.38, 0.5)];
+        g.far.forEach(p => grow(p, t.map((x, n): [number, number] => [x, l[n]]), 1250));
+      }
+    }
+  } else {
+    for (const r in byRay) {
+      const g = byRay[r];
+      if (g.far) {
+        const t = [rnd(0, 140), rnd(260, 430)];
+        const l = [rnd(0.65, 0.8), 1];
+        g.far.forEach(p => grow(p, t.map((x, n): [number, number] => [x, l[n]]), 650));
+      }
+      if (g.twig) {
+        const t = [rnd(80, 220), rnd(300, 520)];
+        g.twig.forEach(p => grow(p, [[t[0], 0.5], [t[1], 1]], 650));
+      }
+      (g.ring || []).forEach(p => grow(p, [[200, 0.35], [330, 0.7], [470, 1]], 650));
+    }
+  }
 }
 
 function fadeOutAndRemove(node: Element | null) {
@@ -498,7 +700,7 @@ export function initLogoEgg() {
       h.timers.push(
         window.setTimeout(() => {
           if (hold !== h || !h.geo) return;
-          h.svg = crackSvg(h.cx, h.cy, h.geo);
+          h.svg = crackSvg(h.geo);
           growCracks(h.svg, 1);
         }, CRACK_AT)
       );
