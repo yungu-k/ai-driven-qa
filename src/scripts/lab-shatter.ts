@@ -18,7 +18,7 @@ const FX = "lab-fx"; // 이 모듈이 body 에 붙이는 모든 것 — 정리�
 
 /** 부팅 글자. src/lab/BootScreen.astro 와 같은 줄이어야 페이지 이동이 안 보인다(B4 match cut) */
 const BOOT_LINES = [
-  "CLONIX LAB  v1.0",
+  "AI-DRIVEN QA LAB  v1.0",
   "",
   "MEMORY CHECK ...... OK",
   "GAMES ............. 3",
