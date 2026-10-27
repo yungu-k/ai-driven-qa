@@ -8,11 +8,14 @@ import Header from "@/components/Header.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import Footer from "@/components/Footer.astro";
 import config from "@/config";
+import { useTranslations } from "@/i18n";
 
 // About 콘텐츠의 단일 출처는 이 파일이다.
 // src/content/pages/about.md 는 메타(title·description)만 제공한다.
 const about = await getEntry("pages", "about");
 const CAREER_LABEL = `경력 ${careerLabel()}`;
+// 이스터에그 도발 한 줄은 푸터와 같은 문자열(i18n footer.easterEgg) — 한 곳에서 고친다
+const t = useTranslations(Astro.currentLocale);
 if (!about) {
   throw new Error("Missing content entry: `about.md` in `src/content/pages/`");
 }
@@ -202,6 +205,15 @@ const PRINCIPLES = [
       </h2>
       <div class="mt-4 space-y-3 max-w-3xl text-[15px] leading-relaxed">
         {BLOG_ORIGIN.body.map(p => <p>{p}</p>)}
+        {/* 문장마다 한 덩어리 — 360px 에서 「QA / 라면」으로 갈라지지 않게(푸터와 같은 처리) */}
+        <p class="text-muted-foreground">
+          {
+            t.footer.easterEgg
+              .split(/(?<=\.) /)
+              .map(s => <span class="inline-block">{s}</span>)
+              .flatMap((el, i) => (i ? [" ", el] : [el]))
+          }
+        </p>
       </div>
     </section>
 
