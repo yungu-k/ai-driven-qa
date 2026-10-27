@@ -27,4 +27,14 @@ const currentYear = new Date().getFullYear();
       <span>{t.footer.allRightsReserved}</span>
     </div>
   </div>
+  <!-- 이스터에그(로고 5초 누르기, lab-shatter.ts) 도발 한 줄 — 방법은 흘리지 않는다 -->
+  <p class="text-muted-foreground -mt-2 pb-6 text-center text-xs sm:-mt-1 sm:pb-4">
+    {/* 문장마다 한 덩어리 — 좁은 화면에서 「거예요.」 한 낱말만 다음 줄로 떨어지지 않게 */}
+    {
+      t.footer.easterEgg
+        .split(/(?<=\.) /)
+        .map(s => <span class="inline-block">{s}</span>)
+        .flatMap((el, i) => (i ? [" ", el] : [el]))
+    }
+  </p>
 </footer>
