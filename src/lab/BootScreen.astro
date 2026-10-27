@@ -1,0 +1,116 @@
+---
+// 실험실 부팅 화면 — 로고 이스터에그(와장창)로 왔을 때만 보인다. 규격: docs/lab-arcade-spec.md B4·C
+//  - 블로그 쪽 마지막 장면(src/scripts/lab-shatter.ts 의 검은 뒷면 + 부팅 4줄)과 같은 장면을
+//    「다 찍힌 상태로」 먼저 보여 줘서 페이지 이동이 눈에 안 띄게 한다(match cut).
+//    글자·글꼴·크기·여백은 Header.astro 의 .lab-boot-lines 와 같아야 한다.
+//  - 0.5 s 뒤 CRT 꺼지듯 가운데로 접히며(0.35 s, steps 6) 사라진다. 아무 데나 누르면 바로 넘어간다.
+//  - sessionStorage "lab-boot" 가 없으면(주소로 바로 옴·게임에서 돌아옴) 아예 안 보인다.
+//  - 줄인 동작이면 표시하지 않는다(C).
+// 끼우는 자리: <body> 안, 목록(.lab-root)보다 앞. 아래 첫 인라인 스크립트가 목록이 파싱되기 전에
+// html 에 lab-booting 을 달아야 첫 페인트에 목록이 번쩍이지 않는다.
+// 색은 A1 토큰 값을 직접 쓴다(--arc-screen #05060a, --arc-green #5dff8a).
+---
+
+<script is:inline>
+  (function () {
+    var on = false;
+    try {
+      on = sessionStorage.getItem("lab-boot") === "1";
+      sessionStorage.removeItem("lab-boot");
+    } catch (e) {
+      on = false;
+    }
+    if (on && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.documentElement.classList.add("lab-booting");
+    }
+  })();
+</script>
+<div class="lab-boot" aria-hidden="true">
+  <div class="lab-boot-lines">
+    {/* 줄 글자는 식으로 넣는다 — 그냥 쓰면 compressHTML 이 「LAB  v1.0」 두 칸을 한 칸으로 줄인다 */}
+    <p>{"CLONIX LAB  v1.0"}</p>
+    <p>{" "}</p>
+    <p>{"MEMORY CHECK ...... OK"}</p>
+    <p>{"GAMES ............. 3"}</p>
+    <p>{" "}</p>
+    <p>{"PRESS START"}</p>
+  </div>
+</div>
+<script is:inline>
+  (function () {
+    var root = document.documentElement;
+    if (!root.classList.contains("lab-booting")) return;
+    var boot = document.querySelector(".lab-boot");
+    if (!boot) {
+      root.classList.remove("lab-booting");
+      return;
+    }
+    var done = false;
+    var t = 0;
+    var end = function () {
+      if (done) return;
+      done = true;
+      clearTimeout(t);
+      root.classList.remove("lab-booting");
+      boot.classList.remove("lab-boot-off");
+      document.removeEventListener("keydown", end, true);
+    };
+    // 아무 데나 누르면(키보드 포함) 바로 넘어간다. pointerdown 에서 걷으면 터치는 손을 뗀 자리의
+    // 카드가 click 을 받아 게임으로 들어가 버린다(리그 실측) → 부팅 화면이 click 을 받고 나서 걷는다.
+    boot.addEventListener("click", end);
+    document.addEventListener("keydown", end, true);
+    boot.addEventListener("animationend", end);
+    t = setTimeout(function () {
+      boot.classList.add("lab-boot-off");
+      // animationend 가 안 오는 환경(애니메이션 꺼짐 등) 대비
+      t = setTimeout(end, 600);
+    }, 500);
+  })();
+</script>
+
+<style is:global>
+  .lab-boot {
+    display: none;
+  }
+  html.lab-booting .lab-boot {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    background: #05060a;
+  }
+  /* Header.astro 의 .lab-boot-lines 와 같은 값 — 한쪽을 고치면 다른 쪽도 */
+  .lab-boot .lab-boot-lines {
+    padding: 24px 16px;
+    color: #5dff8a;
+    font-family: LabPixelMono, LabPixel, monospace;
+    font-size: 12px;
+    line-height: 20px;
+    letter-spacing: 0;
+    -webkit-font-smoothing: none;
+  }
+  .lab-boot .lab-boot-lines p {
+    margin: 0;
+    white-space: pre;
+  }
+  html.lab-booting .lab-boot.lab-boot-off {
+    animation: lab-crt-off 0.35s steps(6) forwards;
+  }
+  @keyframes lab-crt-off {
+    0% {
+      clip-path: inset(0 0 0 0);
+    }
+    40% {
+      clip-path: inset(49.5% 0 49.5% 0);
+      background: #fff;
+    }
+    100% {
+      clip-path: inset(50% 50% 50% 50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html.lab-booting .lab-boot {
+      display: none;
+    }
+  }
+</style>

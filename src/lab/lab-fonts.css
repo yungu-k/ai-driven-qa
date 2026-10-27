@@ -1,0 +1,23 @@
+/* /lab 픽셀 글꼴 — Galmuri(OFL-1.1) 서브셋·개명 파생본. 라이선스: /fonts/lab/LICENSE.txt
+   생성: scripts/lab-font-subset.mjs (KS X 1001 한글 2,350자 + ASCII + 기호, Mono 는 ASCII 만) */
+@font-face {
+  font-family: "LabPixel";
+  src: url("/fonts/lab/LabPixel-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "LabPixel";
+  src: url("/fonts/lab/LabPixel-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "LabPixelMono";
+  src: url("/fonts/lab/LabPixelMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

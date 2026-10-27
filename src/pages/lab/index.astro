@@ -1,28 +1,19 @@
 ---
 import LabLayout from "@/lab/LabLayout.astro";
-import { SPRITES } from "@/lab/bug-whack/sprites";
-import { faceFor, fillFor } from "@/lab/merge-2048/faces";
 
-// 목록 아이콘: 2048 은 타일 한 장, UI 버그 찾기는 돋보기 속 버그
-const tileIcon = `<svg viewBox="0 0 100 100" aria-hidden="true">
-  <rect x="4" y="4" width="92" height="92" rx="20" fill="${fillFor(8)}"/>
-  <svg x="14" y="6" width="72" height="72">${faceFor(8)}</svg>
-  <text x="50" y="86" text-anchor="middle" font-size="22" font-weight="800" fill="#1c1c21"
-        font-family="Pretendard Variable, Pretendard, sans-serif">2048</text>
-</svg>`;
-const lensIcon = `<svg viewBox="0 0 100 100" aria-hidden="true">
-  <path d="M64 64 L90 90" stroke="#5b45c9" stroke-width="11" stroke-linecap="round"/>
-  <circle cx="42" cy="42" r="32" fill="#fff" stroke="#5b45c9" stroke-width="7"/>
-  <svg x="17" y="17" width="50" height="50">${SPRITES.bug}</svg>
-</svg>`;
+// 게임 목록 = 오락기 캐비닛. 다 만든 것만 싣는다 — 반쯤 만든 게임이 걸려 있으면 방치된 방처럼 보인다.
+// 아이콘은 16×16 격자 픽셀(<rect> 만, crispEdges) — 규격 A4
+const px = (rects: string) =>
+  `<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
 
-// 게임 목록. 다 만든 것만 싣는다 — 반쯤 만든 게임이 걸려 있으면 방치된 방처럼 보인다.
 const GAMES = [
   {
     slug: "bug-whack",
     title: "버그 잡기",
     blurb: "30초 동안 튀어나오는 버그를 톡톡. 「기능」은 건드리면 안 돼요.",
-    icon: SPRITES.bug,
+    icon: px(
+      `<rect x="5" y="3" width="6" height="2" fill="#3ee8ff"/><rect x="4" y="5" width="8" height="7" fill="#5dff8a"/><rect x="6" y="7" width="1" height="1" fill="#000"/><rect x="9" y="7" width="1" height="1" fill="#000"/><rect x="2" y="6" width="2" height="1" fill="#5dff8a"/><rect x="12" y="6" width="2" height="1" fill="#5dff8a"/><rect x="2" y="10" width="2" height="1" fill="#5dff8a"/><rect x="12" y="10" width="2" height="1" fill="#5dff8a"/>`
+    ),
     made: "Claude Code 와 같이 만들었습니다. 규칙 코드와 화면 코드를 나눠서, 규칙에는 30초 판을 순식간에 돌려 보는 테스트를 붙였습니다.",
     tested: "점수 계산, 같은 버그 두 번 잡기, 끝난 뒤 누르기 등 규칙 10가지. 규칙을 일부러 틀리게 바꿨을 때 테스트가 잡아내는지도 봤습니다.",
   },
@@ -30,7 +21,9 @@ const GAMES = [
     slug: "merge-2048",
     title: "버그 2048",
     blurb: "같은 버그끼리 밀어서 합쳐요. 2048 이 되면 출시!",
-    icon: tileIcon,
+    icon: px(
+      `<rect x="2" y="2" width="12" height="12" fill="#ffd23f"/><rect x="4" y="6" width="2" height="2" fill="#000"/><rect x="10" y="6" width="2" height="2" fill="#000"/><rect x="5" y="10" width="6" height="1" fill="#000"/>`
+    ),
     made: "규칙(밀기·합치기·끝 판정)과 화면을 나눠 만들었습니다. 버그가 클수록 표정이 바뀝니다.",
     tested: "한 번에 두 번 합쳐지지 않는지, 안 움직였는데 새 타일이 나오지 않는지 등 규칙 12가지. 휴대폰에서 밀 때 페이지가 같이 스크롤되지 않는지, 큰 숫자가 칸 안에 드는지도 봤습니다.",
   },
@@ -38,37 +31,36 @@ const GAMES = [
     slug: "ui-bug-hunt",
     title: "UI 버그 찾기",
     blurb: "기획서와 실제 화면을 비교해 숨은 UI 버그를 찾아요. 4단계, 버그 16개.",
-    icon: lensIcon,
+    icon: px(
+      `<rect x="3" y="2" width="6" height="1" fill="#f2f0ff"/><rect x="2" y="3" width="1" height="6" fill="#f2f0ff"/><rect x="9" y="3" width="1" height="6" fill="#f2f0ff"/><rect x="3" y="9" width="6" height="1" fill="#f2f0ff"/><rect x="4" y="5" width="3" height="3" fill="#ff5fd2"/><rect x="9" y="10" width="2" height="2" fill="#3ee8ff"/><rect x="11" y="12" width="2" height="2" fill="#3ee8ff"/>`
+    ),
     made: "그림 대신 HTML 로 가짜 앱 화면을 짜고, 한쪽에만 코드로 버그를 심었습니다. 글자 잘림, 합계 계산 틀림, 요일 틀림처럼 실제로 자주 보는 버그들입니다.",
     tested: "기획서 쪽에는 버그가 하나도 없는지, 버그마다 화면이 정말 달라지는지, 장바구니 합계와 달력 요일이 맞는지 등 28가지.",
   },
 ];
 ---
 
-<LabLayout title="실험실" description="블로그 한구석의 작은 게임들" isIndex>
-  <section class="lab-hero">
-    <p class="lab-eyebrow">여기까지 찾아오셨네요</p>
-    <h1 class="lab-title">실험실</h1>
-    <p class="lab-lede">
-      AI 와 같이 만들어 본 작은 게임을 모아 둔 곳입니다. 글보다 가볍게, 눌러 보는 기록.
-    </p>
+<LabLayout title="실험실" description="블로그 한구석의 작은 오락실" isIndex>
+  <section class="arc-marquee">
+    <p class="arc-eyebrow">여기까지 찾아오셨네요</p>
+    <h1 class="arc-title">실험실</h1>
+    <p class="arc-lede">AI 와 같이 만들어 본 작은 게임 오락실</p>
+    <p class="arc-insert">INSERT COIN</p>
   </section>
 
-  <ul class="lab-list">
+  <ul class="arc-cabs">
     {
       GAMES.map(g => (
-        <li class="lab-item">
-          <a href={`/lab/${g.slug}/`} class="lab-card" data-astro-reload>
-            <span class="lab-icon" set:html={g.icon} />
-            <span class="lab-card-body">
-              <span class="lab-card-title">{g.title}</span>
-              <span class="lab-card-blurb">{g.blurb}</span>
+        <li class="arc-cab">
+          <a href={`/lab/${g.slug}/`} class="arc-cab-link" data-astro-reload data-coin>
+            <span class="arc-cab-screen" set:html={g.icon} />
+            <span class="arc-cab-body">
+              <span class="arc-cab-title">{g.title}</span>
+              <span class="arc-cab-blurb">{g.blurb}</span>
             </span>
-            <span class="lab-play" aria-hidden="true">
-              ▶
-            </span>
+            <span class="arc-btn arc-cab-start">START</span>
           </a>
-          <details class="lab-notes">
+          <details class="arc-notes">
             <summary>어떻게 만들었나</summary>
             <p>
               <b>만든 방법</b> {g.made}
@@ -81,110 +73,219 @@ const GAMES = [
       ))
     }
   </ul>
+
+  <div class="arc-hud" aria-hidden="true">
+    <span data-hiscore>HI-SCORE 000000</span><span>1P</span>
+  </div>
 </LabLayout>
 
+<script>
+  // HI-SCORE: 게임들이 남긴 최고 기록 중 가장 큰 것(장식). 동전 넣기: 카드를 누르면 CREDIT 00 → 01
+  const BEST_KEYS = ["lab.bug-whack.best", "lab:merge-2048:best"];
+
+  function read(k: string) {
+    try {
+      return Number(localStorage.getItem(k)) || 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  function coinSound() {
+    try {
+      if (localStorage.getItem("lab.sound") !== "1") return;
+      const a = new AudioContext();
+      const t = a.currentTime;
+      const o = a.createOscillator();
+      const g = a.createGain();
+      o.type = "square";
+      o.frequency.setValueAtTime(988, t);
+      o.frequency.setValueAtTime(1319, t + 0.06);
+      g.gain.setValueAtTime(0.12, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+      o.connect(g).connect(a.destination);
+      o.start(t);
+      o.stop(t + 0.18);
+    } catch {
+      /* 소리는 덤 */
+    }
+  }
+
+  function init() {
+    const hi = document.querySelector<HTMLElement>("[data-hiscore]");
+    if (!hi) return;
+    const best = Math.max(0, ...BEST_KEYS.map(read));
+    hi.textContent = `HI-SCORE ${String(best).padStart(6, "0")}`;
+
+    document.querySelectorAll<HTMLAnchorElement>("[data-coin]").forEach(a => {
+      a.addEventListener("click", e => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        const credit = document.querySelector("[data-lab-credit]");
+        if (credit) credit.textContent = "CREDIT 01";
+        coinSound();
+        setTimeout(() => (window.location.href = a.href), 180);
+      });
+    });
+  }
+
+  document.addEventListener("astro:page-load", init);
+</script>
+
 <style is:global>
-  .lab-hero {
-    margin: 8px 0 28px;
+  .arc-marquee {
+    margin: 12px 0 24px;
+    padding: 20px 16px 16px;
+    text-align: center;
+    background: var(--arc-panel);
+    box-shadow:
+      inset 0 0 0 2px var(--arc-pink),
+      0 0 16px rgba(255, 95, 210, 0.35);
   }
-  .lab-eyebrow {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--accent);
+  .arc-eyebrow {
+    color: var(--arc-cyan);
   }
-  .lab-title {
-    font-size: 32px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    margin: 4px 0 10px;
+  .arc-title {
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 48px;
+    margin: 4px 0;
+    color: var(--arc-text);
+    text-shadow:
+      2px 0 0 var(--arc-pink),
+      -2px 0 0 var(--arc-cyan),
+      0 0 12px rgba(255, 95, 210, 0.55);
   }
-  .lab-lede {
-    font-size: 15px;
-    line-height: 1.7;
-    color: var(--muted-foreground);
+  .arc-lede {
+    color: var(--arc-muted);
   }
-  .lab-list {
+  .arc-insert {
+    margin-top: 12px;
+    color: var(--arc-coin);
+    font-weight: 700;
+    animation: arc-blink 1.2s steps(1) infinite;
+  }
+  @keyframes arc-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .arc-cabs {
+    list-style: none;
     display: grid;
     gap: 16px;
   }
-  .lab-card {
+  .arc-cab {
+    background: var(--arc-panel);
+    padding: 12px;
+    box-shadow: inset 0 0 0 2px var(--arc-line);
+  }
+  .arc-cab:has(.arc-cab-link:hover),
+  .arc-cab:has(.arc-cab-link:focus-visible) {
+    box-shadow: inset 0 0 0 2px var(--arc-cyan);
+  }
+  .arc-cab-link {
     display: flex;
+    gap: 12px;
     align-items: center;
-    gap: 14px;
-    padding: 16px;
-    border-radius: 18px;
-    border: 1px solid var(--border);
-    background: color-mix(in srgb, var(--muted) 55%, var(--background));
-    text-decoration: none;
     color: inherit;
-    transition:
-      border-color 0.15s,
-      transform 0.15s;
+    text-decoration: none;
+    outline: none;
   }
-  .lab-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-  }
-  .lab-icon {
-    width: 56px;
-    height: 56px;
+  .arc-cab-screen {
+    width: 64px;
+    height: 64px;
     flex: none;
-  }
-  .lab-icon svg {
-    width: 100%;
-    height: 100%;
-  }
-  .lab-card-body {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    min-width: 0;
-    flex: 1;
-  }
-  .lab-card-title {
-    font-size: 17px;
-    font-weight: 700;
-  }
-  .lab-card-blurb {
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--muted-foreground);
-  }
-  .lab-play {
-    flex: none;
-    width: 36px;
-    height: 36px;
+    background: var(--arc-screen);
     display: grid;
     place-items: center;
-    border-radius: 50%;
-    background: var(--accent);
-    color: var(--accent-foreground);
-    font-size: 13px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      inset 0 0 0 2px #000,
+      inset 0 0 0 4px var(--arc-line);
   }
-  .lab-notes {
-    margin: 8px 6px 0;
-    font-size: 13px;
-    line-height: 1.65;
-    color: var(--muted-foreground);
+  .arc-cab-screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.35) 2px 3px);
   }
-  .lab-notes summary {
+  .arc-cab-screen svg {
+    width: 44px;
+    height: 44px;
+  }
+  .arc-cab-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .arc-cab-title {
+    display: block;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 32px;
+  }
+  .arc-cab-blurb {
+    display: block;
+    color: var(--arc-muted);
+  }
+  .arc-cab-start {
+    flex: none;
+  }
+  .arc-cab-link:active .arc-cab-start {
+    box-shadow: inset 4px 4px 0 rgba(0, 0, 0, 0.28);
+    transform: translateY(2px);
+  }
+  .arc-notes {
+    margin-top: 8px;
+    color: var(--arc-muted);
+  }
+  .arc-notes summary {
     cursor: pointer;
-    font-weight: 600;
+    color: var(--arc-cyan);
     width: fit-content;
+    list-style: none;
   }
-  .lab-notes p {
+  .arc-notes summary::-webkit-details-marker {
+    display: none;
+  }
+  .arc-notes summary::before {
+    content: "▶ ";
+  }
+  .arc-notes[open] summary::before {
+    content: "▼ ";
+  }
+  .arc-notes p {
     margin-top: 6px;
   }
-  .lab-notes b {
-    color: var(--foreground);
+  .arc-notes b {
+    color: var(--arc-text);
     margin-right: 4px;
   }
-  @media (prefers-reduced-motion: reduce) {
-    .lab-card {
-      transition: none;
+  .arc-hud {
+    margin-top: 28px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-num);
+    color: var(--arc-dim);
+  }
+
+  @media (max-width: 400px) {
+    .arc-cab-link {
+      flex-wrap: wrap;
     }
-    .lab-card:hover {
-      transform: none;
+    .arc-cab-body {
+      flex-basis: calc(100% - 76px);
+    }
+    .arc-cab-start {
+      margin-left: 76px;
+    }
+  }
+  /* 줄인 동작: 원래 규칙과 같은 선택자로 끈다(시안 1차에서 우선순위에 져서 안 꺼졌다) */
+  @media (prefers-reduced-motion: reduce) {
+    .arc-insert {
+      animation: none;
     }
   }
 </style>

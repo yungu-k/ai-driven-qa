@@ -1,15 +1,18 @@
 ---
-// 실험실(/lab) 페이지 틀. 블로그 본문과 섞이지 않게 하는 장치를 여기 한곳에 모은다:
+// 실험실(/lab) 페이지 틀 — 옛날 오락실. 규격: docs/lab-arcade-spec.md(A·B4·C)
+// 블로그와 섞이지 않게 하는 장치를 여기 한곳에 모은다:
 //  - noindex: 검색엔진에 안 나온다(이스터에그로만 들어온다)
 //  - data-pagefind-ignore="all": 블로그 검색 색인에서 뺀다
-//  - 블로그 헤더·푸터 없음 — 블로그로 돌아가는 링크만 둔다
+//  - 블로그 헤더·푸터·테마 없음. 블로그가 라이트든 다크든 항상 어두운 오락실(--arc-*)
 // 사이트맵 제외는 astro.config.ts 의 sitemap filter 가 맡는다.
 import Layout from "@/layouts/Layout.astro";
+import BootScreen from "@/lab/BootScreen.astro";
+import "@/lab/lab-fonts.css";
 
 type Props = {
   title: string;
   description?: string;
-  /** 실험실 첫 화면이면 true — 뒤로 가기가 블로그로 간다 */
+  /** 실험실 첫 화면이면 true — 뒤로 가기가 블로그로 가고, 부팅 화면을 받는다 */
   isIndex?: boolean;
 };
 
@@ -18,61 +21,153 @@ const { title, description, isIndex = false } = Astro.props;
 
 <Layout title={`${title} | 실험실`} description={description}>
   <meta slot="head" name="robots" content="noindex, nofollow" />
+  {/* 첫 페인트부터 어둡게 — 흰 바탕이 한 프레임이라도 나오면 깨짐 전환의 이음새가 보인다(B4) */}
+  <style slot="head" is:inline>
+    html,
+    body {
+      background: #0a0a14 !important;
+      color-scheme: dark;
+    }
+  </style>
+  {isIndex && <BootScreen />}
   <div class="lab-root" data-pagefind-ignore="all">
     <nav class="lab-bar">
       {
         isIndex ? (
-          <a href="/" class="lab-back">← 블로그로</a>
+          <a href="/" class="lab-back">◀ 블로그로</a>
         ) : (
           <a href="/lab/" class="lab-back" data-astro-reload>
-            ← 실험실
+            ◀ 실험실
           </a>
         )
       }
-      <span class="lab-badge">LAB</span>
+      <span class="lab-credit" data-lab-credit>CREDIT 00</span>
     </nav>
     <main id="main-content" class="lab-main">
       <slot />
     </main>
   </div>
+  <div class="lab-crt" aria-hidden="true"></div>
 </Layout>
 
 <style is:global>
-  .lab-root {
-    --lab-green: #7bd389;
-    --lab-gold: #ffd24d;
+  /* ── 오락실 토큰(A1). 대비는 규격 표의 실측값 — --arc-dim·--arc-line 은 읽는 글에 쓰지 않는다 ── */
+  .lab-root,
+  .lab-crt,
+  .lab-boot {
+    --arc-bg: #0a0a14;
+    --arc-panel: #14132a;
+    --arc-screen: #05060a;
+    --arc-line: #2e2b5c;
+    --arc-text: #f2f0ff;
+    --arc-muted: #a9a6d6;
+    --arc-dim: #6e6a9e;
+    --arc-coin: #ffd23f;
+    --arc-cyan: #3ee8ff;
+    --arc-pink: #ff5fd2;
+    --arc-green: #5dff8a;
+    --arc-red: #ff5a5a;
+    --arc-ink: #0a0a14;
+    --font-px: LabPixel, "Pretendard Variable", Pretendard, sans-serif;
+    --font-num: LabPixelMono, LabPixel, ui-monospace, monospace;
+    /* 게임들이 쓰던 이름 — 오락실 색으로 다시 묶는다 */
+    --lab-green: var(--arc-green);
+    --lab-gold: var(--arc-coin);
     --lab-purple: #b39dff;
-    --lab-pink: #ff8fab;
+    --lab-pink: var(--arc-pink);
+  }
+
+  .lab-root {
     width: 100%;
     max-width: 720px;
     margin: 0 auto;
     padding: 0 16px 48px;
+    color: var(--arc-text);
+    font-family: var(--font-px);
+    /* 픽셀 글꼴은 12의 배수에서만 선명하다(12·24·36·48) */
+    font-size: 12px;
+    line-height: 20px;
+    -webkit-font-smoothing: none;
+  }
+  .lab-root button {
+    font-family: inherit;
   }
   .lab-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
+    padding: 16px 0 12px;
   }
   .lab-back {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--muted-foreground);
+    color: var(--arc-cyan);
     text-decoration: none;
   }
-  .lab-back:hover {
-    color: var(--accent);
+  .lab-back:hover,
+  .lab-back:focus-visible {
+    color: var(--arc-text);
   }
-  .lab-badge {
-    font-family: var(--font-code), monospace;
-    font-size: 11px;
+  .lab-credit {
+    font-family: var(--font-num);
+    color: var(--arc-coin);
+    letter-spacing: 1px;
+  }
+
+  /* CRT(A3): 주사선 + 가장자리 어둡게. 움직이지 않는다. 게임판은 이 덮개보다 위(z-index)에 둔다 */
+  .lab-crt {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    background:
+      repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.22) 2px 3px),
+      radial-gradient(ellipse at 50% 45%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%);
+  }
+  /* 게임판·가짜 앱 화면은 덮개 위로 — 누르는 반응이 흐려 보이거나 「대비 낮음」 버그를 덮개가 만들지 않게 */
+  .lab-above-crt {
+    position: relative;
+    z-index: 6;
+  }
+
+  /* 공용 오락실 부품 */
+  .arc-btn {
+    font-family: var(--font-px);
     font-weight: 700;
-    letter-spacing: 0.15em;
-    padding: 3px 8px;
-    border-radius: 999px;
-    border: 1px dashed var(--accent);
-    color: var(--accent);
+    font-size: 12px;
+    line-height: 20px;
+    color: var(--arc-ink);
+    background: var(--arc-coin);
+    padding: 8px 14px;
+    border-radius: 0;
+    box-shadow:
+      inset -4px -4px 0 rgba(0, 0, 0, 0.28),
+      inset 4px 4px 0 rgba(255, 255, 255, 0.35);
+    cursor: pointer;
+  }
+  .arc-btn:active {
+    box-shadow: inset 4px 4px 0 rgba(0, 0, 0, 0.28);
+    transform: translateY(2px);
+  }
+  .arc-btn:focus-visible {
+    outline: 2px solid var(--arc-cyan);
+    outline-offset: 2px;
+  }
+  .arc-btn-ghost {
+    color: var(--arc-text);
+    background: var(--arc-panel);
+    box-shadow: inset 0 0 0 2px var(--arc-muted);
+  }
+  .arc-btn-ghost:active {
+    box-shadow: inset 0 0 0 2px var(--arc-cyan);
+  }
+  .arc-btn-ghost[aria-pressed="true"] {
+    color: var(--arc-cyan);
+    box-shadow: inset 0 0 0 2px var(--arc-cyan);
+  }
+  .arc-panel {
+    background: var(--arc-panel);
+    box-shadow: inset 0 0 0 2px var(--arc-line);
+  }
+  .arc-num {
+    font-family: var(--font-num);
   }
 </style>

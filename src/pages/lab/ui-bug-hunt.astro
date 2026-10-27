@@ -1,6 +1,7 @@
 ---
 // UI 버그 찾기 — 틀린 그림 찾기의 QA 판. 그림 파일 없이 가짜 앱 화면을 HTML/CSS 로 짜고,
 // 「실제 빌드」 쪽에만 코드로 버그를 심는다. 규칙은 engine.ts, 단계 데이터는 levels.ts.
+// 틀은 옛날 오락실(docs/lab-arcade-spec.md A1·A2·A3·A5). 가짜 앱 화면 안만 흰 바탕·Pretendard 그대로.
 import LabLayout from "@/lab/LabLayout.astro";
 import { LEVELS } from "@/lab/ui-bug-hunt/levels";
 
@@ -10,41 +11,42 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
 <LabLayout title="UI 버그 찾기" description="기획서와 실제 빌드를 비교해 숨은 UI 버그를 찾는 게임">
   <section class="ub-root" id="ub-root">
     <header class="ub-head">
+      <p class="ub-kicker">STAGE 1~{LEVELS.length}</p>
       <h1 class="ub-title">UI 버그 찾기</h1>
       <p class="ub-sub">기획서와 실제 빌드, 어디가 다를까요?</p>
     </header>
 
-    <div class="ub-intro" data-ub="intro">
+    <div class="ub-intro arc-panel" data-ub="intro">
       <ol class="ub-how">
         <li><b>기획서</b>는 정상 화면, <b>실제 빌드</b>엔 버그가 숨어 있어요.</li>
         <li>실제 빌드에서 이상한 곳을 <b>탭</b>하세요. 맞으면 동그라미가 그려져요.</li>
         <li>엉뚱한 곳을 누르면 <b>실수</b>로 세요. 막히면 힌트!</li>
       </ol>
-      <p class="ub-count">단계 {LEVELS.length}개 · 버그 {bugCount}개</p>
-      <button type="button" class="ub-cta" data-ub="start">시작하기</button>
+      <p class="ub-count">단계 <span class="arc-num">{LEVELS.length}</span>개 · 버그 <span class="arc-num">{bugCount}</span>개</p>
+      <button type="button" class="arc-btn ub-cta" data-ub="start">▶ 시작하기</button>
     </div>
 
     <div class="ub-play" data-ub="play" hidden>
       <div class="ub-hud">
         <span class="ub-pill" data-ub="stage"></span>
-        <span class="ub-pill">찾음 <b data-ub="found"></b></span>
-        <span class="ub-pill">실수 <b data-ub="miss">0</b></span>
-        <span class="ub-pill" data-ub="time">0초</span>
+        <span class="ub-pill">찾음 <b class="arc-num" data-ub="found"></b></span>
+        <span class="ub-pill">실수 <b class="arc-num ub-miss-n" data-ub="miss">0</b></span>
+        <span class="ub-pill">시간 <b class="arc-num" data-ub="time">0초</b></span>
       </div>
       <p class="ub-brief" data-ub="brief"></p>
 
       <div class="ub-tabs" role="tablist" aria-label="화면 고르기">
-        <button type="button" role="tab" class="ub-tab" data-tab="spec" aria-selected="false">📄 기획서</button>
-        <button type="button" role="tab" class="ub-tab" data-tab="build" aria-selected="true">🛠 실제 빌드</button>
+        <button type="button" role="tab" class="ub-tab" data-tab="spec" aria-selected="false">기획서</button>
+        <button type="button" role="tab" class="ub-tab" data-tab="build" aria-selected="true">실제 빌드</button>
       </div>
 
-      <div class="ub-boards" data-ub="boards" data-view="build">
+      <div class="ub-boards lab-above-crt" data-ub="boards" data-view="build">
         <div class="ub-board ub-board-spec">
-          <div class="ub-board-label">📄 기획서 <small>정상</small></div>
+          <div class="ub-board-label">기획서 <small>정상</small></div>
           <div class="ub-screen" data-ub="spec"></div>
         </div>
         <div class="ub-board ub-board-build">
-          <div class="ub-board-label">🛠 실제 빌드 <small>여기를 탭</small></div>
+          <div class="ub-board-label">▶ 실제 빌드 <small>여기를 탭</small></div>
           <div class="ub-screen ub-screen-build" data-ub="build"></div>
         </div>
       </div>
@@ -52,29 +54,29 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
       <p class="ub-toast" data-ub="toast" aria-live="polite"></p>
 
       <div class="ub-actions" data-ub="actions">
-        <button type="button" class="ub-btn-soft" data-ub="hint">💡 힌트</button>
-        <button type="button" class="ub-btn-soft" data-ub="skip">넘기기</button>
+        <button type="button" class="arc-btn arc-btn-ghost" data-ub="hint">★ 힌트</button>
+        <button type="button" class="arc-btn arc-btn-ghost" data-ub="skip">넘기기</button>
       </div>
 
-      <div class="ub-result" data-ub="result" hidden>
+      <div class="ub-result arc-panel" data-ub="result" hidden>
         <p class="ub-result-title" data-ub="result-title"></p>
         <dl class="ub-stats" data-ub="result-stats"></dl>
         <ul class="ub-missed" data-ub="result-missed"></ul>
-        <button type="button" class="ub-cta" data-ub="next">다음 단계 →</button>
+        <button type="button" class="arc-btn ub-cta" data-ub="next">다음 단계 →</button>
       </div>
 
       <ol class="ub-found-list" data-ub="list"></ol>
     </div>
 
-    <div class="ub-final" data-ub="final" hidden>
-      <p class="ub-final-kicker">최종 결과</p>
+    <div class="ub-final arc-panel" data-ub="final" hidden>
+      <p class="ub-final-kicker">GAME OVER · 최종 결과</p>
       <p class="ub-rank" data-ub="rank"></p>
       <dl class="ub-stats" data-ub="final-stats"></dl>
       <table class="ub-table">
         <thead><tr><th>단계</th><th>찾음</th><th>실수</th><th>시간</th></tr></thead>
         <tbody data-ub="final-rows"></tbody>
       </table>
-      <button type="button" class="ub-cta" data-ub="again">처음부터 다시</button>
+      <button type="button" class="arc-btn ub-cta" data-ub="again">▶ 처음부터 다시</button>
     </div>
   </section>
 </LabLayout>
@@ -157,7 +159,9 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
     const esc = (s: string) =>
       s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
     const stats = (pairs: [string, string][]) =>
-      pairs.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
+      pairs
+        .map(([k, v]) => `<div><dt>${k}</dt><dd${v.length > 4 ? ' class="is-long"' : ""}>${v}</dd></div>`)
+        .join("");
 
     function setView(v: "spec" | "build") {
       el.boards.dataset.view = v;
@@ -176,7 +180,7 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
       el.stage.textContent = `${g.index + 1}/${g.levels.length} · ${lv.title}`;
       el.found.textContent = `${run.found.length}/${lv.bugs.length}`;
       el.miss.textContent = String(run.misses);
-      el.time.textContent = `⏱ ${formatTime(levelResult(g, g.index, performance.now()).ms)}`;
+      el.time.textContent = formatTime(levelResult(g, g.index, performance.now()).ms);
     }
 
     function areaEl(id: string) {
@@ -211,7 +215,7 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
       el.actions.hidden = true;
       el.result.hidden = false;
       el.resultTitle.textContent =
-        missed.length === 0 ? "🎉 다 찾았어요!" : `못 찾은 버그 ${missed.length}개 — 점선으로 표시했어요`;
+        missed.length === 0 ? "★ 다 찾았어요! ★" : `못 찾은 버그 ${missed.length}개 — 점선으로 표시했어요`;
       el.resultStats.innerHTML = stats([
         ["찾음", `${r.found}/${r.total}`],
         ["실수", String(r.misses)],
@@ -242,7 +246,7 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
       el.finalRows.innerHTML = g.levels
         .map((lv, i) => {
           const r = levelResult(g!, i, now);
-          return `<tr><td>${esc(lv.title)}</td><td>${r.found}/${r.total}</td><td>${r.misses}</td><td>${formatTime(r.ms)}</td></tr>`;
+          return `<tr><td>${esc(lv.title)}</td><td class="arc-num">${r.found}/${r.total}</td><td class="arc-num">${r.misses}</td><td class="arc-num">${formatTime(r.ms)}</td></tr>`;
         })
         .join("");
     }
@@ -276,7 +280,7 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
         const box = el.build.getBoundingClientRect();
         const m = document.createElement("span");
         m.className = "ub-miss";
-        m.textContent = "✕";
+        m.textContent = "×";
         m.style.left = `${e.clientX - box.left}px`;
         m.style.top = `${e.clientY - box.top}px`;
         el.build.append(m);
@@ -306,7 +310,7 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
         area.classList.add("ub-hinted");
         later(() => area.classList.remove("ub-hinted"), 1600);
       }
-      toast("💡 흔들리는 곳을 잘 보세요.", "info");
+      toast("힌트: 흔들리는 곳을 잘 보세요.", "info");
       hud();
     });
 
@@ -342,125 +346,146 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
 </script>
 
 <style is:global>
-  /* ── 게임 틀(블로그 토큰) ─────────────────────────── */
+  /* ── 오락실 틀(--arc-* 토큰, 픽셀 글꼴 12·24·36·48px 만, 모서리 0) ─────── */
   .ub-root {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    color: var(--arc-text);
   }
   .ub-root [hidden] {
     display: none !important;
+  }
+  .ub-root p,
+  .ub-root ol,
+  .ub-root ul,
+  .ub-root dl {
+    margin: 0;
   }
   .ub-head {
     text-align: center;
     margin-bottom: 16px;
   }
+  .ub-kicker {
+    color: var(--arc-cyan);
+    font-family: var(--font-num);
+    letter-spacing: 2px;
+  }
   .ub-title {
-    font-size: 26px;
-    font-weight: 800;
-    margin: 0;
+    margin: 4px 0;
+    font-size: 36px;
+    line-height: 48px;
+    font-weight: 700;
+    color: var(--arc-text);
+    text-shadow:
+      2px 0 var(--arc-pink),
+      -2px 0 var(--arc-cyan),
+      0 0 12px rgb(255 95 210 / 0.55);
   }
   .ub-sub {
-    margin: 4px 0 0;
-    color: var(--muted-foreground);
-    font-size: 14px;
+    color: var(--arc-muted);
   }
   .ub-intro {
-    border: 2px dashed var(--border);
-    border-radius: 20px;
-    padding: 20px 18px;
+    padding: 20px 16px;
     text-align: center;
   }
   .ub-how {
     text-align: left;
-    margin: 0 auto 12px;
-    padding-left: 1.3em;
+    margin: 0 auto 12px !important;
+    padding-left: 24px;
     max-width: 30em;
-    line-height: 1.7;
-    font-size: 15px;
+  }
+  .ub-how li + li {
+    margin-top: 4px;
+  }
+  .ub-how b {
+    color: var(--arc-coin);
   }
   .ub-count {
-    color: var(--muted-foreground);
-    font-size: 13px;
-    margin: 0 0 14px;
+    color: var(--arc-muted);
+    margin-bottom: 16px !important;
   }
   .ub-cta {
-    display: inline-block;
     border: 0;
-    border-radius: 999px;
-    padding: 12px 26px;
-    font: inherit;
-    font-weight: 800;
-    font-size: 16px;
-    color: #1c1c21;
-    background: var(--lab-gold);
-    box-shadow: 0 3px 0 #c99a12;
-    cursor: pointer;
-  }
-  .ub-cta:active {
-    transform: translateY(2px);
-    box-shadow: 0 1px 0 #c99a12;
   }
   .ub-hud {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
     justify-content: center;
   }
   .ub-pill {
-    font-size: 13px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    background: var(--muted);
+    padding: 2px 8px;
+    color: var(--arc-muted);
+    background: var(--arc-panel);
+    box-shadow: inset 0 0 0 2px var(--arc-line);
     white-space: nowrap;
+  }
+  .ub-pill:first-child {
+    color: var(--arc-cyan);
+    box-shadow: inset 0 0 0 2px var(--arc-cyan);
+  }
+  .ub-pill b {
+    font-weight: 400;
+    color: var(--arc-coin);
+  }
+  .ub-pill b.ub-miss-n {
+    color: var(--arc-red);
   }
   .ub-brief {
     text-align: center;
-    font-size: 14px;
-    color: var(--muted-foreground);
-    margin: 10px 0 12px;
+    color: var(--arc-muted);
+    margin: 12px 0 !important;
+  }
+  .ub-brief b {
+    color: var(--arc-text);
   }
   .ub-tabs {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4px;
-    padding: 4px;
-    border-radius: 14px;
-    background: var(--muted);
+    gap: 8px;
     margin-bottom: 12px;
   }
   .ub-tab {
     border: 0;
-    border-radius: 10px;
-    padding: 9px 4px;
-    font: inherit;
-    font-size: 14px;
+    border-radius: 0;
+    padding: 8px 4px;
     font-weight: 700;
-    background: transparent;
-    color: var(--muted-foreground);
+    color: var(--arc-muted);
+    background: var(--arc-panel);
+    box-shadow: inset 0 0 0 2px var(--arc-line);
     cursor: pointer;
   }
   .ub-tab[aria-selected="true"] {
-    background: var(--background);
-    color: var(--foreground);
-    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+    color: var(--arc-ink);
+    background: var(--arc-cyan);
+    box-shadow:
+      inset -4px -4px 0 rgba(0, 0, 0, 0.28),
+      inset 4px 4px 0 rgba(255, 255, 255, 0.35);
+  }
+  .ub-tab[aria-selected="true"]::before {
+    content: "▶ ";
+  }
+  .ub-tab:focus-visible {
+    outline: 2px solid var(--arc-cyan);
+    outline-offset: 2px;
   }
   .ub-board-label {
-    font-size: 13px;
-    font-weight: 700;
     margin-bottom: 8px;
     text-align: center;
+    font-weight: 700;
+    color: var(--arc-muted);
   }
   .ub-board-label small {
-    font-weight: 500;
-    color: var(--muted-foreground);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--arc-muted);
     margin-left: 4px;
   }
   .ub-board-build .ub-board-label {
-    color: var(--accent);
+    color: var(--arc-cyan);
   }
   .ub-screen {
     position: relative;
@@ -490,74 +515,75 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
     }
   }
   .ub-toast {
-    min-height: 2.8em;
-    margin: 12px 0 8px;
+    min-height: 40px;
+    margin: 12px 0 8px !important;
     padding: 8px 12px;
-    border-radius: 12px;
-    font-size: 14px;
     text-align: center;
-    background: var(--muted);
+    color: var(--arc-muted);
+    background: var(--arc-panel);
+    box-shadow: inset 0 0 0 2px var(--arc-line);
   }
   .ub-toast[data-tone="good"] {
-    background: color-mix(in srgb, var(--lab-green) 28%, transparent);
+    color: var(--arc-green);
+    box-shadow: inset 0 0 0 2px var(--arc-green);
   }
   .ub-toast[data-tone="bad"] {
-    background: color-mix(in srgb, var(--lab-pink) 26%, transparent);
+    color: var(--arc-red);
+    box-shadow: inset 0 0 0 2px var(--arc-red);
   }
   .ub-actions {
     display: flex;
     gap: 8px;
     justify-content: center;
   }
-  .ub-btn-soft {
-    border: 1px solid var(--border);
-    background: var(--background);
-    color: var(--foreground);
-    border-radius: 999px;
-    padding: 8px 18px;
-    font: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
+  .ub-actions .arc-btn {
+    border: 0;
   }
   .ub-result,
   .ub-final {
-    border: 2px solid var(--lab-purple);
-    border-radius: 20px;
     padding: 16px;
     text-align: center;
   }
+  .ub-result {
+    box-shadow: inset 0 0 0 2px var(--arc-pink);
+  }
   .ub-result-title {
-    font-weight: 800;
-    font-size: 17px;
-    margin: 0 0 10px;
+    font-weight: 700;
+    color: var(--arc-coin);
+    margin-bottom: 12px !important;
   }
   .ub-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
-    margin: 0 0 12px;
+    gap: 8px;
+    margin-bottom: 12px !important;
   }
   .ub-stats div {
-    background: var(--muted);
-    border-radius: 12px;
     padding: 8px 2px;
+    background: var(--arc-screen);
+    box-shadow: inset 0 0 0 2px var(--arc-line);
   }
   .ub-stats dt {
-    font-size: 11px;
-    color: var(--muted-foreground);
+    color: var(--arc-muted);
   }
   .ub-stats dd {
-    margin: 2px 0 0;
-    font-weight: 800;
-    font-size: 15px;
+    margin: 4px 0 0;
+    font-family: var(--font-num);
+    font-size: 24px;
+    line-height: 32px;
+    color: var(--arc-coin);
+    white-space: nowrap;
+  }
+  /* 「1분 05초」 처럼 긴 시간은 24px 이면 칸을 넘는다 — 12px 로 */
+  .ub-stats dd.is-long {
+    font-size: 12px;
+    line-height: 32px;
   }
   .ub-missed {
     text-align: left;
-    font-size: 13px;
-    margin: 0 0 12px;
-    padding-left: 1.2em;
-    color: var(--muted-foreground);
+    margin-bottom: 12px !important;
+    padding-left: 24px;
+    color: var(--arc-muted);
   }
   .ub-missed:empty {
     display: none;
@@ -565,45 +591,50 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
   .ub-found-list {
     list-style: none;
     padding: 0;
-    margin: 14px 0 0;
-    font-size: 14px;
+    margin-top: 16px !important;
   }
   .ub-found-list li {
-    padding: 6px 0;
-    border-bottom: 1px dashed var(--border);
+    padding: 8px 0;
+    border-bottom: 2px dashed var(--arc-line);
   }
   .ub-num {
-    color: var(--lab-pink);
-    font-weight: 800;
+    color: var(--arc-pink);
+    font-weight: 700;
+  }
+  .ub-final {
+    box-shadow:
+      inset 0 0 0 2px var(--arc-pink),
+      0 0 16px rgb(255 95 210 / 0.35);
   }
   .ub-final-kicker {
-    margin: 0;
-    font-size: 13px;
-    color: var(--muted-foreground);
+    color: var(--arc-cyan);
   }
   .ub-rank {
-    font-size: 26px;
-    font-weight: 900;
-    margin: 4px 0 12px;
-    color: var(--accent);
+    font-size: 36px;
+    line-height: 48px;
+    font-weight: 700;
+    margin: 8px 0 12px !important;
+    color: var(--arc-coin);
   }
   .ub-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
   .ub-table th,
   .ub-table td {
-    padding: 6px 4px;
-    border-bottom: 1px solid var(--border);
+    padding: 4px;
+    border-bottom: 2px solid var(--arc-line);
   }
   .ub-table th {
-    color: var(--muted-foreground);
-    font-weight: 600;
+    color: var(--arc-muted);
+    font-weight: 400;
+  }
+  .ub-table td.arc-num {
+    color: var(--arc-coin);
   }
 
-  /* 맞힘·빗나감·힌트 표시 */
+  /* 맞힘·빗나감·힌트 표시(가짜 앱 위 — 고리는 기기 화면 위 표시라 둥근 채로 둔다) */
   .ub-hit {
     position: relative;
     outline: 3px solid var(--lab-pink) !important;
@@ -625,15 +656,15 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
   .ub-miss {
     position: absolute;
     transform: translate(-50%, -50%);
-    width: 28px;
-    height: 28px;
-    line-height: 28px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
     text-align: center;
-    border-radius: 50%;
-    font-weight: 900;
-    font-size: 15px;
-    color: #fff;
-    background: #e5484d;
+    font-family: var(--font-px);
+    font-size: 24px;
+    color: var(--arc-ink);
+    background: var(--arc-red);
+    box-shadow: inset 0 0 0 2px var(--arc-ink);
     pointer-events: none;
     animation: ub-fade 0.7s ease-out forwards;
   }
@@ -663,14 +694,12 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
   }
   @media (prefers-reduced-motion: reduce) {
     .ub-hit,
-    .ub-miss {
+    .ub-miss,
+    .ub-hinted {
       animation: none;
     }
     .ub-miss {
       opacity: 0.85;
-    }
-    .ub-hinted {
-      animation: none;
     }
   }
 
@@ -690,6 +719,10 @@ const bugCount = LEVELS.reduce((a, l) => a + l.bugs.length, 0);
     text-align: left;
     overflow: hidden;
     letter-spacing: -0.01em;
+    /* 틀은 픽셀 글꼴이지만 앱 화면 안은 실제 앱처럼 Pretendard(A2) */
+    font-family: var(--font-app, "Pretendard Variable", Pretendard, sans-serif);
+    font-weight: 400;
+    -webkit-font-smoothing: auto;
   }
   .ub-app * {
     border-color: #e6e8ee;

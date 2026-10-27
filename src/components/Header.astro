@@ -169,6 +169,8 @@ const isActive = (path: string) => {
 </header>
 
 <script>
+  import { cleanupShatter, initLogoEgg } from "@/scripts/lab-shatter";
+
   function toggleNav() {
     const menuBtn = document.querySelector<HTMLButtonElement>("#menu-btn");
     const menuItems = document.querySelector("#menu-items");
@@ -197,67 +199,13 @@ const isActive = (path: string) => {
 
   document.addEventListener("astro:after-swap", toggleNav);
 
-  // 로고 길게 누르기 → 실험실. 손가락이 움직이면(스크롤) 취소한다
-  const HOLD_MS = 5000;
-  function logoEgg() {
-    const logo = document.querySelector<HTMLAnchorElement>("#site-logo");
-    if (!logo) return;
-
-    let timer = 0;
-    let fired = false;
-    let startX = 0;
-    let startY = 0;
-    // 안드로이드 인앱 브라우저(카카오톡 등)는 링크를 길게 누르면 자체 메뉴(열기·다른 브라우저로 열기)를
-    // 띄운다. contextmenu 막기·-webkit-touch-callout 이 안 듣는다 — 그 웹뷰는 「누른 자리가 링크인가」를
-    // 길게 누른 시점에 본다. ⇒ 손가락이 닿아 있는 동안만 href 를 떼어 둔다. 손을 떼면(pointerup) 바로
-    // 돌려 놓으므로 그 뒤에 오는 click 은 평소처럼 첫 화면으로 간다.
-    let heldHref: string | null = null;
-    const restoreHref = () => {
-      if (heldHref !== null) logo.setAttribute("href", heldHref);
-      heldHref = null;
-    };
-
-    const cancel = () => {
-      clearTimeout(timer);
-      logo.classList.remove("egg-charging");
-      restoreHref();
-    };
-
-    logo.addEventListener("pointerdown", e => {
-      if (e.button !== 0) return;
-      fired = false;
-      startX = e.clientX;
-      startY = e.clientY;
-      if (e.pointerType !== "mouse") {
-        heldHref = logo.getAttribute("href");
-        logo.removeAttribute("href");
-      }
-      logo.classList.add("egg-charging");
-      timer = window.setTimeout(() => {
-        fired = true;
-        logo.classList.remove("egg-charging");
-        restoreHref();
-        window.location.href = "/lab/";
-      }, HOLD_MS);
-    });
-    logo.addEventListener("pointermove", e => {
-      if (Math.hypot(e.clientX - startX, e.clientY - startY) > 12) cancel();
-    });
-    ["pointerup", "pointercancel", "pointerleave"].forEach(t =>
-      logo.addEventListener(t, cancel)
-    );
-    // 길게 누르면 뜨는 메뉴(링크 미리보기·저장)를 막는다
-    logo.addEventListener("contextmenu", e => e.preventDefault());
-    // 이스터에그가 터진 뒤 손을 떼며 생기는 click 은 첫 화면 이동을 막는다
-    logo.addEventListener("click", e => {
-      if (!fired) return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-    });
-  }
-
-  logoEgg();
-  document.addEventListener("astro:after-swap", logoEgg);
+  // 로고 길게 누르기 → 와장창 깨지며 실험실(/lab). 타임라인·취소·정리는 모듈 안에 있다
+  // (규격 docs/lab-arcade-spec.md B·C). 손가락이 움직이면(스크롤) 취소한다
+  initLogoEgg();
+  document.addEventListener("astro:after-swap", () => {
+    cleanupShatter();
+    initLogoEgg();
+  });
 </script>
 
 <style is:global>
@@ -299,6 +247,66 @@ const isActive = (path: string) => {
       transform: rotate(0) scale(1.14);
       color: var(--accent);
     }
+  }
+  /* ── 와장창(B3): 금·파편 무대·검은 뒷면·줄인 동작 덮개. 모두 lab-shatter.ts 가 body 에 붙인다 ── */
+  .lab-crack {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    pointer-events: none;
+  }
+  .lab-crack path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  /* 검은 3px + 흰 1.2px 두 겹 — 라이트·다크 둘 다에서 보인다(D7) */
+  .lab-crack .sh {
+    stroke: rgba(0, 0, 0, 0.35);
+    stroke-width: 3;
+  }
+  .lab-crack .hl {
+    stroke: rgba(255, 255, 255, 0.95);
+    stroke-width: 1.2;
+  }
+  .lab-shard-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 2147482999;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  /* 미리 만든 파편을 숨기는 것(opacity 0)과 원래 페이지 숨김은 CSS 규칙이 아니라 lab-shatter.ts 가
+     인라인으로 한다 — 이유는 그 파일의 buildShards()·hideOriginalPage() 주석(깨지는 순간 멈칫 방지) */
+  .lab-shard {
+    position: absolute;
+    overflow: hidden;
+    contain: strict;
+    will-change: transform;
+  }
+  .lab-behind,
+  .lab-veil {
+    position: fixed;
+    inset: 0;
+    z-index: 2147482998;
+    background: #05060a;
+  }
+  .lab-veil {
+    z-index: 2147483000;
+  }
+  /* 부팅 글자 — src/lab/BootScreen.astro 의 .lab-boot 와 같은 글꼴·크기·여백(B4 match cut) */
+  .lab-boot-lines {
+    padding: 24px 16px;
+    color: #5dff8a;
+    font-family: LabPixelMono, LabPixel, monospace;
+    font-size: 12px;
+    line-height: 20px;
+    letter-spacing: 0;
+    -webkit-font-smoothing: none;
+  }
+  .lab-boot-lines p {
+    margin: 0;
+    white-space: pre;
   }
   @media (prefers-reduced-motion: reduce) {
     #site-logo.egg-charging {

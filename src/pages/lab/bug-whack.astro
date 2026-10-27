@@ -7,7 +7,7 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
   <div class="bw" id="bw">
     <header class="bw-head">
       <h1 class="bw-title">버그 잡기</h1>
-      <button type="button" class="bw-sound" id="bw-sound" aria-pressed="false">
+      <button type="button" class="arc-btn arc-btn-ghost bw-sound" id="bw-sound" aria-pressed="false">
         소리 끔
       </button>
     </header>
@@ -15,16 +15,16 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     <div class="bw-hud" aria-live="off">
       <div class="bw-stat">
         <span class="bw-stat-label">점수</span>
-        <span class="bw-stat-value" id="bw-score">0</span>
+        <span class="bw-stat-value arc-num" id="bw-score">0</span>
       </div>
       <div class="bw-timer" aria-hidden="true"><div class="bw-timer-fill" id="bw-timer"></div></div>
       <div class="bw-stat bw-stat-right">
         <span class="bw-stat-label">최고</span>
-        <span class="bw-stat-value" id="bw-best">-</span>
+        <span class="bw-stat-value arc-num" id="bw-best">-</span>
       </div>
     </div>
 
-    <div class="bw-stage">
+    <div class="bw-stage lab-above-crt">
       <div class="bw-board" id="bw-board">
         {
           Array.from({ length: HOLE_COUNT }, (_, i) => (
@@ -43,31 +43,31 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
           <ul class="bw-legend">
             <li><span class="bw-legend-icon" data-kind="bug"></span>버그 <b>+1</b></li>
             <li><span class="bw-legend-icon" data-kind="gold"></span>황금 버그 <b>+3</b></li>
-            <li><span class="bw-legend-icon" data-kind="feature"></span>기능은 건드리지 마세요 <b>−2</b></li>
+            <li><span class="bw-legend-icon" data-kind="feature"></span>기능은 건드리지 마세요 <b>-2</b></li>
           </ul>
-          <button type="button" class="bw-btn" data-action="start">시작</button>
+          <button type="button" class="arc-btn bw-btn" data-action="start">START</button>
           <p class="bw-hint">키보드: 1~9 또는 Q W E / A S D / Z X C</p>
         </div>
 
         <div class="bw-card" id="bw-card-count" hidden>
-          <p class="bw-count" id="bw-count">3</p>
+          <p class="bw-count arc-num" id="bw-count">3</p>
         </div>
 
         <div class="bw-card" id="bw-card-pause" hidden>
           <p class="bw-card-title">잠깐 멈췄어요</p>
-          <button type="button" class="bw-btn" data-action="resume">계속</button>
+          <button type="button" class="arc-btn bw-btn" data-action="resume">계속</button>
         </div>
 
         <div class="bw-card" id="bw-card-result" hidden>
           <p class="bw-rank" id="bw-rank"></p>
-          <p class="bw-final"><span id="bw-final">0</span>점</p>
+          <p class="bw-final"><span class="arc-num" id="bw-final">0</span>점</p>
           <p class="bw-newbest" id="bw-newbest" hidden>최고 기록!</p>
           <dl class="bw-report">
             <div><dt>잡은 버그</dt><dd id="bw-r-caught">0</dd></div>
             <div><dt>운영에 나간 버그</dt><dd id="bw-r-escaped">0</dd></div>
             <div><dt>건드린 기능</dt><dd id="bw-r-feature">0</dd></div>
           </dl>
-          <button type="button" class="bw-btn" data-action="start">한 판 더</button>
+          <button type="button" class="arc-btn bw-btn" data-action="start">한 판 더</button>
         </div>
       </div>
     </div>
@@ -88,7 +88,8 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
   import { SPRITES } from "@/lab/bug-whack/sprites";
 
   const BEST_KEY = "lab.bug-whack.best";
-  const SOUND_KEY = "lab.bug-whack.sound";
+  // 소리 켬/끔은 실험실 전체가 한 값을 쓴다(규격 A7)
+  const SOUND_KEY = "lab.sound";
   const KEYS = ["q", "w", "e", "a", "s", "d", "z", "x", "c"];
 
   const store = {
@@ -227,7 +228,8 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
         shown[i] = h.kind;
       });
       scoreEl.textContent = String(state.stats.score);
-      timerEl.style.transform = `scaleX(${remainingMs(state, clock()) / DURATION_MS})`;
+      // 칸으로 끊긴 막대(규격 A5) — scaleX 로 줄이면 칸까지 찌그러져 width 로 줄인다
+      timerEl.style.width = `${(remainingMs(state, clock()) / DURATION_MS) * 100}%`;
     }
 
     function loop() {
@@ -242,7 +244,7 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
       audio?.resume();
       clearBoard();
       scoreEl.textContent = "0";
-      timerEl.style.transform = "scaleX(1)";
+      timerEl.style.width = "100%";
       phase = "count";
       showCard("count");
       const countEl = $("bw-count");
@@ -391,6 +393,7 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
 </script>
 
 <style is:global>
+  /* 오락실 판(규격 A5): 틀은 오락실, 판 안 그림(버그·구멍)은 그대로, 판 바탕만 밤의 두더지 판 */
   .bw {
     max-width: 440px;
     margin: 0 auto;
@@ -406,28 +409,20 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
   }
   .bw-title {
     font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-  }
-  .bw-sound {
-    font-size: 13px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    color: var(--muted-foreground);
-  }
-  .bw-sound[aria-pressed="true"] {
-    color: var(--accent);
-    border-color: var(--accent);
+    line-height: 32px;
+    font-weight: 700;
+    color: var(--arc-text);
+    text-shadow:
+      2px 0 0 var(--arc-pink),
+      -2px 0 0 var(--arc-cyan);
   }
 
   .bw-hud {
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 14px;
+    gap: 12px;
+    margin-bottom: 12px;
   }
   .bw-stat {
     display: flex;
@@ -438,27 +433,26 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     align-items: flex-end;
   }
   .bw-stat-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted-foreground);
+    color: var(--arc-muted);
   }
   .bw-stat-value {
-    font-size: 26px;
-    font-weight: 800;
-    line-height: 1.1;
-    font-variant-numeric: tabular-nums;
+    font-size: 24px;
+    line-height: 32px;
+    color: var(--arc-coin);
   }
+  /* 칸으로 끊긴 시간 막대: 8px 칸 + 2px 틈, 남은 시간이 줄수록 노랑 → 빨강 */
   .bw-timer {
-    height: 10px;
-    border-radius: 999px;
-    background: var(--muted);
-    overflow: hidden;
+    height: 12px;
+    background: var(--arc-screen);
+    box-shadow: inset 0 0 0 2px var(--arc-line);
+    padding: 2px;
   }
   .bw-timer-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--lab-pink), var(--lab-gold), var(--lab-green));
-    transform-origin: left center;
-    border-radius: inherit;
+    width: 100%;
+    background: linear-gradient(90deg, var(--arc-red), var(--arc-coin) 45%);
+    -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 8px, transparent 8px 10px);
+    mask-image: repeating-linear-gradient(90deg, #000 0 8px, transparent 8px 10px);
   }
 
   .bw-stage {
@@ -469,20 +463,21 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
     padding: 14px;
-    border-radius: 22px;
-    background: color-mix(in srgb, var(--lab-green) 22%, var(--background));
-    border: 2px solid color-mix(in srgb, var(--lab-green) 45%, var(--background));
+    background: var(--arc-screen);
+    box-shadow:
+      inset 0 0 0 2px var(--arc-green),
+      0 0 12px rgba(93, 255, 138, 0.18);
     touch-action: manipulation;
   }
   .bw-cell {
     position: relative;
     aspect-ratio: 1;
     overflow: hidden;
-    border-radius: 18px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
-  /* 구멍: 아래쪽 타원. 캐릭터는 그 뒤에서 올라온다 */
+  /* 구멍: 아래쪽 타원. 캐릭터는 그 뒤에서 올라온다.
+     어두운 판에서 구멍이 묻히지 않게 위쪽에 밝은 테두리(규격 A5 QA 메모) */
   .bw-pit {
     position: absolute;
     left: 10%;
@@ -491,6 +486,7 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     height: 26%;
     border-radius: 50%;
     background: radial-gradient(ellipse at 50% 35%, #3b2a20, #1f1611 70%);
+    box-shadow: 0 -2px 0 #6b5240;
   }
   .bw-mole {
     position: absolute;
@@ -507,15 +503,14 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     height: 100%;
     display: block;
   }
-  /* 흙 앞단 — 캐릭터 아래가 구멍 속에 묻혀 보이게 */
+  /* 흙 앞단 — 캐릭터 아래가 구멍 속에 묻혀 보이게. 판 바탕과 같은 색이어야 한다 */
   .bw-dirt {
     position: absolute;
     left: 6%;
     right: 6%;
     bottom: 0;
     height: 17%;
-    border-radius: 0 0 16px 16px;
-    background: color-mix(in srgb, var(--lab-green) 22%, var(--background));
+    background: var(--arc-screen);
   }
   .bw-cell.is-up .bw-mole {
     transform: translateY(0);
@@ -535,26 +530,25 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     top: 24%;
     transform: translateX(-50%);
     white-space: nowrap;
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--foreground);
-    text-shadow: 0 1px 0 var(--background);
+    font-family: var(--font-num);
+    font-size: 24px;
+    line-height: 32px;
+    color: var(--arc-green);
+    text-shadow: 2px 2px 0 #000;
     pointer-events: none;
     animation: bw-float 0.7s ease-out forwards;
   }
   .bw-float[data-kind="gold"] {
-    color: #c98a00;
+    color: var(--arc-coin);
   }
   .bw-float[data-kind="feature"] {
+    font-family: var(--font-px);
     font-size: 12px;
-    color: #5b45c9;
-    background: var(--background);
-    padding: 2px 6px;
-    border-radius: 6px;
+    line-height: 20px;
+    color: var(--arc-text);
+    background: var(--arc-red);
+    padding: 0 6px;
     text-shadow: none;
-  }
-  [data-theme="dark"] .bw-float[data-kind="feature"] {
-    color: var(--lab-purple);
   }
   @keyframes bw-float {
     from {
@@ -573,9 +567,7 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     display: grid;
     place-items: center;
     padding: 16px;
-    border-radius: 22px;
-    background: color-mix(in srgb, var(--background) 78%, transparent);
-    backdrop-filter: blur(3px);
+    background: rgba(5, 6, 10, 0.82);
   }
   .bw-overlay[hidden],
   .bw-card[hidden] {
@@ -585,29 +577,31 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     width: 100%;
     max-width: 320px;
     text-align: center;
-    padding: 22px 18px;
-    border-radius: 18px;
-    background: var(--background);
-    border: 1px solid var(--border);
-    box-shadow: 0 8px 30px rgb(0 0 0 / 0.08);
+    padding: 20px 16px;
+    background: var(--arc-panel);
+    box-shadow: inset 0 0 0 2px var(--arc-pink);
   }
   .bw-card-title {
-    font-size: 17px;
     font-weight: 700;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
+    color: var(--arc-text);
   }
   .bw-legend {
     display: grid;
     gap: 8px;
     text-align: left;
-    margin: 0 auto 18px;
+    margin: 0 auto 16px;
     width: fit-content;
-    font-size: 14px;
+    color: var(--arc-muted);
   }
   .bw-legend li {
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+  .bw-legend b {
+    font-family: var(--font-num);
+    color: var(--arc-coin);
   }
   .bw-legend-icon {
     width: 30px;
@@ -618,21 +612,9 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     width: 100%;
     height: 100%;
   }
-  .bw-btn {
-    font-size: 16px;
-    font-weight: 700;
-    padding: 11px 32px;
-    border-radius: 999px;
-    background: var(--accent);
-    color: var(--accent-foreground);
-  }
-  .bw-btn:hover {
-    filter: brightness(1.08);
-  }
   .bw-hint {
     margin-top: 12px;
-    font-size: 11px;
-    color: var(--muted-foreground);
+    color: var(--arc-muted);
   }
   @media (hover: none) {
     .bw-hint {
@@ -640,32 +622,32 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     }
   }
   .bw-count {
-    font-size: 64px;
-    font-weight: 800;
-    line-height: 1;
-    color: var(--accent);
-    font-variant-numeric: tabular-nums;
+    font-size: 48px;
+    line-height: 48px;
+    color: var(--arc-coin);
   }
   .bw-rank {
-    font-size: 14px;
     font-weight: 700;
-    color: var(--accent);
+    color: var(--arc-cyan);
   }
   .bw-final {
-    font-size: 44px;
-    font-weight: 800;
-    line-height: 1.15;
+    font-size: 36px;
+    line-height: 48px;
+    font-weight: 700;
+    color: var(--arc-text);
+  }
+  .bw-final .arc-num {
+    color: var(--arc-coin);
   }
   .bw-newbest {
-    font-size: 13px;
     font-weight: 700;
-    color: #c98a00;
+    color: var(--arc-pink);
+    animation: arc-blink 1.2s steps(1) infinite;
   }
   .bw-report {
     display: grid;
-    gap: 6px;
-    margin: 14px 0 18px;
-    font-size: 14px;
+    gap: 4px;
+    margin: 12px 0 16px;
   }
   .bw-report div {
     display: flex;
@@ -673,11 +655,16 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     padding: 0 6px;
   }
   .bw-report dt {
-    color: var(--muted-foreground);
+    color: var(--arc-muted);
   }
   .bw-report dd {
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--font-num);
+    color: var(--arc-text);
+  }
+  @keyframes arc-blink {
+    50% {
+      opacity: 0;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -687,6 +674,9 @@ import { HOLE_COUNT } from "@/lab/bug-whack/engine";
     }
     .bw-float {
       animation-duration: 0.01s;
+    }
+    .bw-newbest {
+      animation: none;
     }
   }
 </style>
