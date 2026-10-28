@@ -125,6 +125,16 @@ export const GAMES: HubGame[] = [
     group: "party",
     players: "2–4명",
   },
+  {
+    slug: "tower",
+    title: "흔들 탑 쌓기",
+    blurb: "흔들흔들 매달린 코코 물건을 딱 맞을 때 눌러 탑에 올려요. 무엇이든 상 밖으로 떨어지면 마지막에 놓은 사람이 와르르!",
+    guide: "흔들릴 때 눌러서 탑에 올려요 — 떨어뜨린 사람이 와르르",
+    wip: "탑 받침 고르는 중",
+    ph: ["#dff1ff", "#9fd3ff", "#4a8fc0"],
+    group: "party",
+    players: "2–4명",
+  },
 ];
 
 export const PLAYABLE = GAMES.filter(g => !g.soon);

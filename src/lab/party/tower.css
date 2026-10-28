@@ -1,0 +1,16 @@
+/* 내기 모음 4 「흔들 탑 쌓기」 화면 겉모양 — 시안 docs/lab-party-tower-mock.html(4de0ef51) 의 <style> 그대로. 틀 겉모양은 ./shell.css */
+.tw { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 10px; padding-bottom: 16px; }
+.tw-info { width: min(100%, 420px); display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 800; color: var(--lab-ink-2); }
+.tw-next { display: inline-flex; align-items: center; gap: 4px; }
+.tw-next svg { width: 48px; height: 31px; } /* 34 px 는 360 화면에서 무엇인지 안 읽혔다 */
+/* 놀이판: 넓은 화면에서 커지고 세로로 고루(아이패드는 틀이 zoom) */
+.tw-stage { position: relative; width: min(100%, 420px); flex: 1 1 auto; min-height: 300px; max-height: 62dvh; border-radius: 22px; overflow: hidden; box-shadow: 0 0 0 3px var(--lab-line) inset, 0 6px 16px var(--lab-shadow); background: var(--lab-sky-2); touch-action: manipulation; cursor: pointer; }
+.tw-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.tw-stage.off { pointer-events: none; cursor: default; }
+.tw-msg { position: absolute; left: 0; right: 0; top: 12px; text-align: center; font-size: 20px; font-weight: 900; color: var(--lab-title); text-shadow: 0 2px 0 #fffaf2, 0 0 8px #fffaf2; pointer-events: none; word-break: keep-all; padding: 0 12px; }
+.tw-msg small { display: block; font-size: 14px; font-weight: 800; color: var(--lab-ink-2); }
+.tw-act { width: min(100%, 420px); display: grid; }
+.tw-act > button { grid-area: 1 / 1; width: 100%; min-height: 64px; font-size: 22px; border-radius: 22px; }
+.tw-act > button[hidden] { display: none; }
+.tw-drop:disabled { opacity: .45; }
+.tw-tim { position: absolute; right: 12px; top: 12px; width: 34px; height: 34px; pointer-events: none; }
