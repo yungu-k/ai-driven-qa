@@ -48,8 +48,8 @@ const count = (ev: GameEvent[], k: string) => ev.filter((e) => e.e === k).length
 
 test("수치표가 규격 1절 숫자와 같다(규격이 코드를 따라왔는지)", () => {
   assert.deepEqual(
-    [S.every, S.gap, S.max, S.arm, S.life, S.lure, S.hold, S.seatR, S.touchR, S.burstR, S.dmg0, S.dmgPer, S.coin, S.daze, S.bossMul],
-    [3, 30, 3, 0.8, 16, 56, 12, 9, 9, 34, 30, 16, 1, 1.5, 0.5],
+    [S.every, S.gap, S.max, S.arm, S.life, S.lure, S.hold, S.seatR, S.touchR, S.ringGap, S.arrive, S.burstR, S.dmg0, S.dmgPer, S.coin, S.daze, S.bossMul],
+    [3, 30, 3, 0.8, 16, 56, 12, 9, 9, 8, 6, 34, 30, 16, 1, 1.5, 0.5],
   );
   assert.deepEqual(S.angry, { mul: 1.3, dur: 3 });
   // 세는 것: 꼬마 도깨비·야광귀(1.5배)·방망이 도깨비. 안 세는 것: 도깨비불·여우불·보스 둘
@@ -115,9 +115,9 @@ test("세기: 꼬마 도깨비가 체로 와서 둘레에 앉는다 — 앉은 �
   assert.equal(s.heading, 0);
   assert.ok(imps.every((e) => e.sieve === s.id));
   assert.equal(count(ev, "hurt"), 0, "앉으러 오는 동안·앉은 뒤 안 아프다");
-  // 앉은 자리: 체 둘레(반지름 9 + 몸/2, 세로 0.7)
+  // 앉은 자리: 안쪽 고리(반지름 9, 세로 0.7) — 안쪽 고리 자리 수 floor(2π·9/8) = 7 이라 다섯은 다 안쪽
   for (const e of imps) {
-    const rx = (e.x - s.x) / (S.seatR + e.r * 0.5), ry = (e.y - s.y) / ((S.seatR + e.r * 0.5) * 0.7);
+    const rx = (e.x - s.x) / S.seatR, ry = (e.y - s.y) / (S.seatR * 0.7);
     assert.ok(close(rx * rx + ry * ry, 1, 1e-9), `둘레 ${rx},${ry}`);
   }
   // 안 아픈 까닭이 거리가 아니라 「세는 중」이어야 한다 — 앉은 것 중 꼬마에게 닿는 거리(몸 + 몸)인 것이 있다
@@ -284,16 +284,47 @@ test("화난 동안은 체로 안 간다(곁에 체가 있어도)", () => {
   assert.equal(calm.sieve, s.id, "대조군: 안 화난 것은 고른다");
 });
 
-test("현재 동작(의심): 화가 풀린 뒤에도 다시 체로 안 간다 — angryT 가 0 이 아니라 −0.0x 로 끝나 `!e.angryT` 가 거짓", () => {
-  // 원본 docs/lab-surv-goblin.js 그대로다(옮긴 판은 동작을 안 바꾼다). 규격 1절은 「3초 동안」만 말하고 그 뒤를 정하지 않는다.
-  // 이 검사가 빨강이 되면 원본이 바뀐 것 — 의도한 수정인지 확인하고 고친다.
+test("화가 풀리면 다시 체로 간다 — angryT 는 0 에서 멈춘다(1판은 −0.0x 로 끝나 `!e.angryT` 가 영영 거짓, 규격 1-1)", () => {
   const g = quietGame();
   const s = firstSieve(g);
-  const imp = foe(g, "imp", s.x + 25, s.y, { angryT: 3, speed: 0 });
-  frames(g, 60 * 3 + 5);
-  assert.ok(imp.angryT! < 0 && imp.angryT! > -DT - 1e-9, `angryT ${imp.angryT}`);
-  assert.equal(imp.sieve ?? 0, 0);
+  const imp = foe(g, "imp", s.x + 25, s.y, { angryT: 3, speed: 0 }); // 화난 동안 쫓아가 끌림 밖으로 나가지 않게 묶어 둔다
+  const sp = DATA.ENEMIES.imp.speed;
+  frames(g, 60 * 3 - 30);
+  assert.equal(imp.sieve ?? 0, 0, "화난 동안은 안 고른다");
+  frames(g, 35); // 3초가 지난 뒤
+  assert.equal(imp.angryT, 0, `angryT ${imp.angryT}`);
+  assert.equal(imp.sieve, s.id, "화가 풀리자 체를 고른다");
+  assert.equal(s.heading, 1);
+  imp.speed = sp;
+  for (let f = 0; f < 120 && !imp.counting; f++) tick(g);
+  assert.ok(imp.counting, "다시 앉는다");
+  assert.equal(s.seated, 1);
   assert.equal(s.heading, 0);
+});
+
+/** 무기 없이 체 하나(꼬마에게서 110 떨어짐, 안 사라짐)에 꼬마 도깨비 hold+6 마리를 반경 40 에 두르고 sec 초 둔다. 앉은 수를 돌려준다 */
+function fillSieve(holes: number, sec: number): { seated: number; H: number } {
+  const g = quietGame(3);
+  g.themeLv.holes = holes;
+  g.sieveT = 1e9;
+  const s: Sieve = { id: g.nextSieve++, x: 270, y: 270, arm: 0, life: 1e9, seated: 0, heading: 0, left: false };
+  g.sieves.push(s);
+  g.p.x = 270;
+  g.p.y = 380;
+  g.p.maxHp = g.p.hp = 1e9;
+  const H = THEME.hold(g as never);
+  for (let i = 0; i < H + 6; i++) { const a = (i / (H + 6)) * Math.PI * 2; foe(g, "imp", 270 + Math.cos(a) * 40, 270 + Math.sin(a) * 40, {}, 1e9); }
+  frames(g, 60 * sec);
+  assert.ok(s.seated <= H, `상한 넘음 ${s.seated} > ${H}`);
+  return { seated: s.seated, H };
+}
+test("체가 상한까지 찬다(규격 1-1): 무기 없이 20초 — 상한 12 에 11 이상, 구멍 많은 체 3단계(상한 24)에 23 이상(1판은 6·16 에서 막혔다)", () => {
+  const a = fillSieve(0, 20);
+  assert.equal(a.H, 12);
+  assert.ok(a.seated >= a.H - 1, `상한 ${a.H} 에 ${a.seated}`);
+  const b = fillSieve(3, 20);
+  assert.equal(b.H, 24);
+  assert.ok(b.seated >= b.H - 1, `상한 ${b.H} 에 ${b.seated}`);
 });
 
 test("점수(A5): 버틴 초 × 10 + 처치 + 털기 × 5 + 한 번에 가장 많이 × 30, 이기면 + 5000 + 남은 체력 × 20", () => {

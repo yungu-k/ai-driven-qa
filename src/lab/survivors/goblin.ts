@@ -1,6 +1,6 @@
 // 그냥 오락실 A 「도깨비 퇴치」 — 소재 파일(수치표 + 갈고리). 뼈대는 ./core.ts.
 // 규격 docs/lab-surv-goblin-spec.md. 🔴 표와 코드가 다르면 코드가 맞다.
-// 시안 docs/lab-surv-goblin.js(md5 9da89739…)를 그대로 옮긴 판이다. 동작은 바꾸지 않고 타입만 붙였다(tmp/lab-surv/equiv-goblin.mjs 가 잰다).
+// 시안 docs/lab-surv-goblin.js(md5 36fa0211…, 2판)를 그대로 옮긴 판이다. 동작은 바꾸지 않고 타입만 붙였다(tmp/lab-surv/equiv-goblin.mjs 가 잰다).
 // 고유 장치: 「세는 도깨비」 — 설날 밤 체를 걸어 두면 야광귀가 구멍을 세느라 밤을 새운다는 민속에서.
 // 꼬마가 지나간 자리에 체가 저절로 놓이고, 도깨비들이 그 둘레에 앉아 구멍을 센다(그동안 안 움직이고 안 아프다).
 // 꼬마가 돌아와 체를 밟으면 「체 털기」 — 둘레를 한꺼번에 친다. 깔고, 끌고, 돌아와 터뜨린다.
@@ -19,13 +19,14 @@ export type GoblinEnemyDef = EnemyDef & {
   ringN?: number;
 };
 /** 소재가 적에 붙이는 칸. 원본처럼 처음엔 비어 있다(undefined) — 미리 0 으로 채우면 상태 대조가 갈린다.
- *  sieve·counting·seatA·angryT 는 세는 도깨비에, sumT·dash*·warnT·ringT·scale 은 보스에만 생긴다 */
+ *  sieve·counting·seatK·angryT 는 세는 도깨비에, sumT·dash*·warnT·ringT·scale 은 보스에만 생긴다 */
 export type GoblinEnemy = Enemy & {
   /** 가는 중이거나 앉아 있는 체 id(0·undefined = 없음) */
   sieve?: number;
   /** 체 둘레에 앉아 세는 중 */
   counting?: boolean;
-  seatA?: number;
+  /** 앉은 차례(seatOf 로 고리·각도) */
+  seatK?: number;
   /** 놓친 체에서 일어나 화난 남은 시간 */
   angryT?: number;
   sumT?: number;
@@ -73,7 +74,7 @@ const PLAYER = { r: 5, hp: 100, speed: 56, magnet: 22, regen: 0.25 };
 // 꼬마가 한 번 touchR 밖으로 나갔다가 다시 밟으면 체 털기: burstR 안 모두에게 dmg0 + dmgPer × 앉은 수.
 // 털린 자리의 살아남은 것은 daze 초 멍해진다(털자마자 옆의 방망이 도깨비에게 맞던 것을 막는다).
 // 앉아 있던 도깨비는 죽든 안 죽든 엽전 coin 개를 흘린다(도깨비가 재물을 주는 민담) — 세는 동안 안 죽어 엽전이 모자랐다(규격 1-1).
-const SIEVE = { every: 3.0, gap: 30, max: 3, arm: 0.8, life: 16, lure: 56, hold: 12, seatR: 9, touchR: 9, burstR: 34, dmg0: 30, dmgPer: 16, coin: 1, daze: 1.5, bossMul: 0.5, angry: { mul: 1.3, dur: 3 } };
+const SIEVE = { every: 3.0, gap: 30, max: 3, arm: 0.8, life: 16, lure: 56, hold: 12, seatR: 9, touchR: 9, ringGap: 8, arrive: 6, burstR: 34, dmg0: 30, dmgPer: 16, coin: 1, daze: 1.5, bossMul: 0.5, angry: { mul: 1.3, dur: 3 } };
 
 // count = 체에 끌리는 정도(1 = lure 그대로, 1.5 = 1.5 배 멀리서). 없으면 세지 않는다.
 const ENEMIES: Record<string, GoblinEnemyDef> = {
@@ -194,6 +195,16 @@ function init(g: GoblinGame): void {
   g.stats.burstN = 0;
   g.stats.burstMax = 0;
   g.nextSieve = 1;
+}
+// k 번째로 앉은 도깨비의 자리: [고리 번호, 각도]. 고리 r 의 자리 수 = 둘레 / 8.
+function seatOf(k: number): [number, number] {
+  let r = 0;
+  for (;;) {
+    const n = Math.max(6, Math.floor((2 * Math.PI * (SIEVE.seatR + r * SIEVE.ringGap)) / 8));
+    if (k < n) return [r, (k / n) * Math.PI * 2 + r * 0.3];
+    k -= n;
+    r++;
+  }
 }
 function sieveState(g: GoblinGame, s: Sieve): SieveState { return s.arm > 0 ? "arming" : s.seated >= hold(g) ? "full" : "armed"; }
 
@@ -319,19 +330,22 @@ function afterEnemies(g: GoblinGame, dt: number): void {
   // 앉기: 체 seatR 안에 들면 둘레 자리에 앉아 센다(움직이지 않고 안 아프다 — 뼈대는 stun>0 이면 닿아도 안 아프다)
   for (const e of g.enemies) {
     if (e.dead) continue;
-    if (e.angryT! > 0) e.angryT! -= dt;
+    if (e.angryT! > 0) e.angryT = Math.max(0, e.angryT! - dt); // 0 에서 멈춘다 — 음수로 남으면 `!e.angryT` 가 거짓이라 다시는 안 앉았다(tw 10-28)
     if (!e.sieve) continue;
     const s = g.sieves.find((q) => q.id === e.sieve);
     if (!s) { e.sieve = 0; e.counting = false; continue; }
     if (!e.counting) {
-      if ((e.x - s.x) ** 2 + (e.y - s.y) ** 2 > SIEVE.seatR * SIEVE.seatR) continue;
+      // 앉을 자리 = 체를 둘러싼 고리 여러 겹(안쪽부터). 지금 바깥 고리 근처까지 오면 앉는다 — 한 겹만 두면 8–9마리가 둘레를 막아 뒤가 못 들었다(tw 10-28)
+      const [ring] = seatOf(s.seated);
+      const arrive = SIEVE.seatR + ring * SIEVE.ringGap + SIEVE.arrive;
+      if ((e.x - s.x) ** 2 + (e.y - s.y) ** 2 > arrive * arrive) continue;
       e.counting = true;
       s.heading--;
-      const k = s.seated++;
-      e.seatA = (k / hold(g)) * Math.PI * 2 + (s.id % 7) * 0.4;
+      e.seatK = s.seated++;
     }
-    e.x = s.x + Math.cos(e.seatA!) * (SIEVE.seatR + e.r * 0.5);
-    e.y = s.y + Math.sin(e.seatA!) * (SIEVE.seatR + e.r * 0.5) * 0.7;
+    const [ring, a] = seatOf(e.seatK!), R = SIEVE.seatR + ring * SIEVE.ringGap;
+    e.x = s.x + Math.cos(a + (s.id % 7) * 0.4) * R;
+    e.y = s.y + Math.sin(a + (s.id % 7) * 0.4) * R * 0.7;
     e.stun = Math.max(e.stun, 0.05);
   }
   for (const e of g.enemies) if (e.angryT! > 0 && !e.counting) e.slow = Math.min(e.slow, 1 - SIEVE.angry.mul); // 음수 느려짐 = 빨라짐
