@@ -95,6 +95,16 @@ export const GAMES: HubGame[] = [
     group: "party",
     players: "2–4명",
   },
+  {
+    slug: "doorbell",
+    title: "초인종 폭탄",
+    blurb: "초인종을 받으면 작은 일 하나를 끝내야 넘길 수 있어요. 언제 울릴지는 아무도 몰라요 — 울릴 때 든 사람이 문 열기 당번!",
+    guide: "초인종을 받으면 작은 일 하나 끝내고 바로 넘겨요 — 울릴 때 든 사람이 당번",
+    wip: "초인종 다는 중",
+    ph: ["#fff1c2", "#ffd36b", "#b07a1c"],
+    group: "party",
+    players: "2–4명",
+  },
 ];
 
 export const PLAYABLE = GAMES.filter(g => !g.soon);

@@ -1,0 +1,23 @@
+/* 내기 모음 1 「초인종 폭탄」 화면 겉모양 — 시안 docs/lab-party-doorbell-mock.html(439da33f) 의 <style> 그대로. 틀 겉모양은 ./shell.css */
+.db { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 12px; padding-bottom: 20px; } /* 위아래로 고루 — 아이패드에서 위에 몰리면 화면 반만 썼다(리그 높이 0.55) */
+.db-round { font-size: 14px; font-weight: 700; color: var(--lab-ink-2); }
+.db-who { font-size: 22px; font-weight: 900; color: var(--lab-title); text-align: center; word-break: keep-all; }
+.db-bell { width: clamp(130px, 24dvh, 220px); height: clamp(130px, 24dvh, 220px); }
+@keyframes db-wob { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+.db-bell .b { transform-box: fill-box; transform-origin: 50% 10%; animation: db-wob .5s ease-in-out infinite; }
+@keyframes db-ring { 0%, 100% { transform: rotate(-22deg) scale(1.08); } 50% { transform: rotate(22deg) scale(1.08); } }
+.db-bell.rang .b { animation: db-ring .12s linear infinite; }
+body.reduce .db-bell .b { animation: none; }
+.db-task { width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.db-ask { font-size: 17px; font-weight: 800; color: var(--lab-ink); display: flex; align-items: center; gap: 8px; }
+.db-ask svg { width: 40px; height: 40px; }
+.db-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.db-cell { min-height: 84px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 0 0 3px var(--lab-line) inset, 0 4px 10px var(--lab-shadow); font-size: 34px; font-weight: 900; color: var(--lab-ink); cursor: pointer; display: grid; place-items: center; }
+.db-cell svg { width: 56px; height: 56px; }
+.db-cell.done { background: #e9f8f5; box-shadow: 0 0 0 3px #2fb5a8 inset; color: #15665f; }
+.db-big { width: 100%; min-height: 110px; font-size: 26px; border-radius: 26px; }
+.db-task.lock { opacity: .45; pointer-events: none; }
+@keyframes db-no { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.db-task.lock { animation: db-no .25s 2; }
+body.reduce .db-task.lock { animation: none; }
+.db-msg { min-height: 24px; font-size: 16px; font-weight: 800; color: var(--lab-title); text-align: center; }
