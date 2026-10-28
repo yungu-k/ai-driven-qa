@@ -1,0 +1,20 @@
+/* 내기 모음 6 「땅따먹기 점 잇기」 화면 겉모양 — 시안 docs/lab-party-dots-mock.html(789572fd) 의 <style> 그대로. 틀 겉모양은 ./shell.css */
+.dt { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 8px; padding-bottom: 76px; } /* 아래 76: 봇 「생각 중」 띠가 판 아래 줄을 가리지 않게 */
+body.pt-land .dt-board { width: min(100%, 480px, calc(64dvh * var(--asp))); } /* 아이패드 가로: 54dvh 면 판이 화면 높이의 57 % 로 작았다(화면 보고 고침) */
+body.pt-wide .dt { padding-bottom: 36px; } /* 아이패드 세로: 76 이면 문서가 11–13 px 넘쳤다(리그) — 넓은 화면은 판 아래가 비어 띠가 판을 안 가린다 */
+.dt-head { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 420px; min-height: 52px; }
+.dt-head svg { width: 46px; height: 46px; flex: none; }
+.dt-say { flex: 1; min-width: 0; }
+.dt-who { font-size: 18px; font-weight: 900; color: var(--lab-title); word-break: keep-all; line-height: 1.25; }
+.dt-sub { font-size: 13px; font-weight: 700; color: var(--lab-ink-2); margin-top: 2px; }
+/* 판: 넓은 화면에선 커진다(휴대폰은 폭 · 낮은 화면은 높이로 묶음 — --asp = 판 폭/높이) */
+.dt-board { position: relative; width: min(100%, 480px, calc(54dvh * var(--asp))); }
+.dt-board > svg { display: block; width: 100%; height: auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+.dt-hit { fill: transparent; cursor: pointer; }
+.dt-lock .dt-hit { pointer-events: none; cursor: default; } /* 봇 차례: 사람 손 막기 */
+.dt-pop { transform-box: fill-box; transform-origin: center; animation: dt-pop .38s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes dt-pop { 0% { transform: scale(.2); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.dt-new { animation: dt-glow 1.1s ease-in-out 2; }
+@keyframes dt-glow { 50% { opacity: .55; } }
+body.reduce .dt-pop, body.reduce .dt-new { animation: none; }
+.dt-toast { min-height: 24px; font-size: 16px; font-weight: 800; color: var(--lab-title); text-align: center; word-break: keep-all; }

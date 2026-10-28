@@ -115,6 +115,16 @@ export const GAMES: HubGame[] = [
     group: "party",
     players: "3–4명",
   },
+  {
+    slug: "dots",
+    title: "땅따먹기 점 잇기",
+    blurb: "점 둘 사이에 울타리 하나씩. 네 번째 울타리로 칸을 닫으면 내 텃밭이 되고 한 번 더 그어요. 세 번째 선은 남 좋은 일!",
+    guide: "점 둘 사이에 선 하나 — 네 번째 선으로 칸을 닫으면 내 텃밭, 한 번 더",
+    wip: "울타리 박는 중",
+    ph: ["#eaf6dc", "#9fd08a", "#2f7a3a"],
+    group: "party",
+    players: "2–4명",
+  },
 ];
 
 export const PLAYABLE = GAMES.filter(g => !g.soon);
