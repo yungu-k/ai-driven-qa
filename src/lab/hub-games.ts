@@ -165,6 +165,16 @@ export const GAMES: HubGame[] = [
     group: "party",
     players: "2–4명",
   },
+  {
+    slug: "artillery",
+    title: "간식 대포",
+    blurb: "케이크 섬 위 찐빵 친구들이 바람을 읽어 간식을 쏘는 턴제 포격 — 떨어진 자리는 파이고 우유 바다에 빠지면 나가요",
+    guide: "뒤로 끌어 겨누고 바람을 읽어 간식을 쏴요 — 우유 바다에 빠지면 나가요",
+    wip: "대포 닦는 중",
+    ph: ["#fdf3f7", "#f7b8d0", "#9a3a62"],
+    group: "party",
+    players: "2–4명",
+  },
 ];
 
 export const PLAYABLE = GAMES.filter(g => !g.soon);
