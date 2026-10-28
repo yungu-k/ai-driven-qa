@@ -9,6 +9,7 @@ const px = (rects: string) =>
 const GAMES = [
   {
     slug: "bug-whack",
+    row: "qa",
     title: "버그 잡기",
     blurb: "30초 동안 튀어나오는 버그를 톡톡. 「기능」은 건드리면 안 돼요.",
     icon: px(
@@ -19,6 +20,7 @@ const GAMES = [
   },
   {
     slug: "merge-2048",
+    row: "qa",
     title: "버그 2048",
     blurb: "같은 버그끼리 밀어서 합쳐요. 2048 이 되면 출시!",
     icon: px(
@@ -29,6 +31,7 @@ const GAMES = [
   },
   {
     slug: "ui-bug-hunt",
+    row: "qa",
     title: "UI 버그 찾기",
     blurb: "기획서와 실제 화면을 비교해 숨은 UI 버그를 찾아요. 4단계, 버그 16개.",
     icon: px(
@@ -39,6 +42,7 @@ const GAMES = [
   },
   {
     slug: "release-defense",
+    row: "qa",
     title: "릴리스 디펜스",
     blurb: "검사를 세워 버그를 막고 운영을 지켜요. 맵 5장을 깨면 다음 버전, 끝이 없어요.",
     icon: px(
@@ -48,6 +52,24 @@ const GAMES = [
     tested: "옮긴 엔진이 시안 엔진과 한 프레임도 다르지 않은지 4만 번 넘게 맞대 봤고, 방어 계산·환급·보스 방패·분열 등 규칙 10가지와 랭킹·저장 규칙 9가지를 시험합니다. 기준 봇이 첫 바퀴 맵 5장을 다 깨는지도 매번 봅니다.",
     hiscore: true,
   },
+  {
+    slug: "dawn-shepherd",
+    row: "play",
+    title: "새벽 양치기",
+    blurb: "잠 못 드는 밤, 줄지어 따라오는 양떼로 악몽을 감싸 재워요. 아침까지 버티면 이겨요.",
+    icon: px(
+      `<rect x="4" y="5" width="8" height="6" fill="#eef1f8"/><rect x="3" y="6" width="1" height="4" fill="#eef1f8"/><rect x="12" y="6" width="1" height="4" fill="#eef1f8"/><rect x="11" y="6" width="3" height="3" fill="#463d6b"/><rect x="12" y="7" width="1" height="1" fill="#ffd86b"/><rect x="5" y="11" width="1" height="2" fill="#463d6b"/><rect x="10" y="11" width="1" height="2" fill="#463d6b"/><rect x="2" y="2" width="1" height="1" fill="#ffd86b"/><rect x="13" y="1" width="1" height="1" fill="#c9a4ff"/>`
+    ),
+    made: "디자인 세션이 서바이버류를 조사해 네 게임이 같이 쓸 뼈대와 이 게임의 시안을 만들고, 구현 세션이 옮겼습니다. 양 줄로 고리를 닫는 장치는 시뮬레이션으로 두 번 고쳐 지금 꼴(3초 남는 양 우리)이 됐습니다.",
+    tested: "옮긴 엔진을 시안 엔진과 같은 씨앗으로 나란히 돌려 상태를 5만 번 넘게 맞대 봤고(어긋남 0), 레벨업 카드·양 우리·보스·점수 등 규칙 21가지를 시험합니다.",
+    rank: "sheep",
+  },
+];
+
+// 실험실 목록의 두 줄. 「그냥 오락실」은 QA 와 상관없는 게임 — 게임이 쌓이면 독립 메뉴로 옮길 수 있게 줄 단위로 나눠 둔다
+const ROWS = [
+  { id: "qa", title: "QA 오락실", lede: "버그·테스트를 소재로 만든 게임" },
+  { id: "play", title: "그냥 오락실", lede: "테크블로그는 잠깐 잊고" },
 ];
 ---
 
@@ -59,9 +81,13 @@ const GAMES = [
     <p class="arc-insert">INSERT COIN</p>
   </section>
 
-  <ul class="arc-cabs">
-    {
-      GAMES.map(g => (
+  {
+    ROWS.map(row => (
+      <section class="arc-row" aria-labelledby={`row-${row.id}`}>
+        <h2 class="arc-row-title" id={`row-${row.id}`}>{row.title}</h2>
+        <p class="arc-row-lede">{row.lede}</p>
+      <ul class="arc-cabs">
+        {GAMES.filter(g => g.row === row.id).map(g => (
         <li class="arc-cab">
           <a href={`/lab/${g.slug}/`} class="arc-cab-link" data-astro-reload data-coin>
             <span class="arc-cab-screen" set:html={g.icon} />
@@ -69,6 +95,7 @@ const GAMES = [
               <span class="arc-cab-title">{g.title}</span>
               <span class="arc-cab-blurb">{g.blurb}</span>
               {g.hiscore && <span class="arc-cab-hi" data-defense-hi hidden />}
+              {g.rank && <span class="arc-cab-hi" data-rank-hi={g.rank} hidden />}
             </span>
             <span class="arc-btn arc-cab-start">START</span>
           </a>
@@ -82,9 +109,11 @@ const GAMES = [
             </p>
           </details>
         </li>
-      ))
-    }
-  </ul>
+        ))}
+      </ul>
+      </section>
+    ))
+  }
 
   <div class="arc-hud" aria-hidden="true">
     <span data-hiscore>HI-SCORE 000000</span><span>1P</span>
@@ -142,6 +171,23 @@ const GAMES = [
 
   document.addEventListener("astro:page-load", init);
   document.addEventListener("astro:page-load", defenseHi);
+
+  // 「그냥 오락실」 카드의 HI-SCORE 한 줄: /api/rank/<게임> 의 1위(점수). 서버가 없거나 기록이 없으면 안 보인다
+  function rankHi() {
+    document.querySelectorAll<HTMLElement>("[data-rank-hi]").forEach(async el => {
+      try {
+        const res = await fetch(`/api/rank/${el.dataset.rankHi}`);
+        if (!res.ok) return;
+        const top = ((await res.json()) as { rows?: { name: string; score: number }[] }).rows?.[0];
+        if (!top || !/^[A-Z0-9]{3}$/.test(top.name) || !Number.isInteger(top.score)) return;
+        el.textContent = `HI-SCORE ${top.name} ${top.score}`;
+        el.hidden = false;
+      } catch {
+        /* 장식이라 조용히 넘어간다 */
+      }
+    });
+  }
+  document.addEventListener("astro:page-load", rankHi);
 </script>
 
 <style is:global>
@@ -189,6 +235,18 @@ const GAMES = [
     }
   }
 
+  .arc-row + .arc-row {
+    margin-top: 32px;
+  }
+  .arc-row-title {
+    font-size: 24px;
+    line-height: 36px;
+    color: var(--arc-coin);
+  }
+  .arc-row-lede {
+    color: var(--arc-muted);
+    margin-bottom: 12px;
+  }
   .arc-cabs {
     list-style: none;
     display: grid;

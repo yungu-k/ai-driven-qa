@@ -1,0 +1,65 @@
+/* 새벽 양치기 겉모양 — 디자인 세션 시안 docs/lab-surv-sheep-mock.html 의 <style> 을 옮긴 것(글꼴 @font-face 는 @/lab/lab-fonts.css 가 싣는다).
+   끝의 「구현 덧붙임」 블록은 시안에 없던 멈춤 메뉴·랭크 등록·실험실 틀 맞춤(tw). */
+:root {
+  --ink0: #07060f; --ink1: #0e0c1c; --ink2: #17142b; --ink3: #231e3d; --ink4: #322b52; --ink5: #463d6b; --ink6: #5f5687;
+  --sl4: #cdd3e3; --sl5: #eef1f8; --go4: #f6a94a; --go5: #ffd86b; --go6: #fff2b8; --rd3: #d8324a; --rd4: #ff5e5b;
+  --cy3: #2aa6d6; --cy4: #6ee6ff; --gr4: #7ee87e; --vi3: #9a64f0; --vi4: #c9a4ff; --pk4: #ff8be0;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--ink1); color: var(--sl5); font-family: "LabPixel", system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+body { display: flex; justify-content: center; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+#app { position: relative; width: 100%; max-width: 360px; height: 100%; max-height: 720px; display: flex; flex-direction: column; background: var(--ink0); }
+#hud { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; padding: 8px 10px 4px; font-size: 12px; }
+.bar { height: 8px; background: var(--ink3); box-shadow: inset 0 0 0 1px var(--ink5); position: relative; }
+.bar > i { position: absolute; inset: 1px auto 1px 1px; background: var(--rd4); width: 0; }
+#xpBar > i { background: var(--cy4); }
+#dawnBar > i { background: linear-gradient(90deg, var(--vi3), var(--pk4), var(--go5)); }
+.num { font-family: "LabPixelMono", monospace; font-size: 12px; }
+.chip { display: inline-flex; gap: 4px; align-items: center; padding: 2px 6px; background: var(--ink3); box-shadow: inset 0 1px 0 var(--ink5); }
+#sub { display: grid; grid-template-columns: 1fr auto; gap: 6px; padding: 0 10px 6px; align-items: center; }
+#wrap { position: relative; flex: 1; overflow: hidden; }
+#cv { position: absolute; left: 50%; top: 0; width: 360px; height: 600px; transform: translateX(-50%); image-rendering: pixelated; }
+#say { position: absolute; left: 0; right: 0; top: 18px; text-align: center; font-size: 13px; color: var(--go6); text-shadow: 0 1px 0 var(--ink0), 0 0 6px var(--ink0); opacity: 0; transition: opacity .25s; pointer-events: none; }
+#say.on { opacity: 1; }
+#stick { position: absolute; width: 88px; height: 88px; margin: -44px 0 0 -44px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(205, 211, 227, .25); display: none; pointer-events: none; }
+#stick i { position: absolute; left: 50%; top: 50%; width: 36px; height: 36px; margin: -18px 0 0 -18px; border-radius: 50%; background: rgba(205, 211, 227, .28); }
+#hint { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--ink6); pointer-events: none; }
+.over { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(7, 6, 15, .72); padding: 16px; z-index: 5; }
+.over.on { display: flex; }
+.box { width: 100%; max-width: 320px; background: var(--ink2); box-shadow: inset 0 1px 0 var(--ink5), 0 2px 0 var(--ink0); padding: 14px; text-align: center; }
+h1 { font-weight: 700; font-size: 26px; margin: 4px 0 6px; color: var(--go6); text-shadow: 0 2px 0 var(--vi3), 0 4px 0 var(--ink0); }
+h2 { font-size: 16px; margin: 0 0 10px; color: var(--go5); }
+p { margin: 6px 0; font-size: 13px; line-height: 1.55; color: var(--sl4); }
+.btn { display: block; width: 100%; min-height: 44px; margin-top: 8px; border: 0; background: var(--go4); color: var(--ink0); font: 700 15px "LabPixel", sans-serif; box-shadow: inset 0 -3px 0 #a8492a, inset 0 1px 0 var(--go6); cursor: pointer; }
+.btn.ghost { background: var(--ink4); color: var(--sl5); box-shadow: inset 0 -3px 0 var(--ink2), inset 0 1px 0 var(--ink6); }
+.btn:disabled { opacity: .45; }
+.cards { display: grid; gap: 8px; margin-top: 4px; }
+.card { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; text-align: left; min-height: 56px; padding: 8px 10px; border: 0; background: var(--ink3); color: var(--sl5); font: 14px "LabPixel", sans-serif; box-shadow: inset 0 1px 0 var(--ink6), inset 0 0 0 1px var(--ink5); cursor: pointer; }
+.card b { font-weight: 700; }
+.card small { grid-column: 1 / -1; color: var(--sl4); font-size: 12px; line-height: 1.4; }
+.card .lv { color: var(--go5); font-family: "LabPixelMono", monospace; font-size: 12px; }
+.card.evo { box-shadow: inset 0 0 0 2px var(--go5); }
+.card.sheep { box-shadow: inset 0 1px 0 var(--ink6), inset 0 0 0 1px var(--cy3); }
+.card .tag { color: var(--cy4); font-size: 11px; }
+.res { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; text-align: left; font-size: 13px; margin: 8px 0; }
+.res span:nth-child(even) { font-family: "LabPixelMono", monospace; color: var(--go5); text-align: right; }
+@media (prefers-reduced-motion: reduce) { #say { transition: none; } }
+
+/* ── 구현 덧붙임(tw) ── */
+html, body, .lab-root, .lab-main { height: 100%; }
+.lab-main { display: flex; justify-content: center; } /* 시안은 body 로 가운데 맞췄다 — 실험실 틀이 사이에 끼므로 여기서 */
+#hud { grid-template-columns: auto 1fr auto auto; }
+.hbtn { min-width: 32px; height: 28px; border: 0; padding: 0 6px; background: var(--ink3); color: var(--sl5); font: 12px "LabPixelMono", monospace; box-shadow: inset 0 1px 0 var(--ink5); cursor: pointer; }
+.hi { font-family: "LabPixelMono", monospace; font-size: 12px; color: var(--go5); }
+.box a.back { color: var(--cy4); text-decoration: none; font-size: 13px; display: inline-block; margin-top: 10px; }
+.field { display: grid; gap: 4px; text-align: left; margin: 8px 0; font-size: 12px; color: var(--sl4); }
+.field input { height: 44px; padding: 0 10px; border: 0; background: var(--ink1); color: var(--sl5); font: 15px "LabPixel", sans-serif; box-shadow: inset 0 0 0 2px var(--ink5); }
+.field input.ini { font: 22px "LabPixelMono", monospace; letter-spacing: 8px; text-transform: uppercase; text-align: center; }
+.field input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--cy4); }
+.rank { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 12px; margin: 8px 0; }
+.rank th, .rank td { height: 22px; padding: 0 4px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rank th { color: var(--ink6); font-weight: 400; }
+.rank td.n { font-family: "LabPixelMono", monospace; }
+.rank col.c1 { width: 24px; } .rank col.c2 { width: 40px; } .rank col.c3 { width: 56px; } .rank col.c5 { width: 44px; }
+.rank tr.me td { color: var(--go5); }
+.rank tbody tr:nth-child(odd) td { background: var(--ink3); }
