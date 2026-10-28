@@ -1,78 +1,18 @@
 ---
-// 그냥 오락실 — 새벽 양치기. 잠 못 드는 아이의 꿈, 양떼로 악몽을 막고 아침까지 버틴다(서바이버류).
-// 규격 docs/lab-surv-spec.md · 뼈대 src/lab/survivors/core.ts · 소재 sheep.ts · 화면 sheep-game.ts(공통 껍데기 shell.ts) · 그림 sheep-art.js
-// 화면을 꽉 채우는 게임이라 실험실 위 막대 없이(bare) 그린다. 돌아가기·소리·그만두기는 Ⅱ 메뉴.
-import LabLayout from "@/lab/LabLayout.astro";
-import "@/lab/survivors/shell.css";
+// 옛 주소 넘겨주기 — 새벽 양치기(아이 판, 도트)는 10-28 「코코의 꿈 양몰이」(코코 판, 3D)로 바뀌었다.
 ---
 
-<LabLayout title="새벽 양치기" description="양떼로 악몽을 막고 아침까지 버티기" bare>
-  <div id="app">
-    <header id="hud">
-      <span class="chip" title="아이"><span class="num" id="hpNum">100</span></span>
-      <div class="bar" id="hpBar" aria-label="체력"><i></i></div>
-      <span class="chip" title="양떼">양 <span class="num" id="sheepNum">4</span></span>
-      <button class="hbtn" id="menuBtn" aria-label="멈춤 메뉴" title="멈춤">II</button>
-    </header>
-    <div id="sub">
-      <div class="bar" id="dawnBar" aria-label="아침까지"><i></i></div>
-      <span class="num" id="clock">10:00</span>
-      <div class="bar" id="xpBar" aria-label="경험치"><i></i></div>
-      <span class="num" id="lvNum">LV 1</span>
-    </div>
-    <div id="wrap">
-      <canvas id="cv" width="180" height="300" aria-label="꿈속 들판. 화면 아무 데나 눌러 끌면 걷는다"></canvas>
-      <div id="say"></div>
-      <div id="stick"><i></i></div>
-      <div id="hint">화면 아무 데나 누르고 끌어서 걷기 · 키보드는 방향키/WASD</div>
-    </div>
-
-    <div class="over on" id="start">
-      <div class="box">
-        <p>잠 못 드는 밤</p>
-        <h1>새벽 양치기</h1>
-        <p class="hi" id="hi" hidden></p>
-        <p>양떼가 줄지어 따라온다.<br />줄로 한 바퀴 감싸면 <b>양 우리</b>가 생기고,<br />우리에 든 악몽은 잠든다.</p>
-        <p>아침이 올 때까지 버티면 이긴다.</p>
-        <button class="btn" id="go">시작</button>
-        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
-      </div>
-    </div>
-    <div class="over" id="lvl">
-      <div class="box">
-        <h2 id="lvTitle">LV 2</h2>
-        <div class="cards" id="cards"></div>
-        <button class="btn ghost" id="reroll">다시 뽑기 (<span id="rr">2</span>)</button>
-      </div>
-    </div>
-    <div class="over" id="menu">
-      <div class="box">
-        <h2>잠깐 멈춤</h2>
-        <button class="btn" id="mResume">계속</button>
-        <button class="btn ghost" id="mSnd">소리 켬</button>
-        <button class="btn ghost" id="mQuit">그만두기 → 점수 남기기</button>
-        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
-      </div>
-    </div>
-    <div class="over" id="end">
-      <div class="box">
-        <h2 id="endTitle">아침이 왔다</h2>
-        <p id="endSub"></p>
-        <div class="res" id="res"></div>
-        <div id="entry">
-          <label class="field">이니셜 3글자(영문·숫자)<input id="ini" class="ini" maxlength="3" autocapitalize="characters" autocomplete="off" spellcheck="false" /></label>
-          <label class="field">한마디(20자)<input id="sayIn" maxlength="20" autocomplete="off" placeholder="예: 양이 최고야" /></label>
-          <button class="btn" id="enter">이름 남기기</button>
-        </div>
-        <div id="board" hidden></div>
-        <button class="btn ghost" id="again">다시</button>
-        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
-      </div>
-    </div>
-  </div>
-</LabLayout>
-
-<script>
-  import { initSheep } from "@/lab/survivors/sheep-game";
-  initSheep();
-</script>
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="refresh" content="0; url=/lab/dreamherd/" />
+    <link rel="canonical" href="/lab/dreamherd/" />
+    <title>코코의 꿈 양몰이로 옮겼어요</title>
+    <script is:inline>location.replace("/lab/dreamherd/" + location.hash);</script>
+  </head>
+  <body>
+    <p><a href="/lab/dreamherd/">코코의 꿈 양몰이로 옮겼어요 →</a></p>
+  </body>
+</html>

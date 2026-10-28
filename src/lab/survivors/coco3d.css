@@ -47,7 +47,7 @@ p { margin: 6px 0; font-size: 14px; line-height: 1.55; color: var(--ink2); }
 .card .ico { grid-row: span 2; width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(180deg, #fff4e3, #f6e3c4); display: grid; place-items: center; } /* 아이콘은 구운 PNG(lab-surv-coco-hd-art-icons.js) — 이모지는 기기마다 모양이 달랐다 */
 .card .ico img { display: block; width: 42px; height: 42px; }
 .card b { font-weight: 800; font-size: 15px; }
-.card small { grid-column: 2 / -1; color: var(--ink2); font-size: 12.5px; line-height: 1.4; }
+.card small { word-break: keep-all; grid-column: 2 / -1; color: var(--ink2); font-size: 12.5px; line-height: 1.4; }
 .card .lv { font-size: 12px; font-weight: 800; color: var(--teal2); }
 .cards.lock .card { pointer-events: none; } /* 뜬 직후 0.35 초: 엄지가 보이지도 않는(튀어 오르는 중) 카드를 고르지 않게 */
 .card.evo { box-shadow: 0 0 0 2px var(--gold2), 0 4px 12px rgba(224, 166, 64, .4); }

@@ -13,9 +13,9 @@ type Game = {
 };
 
 export const GAMES: Record<string, Game> = {
-  // 새벽 양치기: 버틴 초×10 + 처치 + 최장 양떼×25 + 우리×15 + (이기면 5000 + 남은 양×200). 규격 docs/lab-surv-spec.md 9절 S4
-  // 처치는 초당 12, 양떼는 80, 우리는 초당 1 을 넘기 어렵다고 보고 넉넉히 잡는다
-  sheep: { key: "surv:sheep:rank", maxSec: 605, maxScore: sec => Math.ceil(sec * (10 + 12 + 15) + 80 * 25 + 5000 + 80 * 200) },
+  // 코코의 꿈 양몰이(옛 새벽 양치기와 규칙·점수식이 같다): 버틴 초×10 + 처치 + 최장 양떼×25 + 우리×15 + (이기면 5000 + 남은 양×200).
+  // 처치는 초당 12, 양떼는 80, 우리는 초당 1 을 넘기 어렵다고 보고 넉넉히 잡는다. 옛 판 기록(surv:sheep:rank)과 섞이지 않게 새 키
+  dreamherd: { key: "surv:dreamherd:rank", maxSec: 605, maxScore: sec => Math.ceil(sec * (10 + 12 + 15) + 80 * 25 + 5000 + 80 * 200) },
   // 코코의 하루: 버틴 초×10 + 처치 + 가득 스키×30 + (이기면 5000 + 남은 체력×20). 규격 docs/lab-surv-coco-spec.md 6절 B4
   // 기운은 초당 40 이라 가득(100) 스키는 2.5초에 한 번 꼴 → 초당 30×0.4 = 12. 체력은 400 을 넘기 어렵다고 본다
   coco: { key: "surv:coco:rank", maxSec: 605, maxScore: sec => Math.ceil(sec * (10 + 12 + 12) + 5000 + 400 * 20) },

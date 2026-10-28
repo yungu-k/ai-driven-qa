@@ -1,0 +1,76 @@
+---
+// 실험실 오락실 — 코코의 꿈 양몰이(3D). 잠든 코코의 꿈속, 줄지어 따라오는 양떼로 악몽을 한 바퀴 감싸 재우고 동틀 때까지 버틴다.
+// 「새벽 양치기」(아이 판, 도트)를 Dean 10-28 결정으로 코코 소재 + 3D 로 바꾼 판. 규칙 수치는 같다.
+// 규격 docs/lab-surv-dreamherd-spec.md · 규칙 src/lab/survivors/core.ts + dreamherd.ts · 화면 dreamherd3d-game.ts(공통 shell3d.ts)
+import LabLayout from "@/lab/LabLayout.astro";
+import "@/lab/survivors/coco3d.css";
+---
+
+<LabLayout title="코코의 꿈 양몰이" description="꿈속 양떼로 악몽을 감싸 재우기" bare>
+  <div id="app">
+    <div id="wrap">
+      <canvas id="cv" style="position:absolute;inset:0;width:100%;height:100%;transform:none;left:0;top:0" aria-label="꿈속 들판. 화면 아무 데나 눌러 끌면 걷는다. 양떼가 줄지어 따라온다"></canvas>
+      <canvas id="ov" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas>
+      <div id="stick"><i></i></div>
+      <div id="hint"><span>끌어서 걷기 · 양 줄로 한 바퀴 감싸기</span></div>
+    </div>
+    <div id="hud">
+      <div class="pill"><span class="num" id="hpNum">100</span><div class="bar" id="hpBar"><i></i></div></div>
+      <div class="pill"><span class="num" id="clock">10:00</span><div class="bar" id="dawnBar"><i></i></div></div>
+      <div class="pill" title="양떼">양 <span class="num" id="sheepNum">4</span></div>
+      <div class="pill"><span class="num" id="lvNum">LV 1</span></div>
+      <button class="pill hbtn" id="menuBtn" aria-label="멈춤 메뉴" title="멈춤">II</button>
+      <div style="grid-column: 1 / -1; height: 5px; border-radius: 999px; background: rgba(255, 250, 242, .5); overflow: hidden"><div class="bar" id="xpBar" style="height: 5px; background: none"><i></i></div></div>
+    </div>
+    <div id="say"><span></span></div>
+
+    <div class="over on" id="start">
+      <div class="box">
+        <div class="kicker">잠든 코코의 꿈속</div>
+        <h1>코코의 꿈 양몰이</h1>
+        <p class="hi" id="hi" hidden></p>
+        <p>양떼가 코코를 줄지어 따라와요.<br />줄로 한 바퀴 감싸면 <b>양 우리</b>가 생기고,<br />우리에 든 악몽은 잠들어요.</p>
+        <p>동이 틀 때까지 양들을 지켜요.</p>
+        <button class="btn" id="go">꿈속으로</button>
+        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
+      </div>
+    </div>
+    <div class="over" id="lvl">
+      <div class="box">
+        <h2 id="lvTitle">LV 2</h2>
+        <div class="cards" id="cards"></div>
+        <button class="btn ghost" id="reroll">다시 뽑기 (<span id="rr">2</span>)</button>
+      </div>
+    </div>
+    <div class="over" id="menu">
+      <div class="box">
+        <h2>잠깐 쉬기</h2>
+        <button class="btn" id="mResume">계속</button>
+        <button class="btn ghost" id="mSnd" aria-pressed="true">소리 <span class="mstate">켬</span></button>
+        <button class="btn ghost" id="mReduce" aria-pressed="false">줄인 동작 <span class="mstate">끔</span></button>
+        <button class="btn ghost" id="mQuit">그만두기 → 점수 남기기</button>
+        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
+      </div>
+    </div>
+    <div class="over" id="end">
+      <div class="box">
+        <h2 id="endTitle">아침이 왔다</h2>
+        <p id="endSub"></p>
+        <div class="res" id="res"></div>
+        <div id="entry">
+          <label class="field">이니셜 3글자(영문·숫자)<input id="ini" class="ini" maxlength="3" autocapitalize="characters" autocomplete="off" spellcheck="false" /></label>
+          <label class="field">한마디(20자)<input id="sayIn" maxlength="20" autocomplete="off" placeholder="예: 양이 최고야" /></label>
+          <button class="btn" id="enter">이름 남기기</button>
+        </div>
+        <div id="board" hidden></div>
+        <button class="btn ghost" id="again">한 번 더</button>
+        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
+      </div>
+    </div>
+  </div>
+</LabLayout>
+
+<script>
+  import { initDreamherd3d } from "@/lab/survivors/dreamherd3d-game";
+  initDreamherd3d();
+</script>

@@ -12,8 +12,8 @@ const reason = (game: string, b: unknown) => {
 };
 
 test("정상 점수는 받는다, 모르는 게임은 거른다", () => {
-  assert.equal(reason("sheep", ok), "ok");
-  assert.equal(reason("sheep", { ...ok, score: 0, sec: 0, say: "" }), "ok");
+  assert.equal(reason("dreamherd", ok), "ok");
+  assert.equal(reason("dreamherd", { ...ok, score: 0, sec: 0, say: "" }), "ok");
   assert.equal(reason("coco", ok), "ok");
   assert.equal(reason("goblin", ok), "ok");
   assert.equal(reason("nope", ok), "game");
@@ -21,17 +21,17 @@ test("정상 점수는 받는다, 모르는 게임은 거른다", () => {
 });
 
 test("이니셜·한마디는 공통 규칙으로 거른다", () => {
-  assert.equal(reason("sheep", { ...ok, name: "qa" }), "name");
-  assert.equal(reason("sheep", { ...ok, say: "www.spam" }), "say-link");
+  assert.equal(reason("dreamherd", { ...ok, name: "qa" }), "name");
+  assert.equal(reason("dreamherd", { ...ok, say: "www.spam" }), "say-link");
 });
 
 test("점수·시간: 정수·범위, 버틴 시간에 비해 너무 높으면 거른다", () => {
-  assert.equal(reason("sheep", { ...ok, score: 1.5 }), "score");
-  assert.equal(reason("sheep", { ...ok, sec: GAMES.sheep.maxSec + 1 }), "sec");
-  assert.equal(reason("sheep", { ...ok, score: GAMES.sheep.maxScore(ok.sec) }), "ok");
-  assert.equal(reason("sheep", { ...ok, score: GAMES.sheep.maxScore(ok.sec) + 1 }), "too-high");
+  assert.equal(reason("dreamherd", { ...ok, score: 1.5 }), "score");
+  assert.equal(reason("dreamherd", { ...ok, sec: GAMES.dreamherd.maxSec + 1 }), "sec");
+  assert.equal(reason("dreamherd", { ...ok, score: GAMES.dreamherd.maxScore(ok.sec) }), "ok");
+  assert.equal(reason("dreamherd", { ...ok, score: GAMES.dreamherd.maxScore(ok.sec) + 1 }), "too-high");
   // 아침까지 버티고 이긴 판(600초, 이김 5000 + 양 30마리)은 상한 안
-  assert.equal(reason("sheep", { ...ok, sec: 600, score: 600 * 10 + 2000 + 40 * 25 + 200 * 15 + 5000 + 30 * 200 }), "ok");
+  assert.equal(reason("dreamherd", { ...ok, sec: 600, score: 600 * 10 + 2000 + 40 * 25 + 200 * 15 + 5000 + 30 * 200 }), "ok");
 });
 
 test("코코: 저녁밥까지 버틴 판은 상한 안, 짧은 판의 큰 점수는 거른다", () => {
@@ -43,5 +43,5 @@ test("정렬: 점수가 먼저, 같으면 먼저 온 사람", () => {
   const t = 1_800_000_000_000;
   assert.ok(orderScore(5000, t + 9000) > orderScore(4999, t));
   assert.ok(orderScore(5000, t) > orderScore(5000, t + 1000));
-  assert.ok(Number.isSafeInteger(orderScore(GAMES.sheep.maxScore(GAMES.sheep.maxSec), t)));
+  assert.ok(Number.isSafeInteger(orderScore(GAMES.dreamherd.maxScore(GAMES.dreamherd.maxSec), t)));
 });
