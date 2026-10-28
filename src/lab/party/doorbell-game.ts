@@ -56,8 +56,8 @@ export function initDoorbell() {
         S.closeHand(); S.botDone(); turnTok++; $("db-task").style.pointerEvents = "";
         const p = S.players[rang!.rang];
         S.setScore(rang!.rang, g.losses[rang!.rang]); S.sfx("bad"); S.buzz([120, 60, 120, 60, 200]);
-        $("db-bell").classList.add("rang");
-        $("db-bell").innerHTML = `<g transform="translate(-22 0)">${bell(p.c)}</g><g transform="translate(36 22) scale(.75)">${coco(true)}</g>`;
+        $("db-bell").classList.add("rang"); $("db-bell").setAttribute("viewBox", "-86 -76 154 154"); // 울림 땐 흔들림·코코까지 담게 넓힌다(-60..60 이면 왼쪽이 잘렸다)
+        $("db-bell").innerHTML = `<g transform="translate(-16 0)">${bell(p.c)}</g><g transform="translate(40 22) scale(.75)">${coco(true)}</g>`;
         $("db-who").innerHTML = `띵동! 멍멍!<br>${p.name} 문 열기 당번`;
         $("db-task").innerHTML = g.state === "over" ? `<button class="pt-btn db-big" id="db-next">결과 보기</button>` : `<button class="pt-btn db-big" id="db-next">다음 판</button>`;
         $("db-msg").textContent = `${g.round} / ${g.rounds} 판 · 넘김 ${g.passes}번`;
@@ -66,7 +66,7 @@ export function initDoorbell() {
       function drawTask() {
         const T = g.task!, p = S.players[g.holder];
         $("db-round").textContent = `${g.round} / ${g.rounds} 판`;
-        $("db-bell").classList.remove("rang"); $("db-bell").innerHTML = bell(p.c);
+        $("db-bell").classList.remove("rang"); $("db-bell").setAttribute("viewBox", "-60 -60 120 120"); $("db-bell").innerHTML = bell(p.c);
         $("db-who").textContent = `${p.name} 손에 초인종!`;
         $("db-msg").textContent = "";
         const box = $("db-task");

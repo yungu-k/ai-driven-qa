@@ -140,7 +140,7 @@ export function initDots() {
           onMove = (r) => {
             if (!S.isBot(who)) {
               S.coachDone("draw"); S.coachDone("again");
-              if (r.again) S.coach("again", $("dt-board"), null, { below: true });
+              if (r.again) S.coach("again", $("dt-toast"), null, { below: true }); // 알림 줄 아래에(판에 붙이면 알림 줄을 가렸다 — design 10-28)
             }
             if (!r.again) { onMove = null; allow = false; $("dt-board").classList.add("dt-lock"); done(); } // 차례 끝: 바로 잠근다(넘기기 전 0.38초 동안 눌린 손은 버려진다 — 리그가 「안 잠겼는데 안 받음」 으로 잡았다)
           };

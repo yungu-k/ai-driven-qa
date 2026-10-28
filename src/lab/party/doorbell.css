@@ -5,7 +5,7 @@
 .db-bell { width: clamp(130px, 24dvh, 220px); height: clamp(130px, 24dvh, 220px); }
 @keyframes db-wob { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
 .db-bell .b { transform-box: fill-box; transform-origin: 50% 10%; animation: db-wob .5s ease-in-out infinite; }
-@keyframes db-ring { 0%, 100% { transform: rotate(-22deg) scale(1.08); } 50% { transform: rotate(22deg) scale(1.08); } }
+@keyframes db-ring { 0%, 100% { transform: rotate(-14deg) scale(1.08); } 50% { transform: rotate(14deg) scale(1.08); } }
 .db-bell.rang .b { animation: db-ring .12s linear infinite; }
 body.reduce .db-bell .b { animation: none; }
 .db-task { width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
