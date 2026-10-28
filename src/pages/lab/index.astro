@@ -30,7 +30,14 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
               <img src={g.keyart} width="960" height="600" alt="" decoding="async" loading={g.lazy ? "lazy" : undefined} />
             ) : (
               <div class="lab-ph" aria-hidden="true">
-                <b>{g.initial}</b>
+                <svg class="lab-ph-cone" viewBox="0 0 64 64">
+                  <path d="M26 8h12l14 44H12Z" fill="#ff9a4d" />
+                  <path d="M23.5 20h17l2.6 8H20.9ZM19 34h26l2.6 8H16.4Z" fill="#fffaf2" />
+                  <rect x="6" y="50" width="52" height="7" rx="3.5" fill="#e0763a" />
+                </svg>
+                <b>{g.wip}</b>
+                <small>그림 공사 중</small>
+                <i class="lab-ph-tape"></i>
               </div>
             )}
             {g.soon && <span class="lab-badge">준비 중</span>}
@@ -274,13 +281,41 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
       radial-gradient(120% 90% at 78% 100%, var(--ph-2) 0, rgba(255, 255, 255, 0) 70%),
       linear-gradient(160deg, #fffaf2 0, var(--ph-1) 100%);
   }
+  .lab-ph {
+    align-content: center;
+    gap: 6px;
+    text-align: center;
+  }
+  .lab-ph-cone {
+    width: 64px;
+    height: 64px;
+    justify-self: center;
+  }
   .lab-ph b {
-    font-size: 72px;
-    line-height: 1;
+    font-size: 22px;
+    line-height: 1.2;
     font-weight: 900;
     color: var(--ph-ink);
-    letter-spacing: -0.04em;
-    opacity: 0.9;
+    word-break: keep-all;
+  }
+  .lab-ph small {
+    justify-self: center;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--lab-card);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--lab-ink-2);
+  }
+  /* 아래 띠: 공사장 줄무늬 */
+  .lab-ph-tape {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 14px;
+    background: repeating-linear-gradient(-45deg, #3a2228 0 10px, #ffd36b 10px 20px);
+    opacity: 0.85;
   }
   .lab-badge {
     position: absolute;
