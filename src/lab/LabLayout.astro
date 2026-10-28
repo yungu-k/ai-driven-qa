@@ -36,7 +36,7 @@ const firstPaint = !bare
     : `html,body{background:#0a0a14 !important;color-scheme:dark}`;
 ---
 
-<Layout title={`${title} | 실험실`} description={description}>
+<Layout title={isIndex ? title : `${title} | 실험실`} description={description}>
   <meta slot="head" name="robots" content="noindex, nofollow" />
   <style slot="head" is:inline set:html={firstPaint} />
   {isIndex && <BootScreen />}
