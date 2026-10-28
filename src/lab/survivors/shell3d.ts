@@ -47,6 +47,7 @@ export type Shell3D = {
   rings?: Record<string, [number, number, number]>; // 바닥 고리 종류 더하기·덮기 [색, 불투명, 안쪽 반경] — 기본 6종(bark·wave·zone·warn·aura·trail) 뒤에 붙는다
   parts?: Record<string, string>; // 입자 색 더하기·덮기(겹 캔버스) — 기본 6종 위에
   hemiGround?: number; // 반구광 땅 색(기본 잔디색 0x47a35a — 밤 장터처럼 바닥이 초록으로 물들면 덮는다)
+  onFastForward?(g: any): void; // 빨리 감기(#t=, 장면 보기용) 한 걸음마다 — 주인공 체력은 껍데기가 채우고, 그 밖에 안 무너지게 할 것(포장마차 가게 체력). 안 주면 이전과 같음
   build(st: Stage): Scene3D;
   cardText(c: any, D: any): CardText;
   onEvent?(ev: any, g: any, fx: { say(t: string): void; juice: Juice; sfx: typeof sfx }): void;
@@ -286,6 +287,7 @@ export function runSurvivor3D(S: Shell3D) {
       if (g.p.x < E) x += 0.6; if (g.p.x > g.world - E) x -= 0.6; if (g.p.y < E) y += 0.6; if (g.p.y > g.world - E) y -= 0.6;
       g.input = { x, y };
       g.p.hp = g.p.maxHp;
+      S.onFastForward?.(g);
       Cx.step(g); g.events.length = 0;
     }
   }

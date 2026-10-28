@@ -22,6 +22,9 @@ export const GAMES: Record<string, Game> = {
   // 도깨비 퇴치: 버틴 초×10 + 처치 + 체 털기×5 + 한 번에 가장 많이×30 + (이기면 5000 + 남은 체력×20). 규격 docs/lab-surv-goblin-spec.md 6절 A5
   // 털기는 초당 1 번을 넘기 어렵고, 한 번에 앉는 수는 체 셋 × 12 를 넘지 않는다고 넉넉히 본다
   goblin: { key: "surv:goblin:rank", maxSec: 605, maxScore: sec => Math.ceil(sec * (10 + 12 + 5) + 40 * 30 + 5000 + 400 * 20) },
+  // 포장마차 사수: 버틴 초×10 + 처치 + 다 먹고 간 손님×40 + (이기면 5000 + 남은 체력×10 + 가게 체력×20). 규격 docs/lab-surv-pocha-spec.md · 점수식 docs/lab-surv-pocha.js score
+  // 손님은 가장 잦을 때도 3초에 한 명 와서(규칙 GUEST.every 의 끝값) 다 먹고 간 수는 버틴 초/3 + 2 를 넘지 못한다. 가게 체력은 400 이 끝(고쳐도 최대를 안 넘는다)
+  pocha: { key: "surv:pocha:rank", maxSec: 605, maxScore: sec => Math.ceil(sec * (10 + 12) + 40 * (sec / 3 + 2) + 5000 + 400 * 10 + 400 * 20) },
 };
 
 export type ScoreCheck = { ok: true; entry: ScoreEntry } | { ok: false; reason: string };
