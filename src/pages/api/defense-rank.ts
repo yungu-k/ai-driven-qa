@@ -1,5 +1,5 @@
 // 릴리스 디펜스 랭킹 서버(블로그에서 유일하게 서버에서 도는 길). 저장소는 Upstash Redis(REST, 무료 범위).
-//  GET    → 상위 10 { rows }
+//  GET    → 상위 10 { ok: true, rows } · 실패면 { ok: false, error, rows: [] }(브라우저 화면만으로 성공·실패를 가를 수 있게)
 //  POST   {name, lap, say, simSec} → 거르고 넣은 뒤 새 상위 10. 같은 기기(IP 해시) 30초에 한 번
 //  DELETE ?id=…  (Authorization: Bearer ADMIN_TOKEN) → 한 줄 지우기(Dean 몫)
 // IP 는 저장하지 않는다: 솔트 넣은 해시를 30초짜리 키 이름으로만 쓰고 저절로 사라진다.
@@ -51,11 +51,11 @@ async function ipKey(req: Request) {
 const ready = () => !!REDIS_URL() && !!REDIS_TOKEN();
 
 export const GET: APIRoute = async () => {
-  if (!ready()) return json({ rows: [] }, 503);
+  if (!ready()) return json({ ok: false, error: "not-ready", rows: [] }, 503);
   try {
-    return json({ rows: await top() }, 200, { "cache-control": "public, s-maxage=30, stale-while-revalidate=300" });
+    return json({ ok: true, rows: await top() }, 200, { "cache-control": "public, s-maxage=30, stale-while-revalidate=300" });
   } catch {
-    return json({ rows: [] }, 502);
+    return json({ ok: false, error: "store", rows: [] }, 502);
   }
 };
 
