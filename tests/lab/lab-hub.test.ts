@@ -14,11 +14,13 @@ test("부팅 카드의 게임 수 = 허브 목록에서 준비 중을 뺀 수", 
   assert.match(bootCardHtml(), new RegExp(`게임 ${PLAYABLE.length}개를 꺼내는 중`));
 });
 
-test("게임 이름(slug)이 겹치지 않고, 놀 수 있는 게임엔 만든 방법·확인한 것이 있다", () => {
+test("게임 이름(slug)이 겹치지 않고, 놀 수 있는 게임엔 소개·조작 한 줄이 있고 자리표시 글자가 없다", () => {
   assert.equal(new Set(GAMES.map(g => g.slug)).size, GAMES.length);
+  assert.ok(PLAYABLE.length > 0);
   for (const g of PLAYABLE) {
-    assert.ok(g.made && g.made.length > 20, `${g.slug} made`);
-    assert.ok(g.tested && g.tested.length > 20 && !/PLACEHOLDER|TODO/i.test(g.tested), `${g.slug} tested: ${g.tested}`);
+    assert.ok(g.blurb.length > 20, `${g.slug} blurb`);
+    assert.ok(g.guide && g.guide.length > 10, `${g.slug} guide`);
+    for (const t of [g.title, g.blurb, g.guide]) assert.ok(!/PLACEHOLDER|TODO/i.test(t), `${g.slug}: ${t}`); // 8763a2e 에서 자리표시 문구가 운영에 나갔다
   }
 });
 

@@ -1,6 +1,6 @@
 ---
 // 실험실 첫 화면(허브) — 「게임 모음 앱의 첫 화면」. 규격 docs/lab-hub-spec.md · 시안 docs/lab-hub-mock.html
-// 목록은 src/lab/hub-games.ts. 카드 = 키 아트 썸네일 + 제목·시작 + 한 줄 + 모두의 랭킹 1위 + 「어떻게 만들었나」.
+// 목록은 src/lab/hub-games.ts. 카드 = 키 아트 썸네일 + 제목·시작 + 한 줄 소개 + 조작 한 줄 + 모두의 랭킹 1위(10-28 Dean: 「어떻게 만들었나」는 뺌).
 // 키 아트(public/lab/keyart/<slug>.webp)는 빌드가 파일 있는지 보고 <img> 를 넣는다 — 없는 파일을 요청해 404 를 내지 않는다.
 import fs from "node:fs";
 import path from "node:path";
@@ -61,6 +61,7 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
                   </span>
                 </div>
                 <p class="lab-blurb">{g.blurb}</p>
+                {g.guide && <p class="lab-guide"><span class="lab-guide-tag">조작</span>{g.guide}</p>}
                 {(g.rank || g.lapRank) && (
                   <span class="lab-rank" data-rank-hi={g.rank} data-lap-hi={g.lapRank ? "" : undefined} hidden>
                     <span class="lab-medal" aria-hidden="true">1</span>
@@ -71,14 +72,6 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
                 )}
               </div>
             </a>
-            <details class="lab-notes">
-              <summary>
-                어떻게 만들었나
-                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7.5 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              </summary>
-              <p><b>만든 방법</b>{g.made}</p>
-              <p><b>확인한 것</b>{g.tested}</p>
-            </details>
           </li>
         );
       })
@@ -398,42 +391,22 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
     filter: saturate(0.75);
   }
 
-  /* 「어떻게 만들었나」 접기 */
-  .lab-notes {
-    margin: 0 16px 8px;
-    border-top: 1px solid var(--lab-line);
-  }
-  .lab-notes summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 44px;
-    list-style: none;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--lab-teal-ink);
-    border-radius: 10px;
-  }
-  .lab-notes summary::-webkit-details-marker {
-    display: none;
-  }
-  .lab-notes summary svg {
-    width: 18px;
-    height: 18px;
-    transition: transform 0.2s var(--lab-pop);
-  }
-  .lab-notes[open] summary svg {
-    transform: rotate(180deg);
-  }
-  .lab-notes p {
-    margin: 0 0 10px;
-    font-size: 14px;
+  /* 조작 한 줄 */
+  .lab-guide {
+    margin: 2px 0 0;
+    font-size: 13px;
     color: var(--lab-ink-2);
+    word-break: keep-all;
   }
-  .lab-notes p b {
-    color: var(--lab-ink);
-    margin-right: 4px;
+  .lab-guide-tag {
+    display: inline-block;
+    margin-right: 6px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--lab-thumb);
+    color: var(--lab-teal-ink);
+    font-size: 12px;
+    font-weight: 700;
   }
 
   .lab-foot {
