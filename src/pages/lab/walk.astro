@@ -1,0 +1,18 @@
+---
+// 내기 모음 9 — 코코 산책 보드(폰 하나 돌려 가며 2–4명, 봇과 혼자 연습도). 공원 둘레길 40칸 주사위 말판, 칸마다 코코 사건.
+// 규격 docs/lab-party-walk-spec.md(게임) · docs/lab-party-spec.md(공통 틀) · 시안 docs/lab-party-walk-mock.html
+// 엔진 src/lab/party/walk.ts · 화면 walk-game.ts + walk.css · 틀 shell.ts + shell.css. 옮기는 법 docs/lab-party-port-recipe.md
+// bare: 틀이 제 위 막대(돌아가기·제목·?·소리)를 그린다. paint 는 틀 바탕 하늘 맨 위 색(shell.css body 그라데이션 첫 정지점).
+import LabLayout from "@/lab/LabLayout.astro";
+import "@/lab/party/shell.css";
+import "@/lab/party/walk.css";
+---
+
+<LabLayout title="코코 산책 보드" description="폰 하나 돌려 가며 2–4명 — 주사위만큼 공원 둘레길을 걷고 칸마다 코코 사건, 별 하나로 한 칸 덜·더 가서 설 칸을 골라요" bare paint="#bfe6ff">
+  <div id="pt-app"><div id="pt-game"></div></div>
+</LabLayout>
+
+<script>
+  import { initWalk } from "@/lab/party/walk-game";
+  initWalk();
+</script>

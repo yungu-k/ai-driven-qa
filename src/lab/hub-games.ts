@@ -175,6 +175,16 @@ export const GAMES: HubGame[] = [
     group: "party",
     players: "2–4명",
   },
+  {
+    slug: "walk",
+    title: "코코 산책 보드",
+    blurb: "주사위만큼 공원 둘레길을 걷고, 선 칸마다 코코 사건 — 초인종·고기·목욕·간식·친구 강아지·공·소나기·단체 사진! 별 하나로 한 칸 덜·더 가서 설 칸을 골라요. 집에 먼저 오면 1등.",
+    guide: "주사위만큼 걷고 칸마다 코코 사건 — 별 하나로 한 칸 덜·더",
+    wip: "산책 줄 매는 중",
+    ph: ["#e3f5d8", "#cdeec0", "#8e4526"],
+    group: "party",
+    players: "2–4명",
+  },
 ];
 
 export const PLAYABLE = GAMES.filter(g => !g.soon);

@@ -1,0 +1,43 @@
+/* 내기 모음 9 「코코 산책 보드」 화면 겉모양 — 시안 docs/lab-party-walk-mock.html(51942bab) 의 <style> 그대로. 틀 겉모양은 ./shell.css */
+.wk { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 8px; padding-bottom: 14px; }
+/* 놀이판: 둘레길 10×12 칸(viewBox 330×396). 휴대폰은 폭, 넓은 화면은 높이로 묶여 커진다(틀 zoom 을 나눠 dvh 를 되돌린다) */
+.wk-stage { position: relative; width: min(100%, 440px, calc((100dvh / var(--pt-z, 1) - 236px) / 1.2)); aspect-ratio: 330 / 396; }
+.wk-stage > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* 판 가운데(둘레길 안쪽 8×10 칸): 산책 진행 · 주사위 · 알림 · 단추 */
+.wk-mid { position: absolute; left: 11%; right: 11%; top: 9.5%; bottom: 9.5%; display: flex; flex-direction: column; justify-content: space-evenly; align-items: stretch; gap: 4px; }
+.wk-rows { display: flex; flex-direction: column; gap: 3px; }
+.wk-row { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; color: var(--lab-ink); min-height: 20px; padding: 0 4px; border-radius: 8px; }
+.wk-row.now { background: #fff; box-shadow: 0 0 0 2px var(--c) inset; }
+.wk-row .pt-mark { width: 14px; height: 14px; }
+.wk-row .nm { width: 3.6em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wk-bar { flex: 1; height: 8px; border-radius: 4px; background: #f6e3c4; position: relative; overflow: hidden; }
+.wk-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--c); border-radius: 4px; transition: width .3s; }
+.wk-bar u { position: absolute; top: 0; bottom: 0; width: 2px; background: #fffaf2; } /* 바퀴 경계 */
+.wk-row .lf { width: 2.4em; text-align: right; font-variant-numeric: tabular-nums; }
+.wk-row .st { width: 2.2em; color: #b07a1c; font-variant-numeric: tabular-nums; }
+.wk-mid-c { display: flex; align-items: center; gap: 8px; min-height: 60px; }
+.wk-die { width: 56px; height: 56px; flex: none; }
+.wk-die .d { transform-box: fill-box; transform-origin: center; }
+@keyframes wk-tumble { 0% { transform: rotate(0) scale(.7); } 60% { transform: rotate(300deg) scale(1.1); } 100% { transform: rotate(360deg) scale(1); } }
+.wk-die .d.roll { animation: wk-tumble .5s ease-out; }
+.wk-toast { flex: 1; font-size: 14px; font-weight: 800; color: var(--lab-title); line-height: 1.35; word-break: keep-all; display: flex; align-items: center; gap: 6px; }
+.wk-toast svg { width: 34px; height: 34px; flex: none; }
+.wk-acts { display: flex; gap: 6px; min-height: 56px; }
+.wk-acts .pt-btn { flex: 1; min-height: 56px; padding: 0 6px; font-size: 18px; }
+.wk-opt { flex: 1; min-height: 56px; min-width: 0; border: 0; border-radius: 14px; background: #fff; box-shadow: 0 0 0 3px var(--lab-line) inset, 0 3px 8px var(--lab-shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-weight: 800; font-size: 13px; color: var(--lab-ink); cursor: pointer; padding: 4px 2px; }
+.wk-opt svg { width: 26px; height: 26px; }
+.wk-opt.mid { box-shadow: 0 0 0 3px var(--c) inset, 0 3px 8px var(--lab-shadow); }
+.wk-opt small { font-size: 11px; color: var(--lab-ink-2); }
+.wk-acts.off { pointer-events: none; }
+.wk-note { font-size: 13px; font-weight: 700; color: var(--lab-ink-2); text-align: center; }
+/* 말: 바깥 g 는 CSS transform 하나로만 자리(걸음마다 미끄럼), 안쪽 g 는 깡충 — 한 g 에 transform 속성과 CSS 를 같이 두면 CSS 가 자리를 지운다 */
+.wk-pawn { transition: transform .17s ease-out; }
+.wk-pawn.glide { transition: transform .5s ease-in-out; }
+.wk-pawn .h { transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes wk-hop { 40% { transform: translateY(-5px) scale(1.08); } }
+.wk-pawn .h.hop { animation: wk-hop .17s ease-out; }
+.wk-hl { fill: none; stroke-width: 3.5; stroke-dasharray: 5 3; }
+@keyframes wk-blink { 50% { opacity: .35; } }
+.wk-hl { animation: wk-blink .8s ease-in-out infinite; }
+body.reduce .wk-pawn, body.reduce .wk-bar i { transition: none; }
+body.reduce .wk-pawn .h.hop, body.reduce .wk-die .d.roll, body.reduce .wk-hl { animation: none; }
