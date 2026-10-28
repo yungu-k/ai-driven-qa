@@ -11,6 +11,8 @@ import LinkButton from "./LinkButton.astro";
 import { stripBase, stripLocale } from "@/utils/withBase";
 import { useTranslations } from "@/i18n";
 import config from "@/config";
+// 와장창 뒷면(하늘 + 부팅 카드)의 토큰·카드 모양 — 실험실 BootScreen 과 같은 파일(규격 docs/lab-hub-spec.md 5절)
+import "@/lab/lab-tokens.css";
 
 const { site, features } = config;
 
@@ -254,7 +256,7 @@ const isActive = (path: string) => {
       color: var(--accent);
     }
   }
-  /* ── 와장창(B3): 금·파편 무대·검은 뒷면·줄인 동작 덮개. 모두 lab-shatter.ts 가 body 에 붙인다 ── */
+  /* ── 와장창(B3): 금·파편 무대·하늘 뒷면·줄인 동작 덮개. 모두 lab-shatter.ts 가 body 에 붙인다 ── */
   .lab-crack {
     position: fixed;
     inset: 0;
@@ -321,29 +323,16 @@ const isActive = (path: string) => {
     contain: strict;
     will-change: transform;
   }
-  .lab-behind,
+  /* 뒷면: 실험실 하늘 + 부팅 카드(배치·하늘·카드 모양은 src/lab/lab-tokens.css). 조각 무대보다 아래 */
+  .lab-behind {
+    z-index: 2147482998;
+  }
+  /* 줄인 동작 덮개: 실험실 하늘 맨 위 색(--lab-sky-1) — /lab/ 첫 페인트와 같은 색 */
   .lab-veil {
     position: fixed;
     inset: 0;
-    z-index: 2147482998;
-    background: #05060a;
-  }
-  .lab-veil {
     z-index: 2147483000;
-  }
-  /* 부팅 글자 — src/lab/BootScreen.astro 의 .lab-boot 와 같은 글꼴·크기·여백(B4 match cut) */
-  .lab-boot-lines {
-    padding: 24px 16px;
-    color: #5dff8a;
-    font-family: LabPixelMono, LabPixel, monospace;
-    font-size: 12px;
-    line-height: 20px;
-    letter-spacing: 0;
-    -webkit-font-smoothing: none;
-  }
-  .lab-boot-lines p {
-    margin: 0;
-    white-space: pre;
+    background: var(--lab-sky-1);
   }
   @media (prefers-reduced-motion: reduce) {
     #site-logo.egg-charging {

@@ -1,151 +1,125 @@
 ---
+// 실험실 첫 화면(허브) — 「게임 모음 앱의 첫 화면」. 규격 docs/lab-hub-spec.md · 시안 docs/lab-hub-mock.html
+// 목록은 src/lab/hub-games.ts. 카드 = 키 아트 썸네일 + 제목·시작 + 한 줄 + 모두의 랭킹 1위 + 「어떻게 만들었나」.
+// 키 아트(public/lab/keyart/<slug>.webp)는 빌드가 파일 있는지 보고 <img> 를 넣는다 — 없는 파일을 요청해 404 를 내지 않는다.
+import fs from "node:fs";
+import path from "node:path";
 import LabLayout from "@/lab/LabLayout.astro";
+import { GAMES, PLAYABLE, SOON } from "@/lab/hub-games";
 
-// 게임 목록 = 오락기 캐비닛. 다 만든 것만 싣는다 — 반쯤 만든 게임이 걸려 있으면 방치된 방처럼 보인다.
-// 아이콘은 16×16 격자 픽셀(<rect> 만, crispEdges) — 규격 A4
-const px = (rects: string) =>
-  `<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
-
-const GAMES = [
-  {
-    slug: "dreamherd",
-    row: "play",
-    title: "코코의 꿈 양몰이",
-    blurb: "잠든 코코의 꿈속, 줄지어 따라오는 양떼로 악몽을 한 바퀴 감싸 재워요. 동이 틀 때까지 버티면 이겨요.",
-    icon: px(
-      `<rect x="4" y="5" width="8" height="6" fill="#eef1f8"/><rect x="3" y="6" width="1" height="4" fill="#eef1f8"/><rect x="12" y="6" width="1" height="4" fill="#eef1f8"/><rect x="11" y="6" width="3" height="3" fill="#b8643a"/><rect x="12" y="7" width="1" height="1" fill="#24161d"/><rect x="5" y="11" width="1" height="2" fill="#463d6b"/><rect x="10" y="11" width="1" height="2" fill="#463d6b"/><rect x="2" y="2" width="1" height="1" fill="#ffd86b"/><rect x="13" y="1" width="1" height="1" fill="#c9a4ff"/>`
-    ),
-    made: "처음엔 아이가 양떼를 모는 「새벽 양치기」였는데, 주인공을 코코로 바꾸고 로우폴리 3D 로 다시 그렸습니다. 규칙과 수치는 그대로이고, 적은 코코가 실제로 싫어하는 천둥·폭죽·목욕·다른 강아지를 꿈속 모습으로 바꿨습니다.",
-    tested: "옛 판과 같은 씨앗으로 나란히 돌려 상태를 5만 번 넘게 맞대 봤고(어긋남 0), 레벨업 카드·양 우리·보스·점수 등 규칙 24가지를 시험합니다.",
-    rank: "dreamherd",
-  },
-  {
-    slug: "coco",
-    row: "play",
-    title: "코코의 하루",
-    blurb: "갈색 푸들 코코가 공원에서 칫솔·목욕 거품·청소기를 물리쳐요. 손을 떼면 앉아 기운을 모으고, 움직이면 똥꼬 스키!",
-    icon: px(
-      `<rect x="4" y="2" width="6" height="4" fill="#b8643a"/><rect x="3" y="4" width="2" height="5" fill="#d9925a"/><rect x="9" y="4" width="2" height="5" fill="#d9925a"/><rect x="5" y="5" width="4" height="4" fill="#c97845"/><rect x="5" y="6" width="1" height="1" fill="#07060f"/><rect x="8" y="6" width="1" height="1" fill="#07060f"/><rect x="6" y="8" width="2" height="1" fill="#07060f"/><rect x="4" y="9" width="8" height="4" fill="#b8643a"/><rect x="11" y="8" width="2" height="2" fill="#c97845"/><rect x="4" y="13" width="2" height="2" fill="#9a4f2c"/><rect x="10" y="13" width="2" height="2" fill="#9a4f2c"/><rect x="5" y="10" width="5" height="1" fill="#6ee6ff"/>`
-    ),
-    made: "주인공은 이 블로그 주인 집 강아지, 갈색 푸들 코코입니다. 뱅글뱅글 돌기·간식 앞에서 앉기·똥꼬 스키 같은 진짜 습관이 스킬이 됐고, 양치·목욕·초인종·청소기처럼 코코가 싫어하는 것들이 적이 됐습니다. 그림은 사진의 생김새만 참고했고, 도트·매끈한 벡터·로우폴리 3D 세 가지 시안을 견줘 3D 로 골랐습니다.",
-    tested: "옮긴 엔진을 시안 엔진과 같은 씨앗으로 나란히 돌려 상태를 5만 번 넘게 맞대 봤고(어긋남 0), 기운이 차는 속도·똥꼬 스키 문턱(34)·초인종 거리·청소기 끌림·점수 등 규칙 17가지를 시험합니다.",
-    rank: "coco",
-  },
-  {
-    slug: "coco-td",
-    row: "play",
-    title: "코코 타워 디펜스",
-    blurb: "저녁밥 그릇을 노리는 칫솔·목욕 거품·청소기 떼. 코코의 장난감과 습관으로 길목을 지켜요. 하루를 버틸 때마다 더 세져요.",
-    icon: px(
-      `<rect x="3" y="10" width="10" height="4" fill="#e0a640"/><rect x="4" y="9" width="8" height="1" fill="#ffd36b"/><rect x="5" y="8" width="6" height="1" fill="#b8643a"/><rect x="1" y="2" width="2" height="5" fill="#2fb5a8"/><rect x="1" y="1" width="2" height="1" fill="#7fe0d4"/><rect x="13" y="3" width="2" height="2" fill="#f07a8a"/><rect x="12" y="5" width="3" height="1" fill="#d9546a"/><rect x="6" y="3" width="4" height="3" fill="#b8643a"/><rect x="7" y="4" width="1" height="1" fill="#24161d"/><rect x="9" y="4" width="1" height="1" fill="#24161d"/>`
-    ),
-    made: "QA 소재였던 「릴리스 디펜스」의 뼈대와 수치를 그대로 두고, 타워·몬스터·맵·아이템을 코코 이야기로 바꿨습니다. 화면 글자만 바꿨다는 것을 옛 엔진과 같은 씨앗으로 나란히 돌려 확인했고, 그림은 코코의 하루와 같은 로우폴리 3D 입니다.",
-    tested: "TESTED_PLACEHOLDER_TD",
-    lapRank: true,
-  },
-  {
-    slug: "dokkaebi",
-    row: "play",
-    title: "도깨비 퇴치",
-    blurb: "밤 장터에 몰려드는 도깨비들. 지나간 자리에 놓인 체에 도깨비가 앉아 구멍을 세면, 돌아가 밟아서 체 털기!",
-    icon: px(
-      `<rect x="5" y="1" width="1" height="2" fill="#ffd86b"/><rect x="10" y="1" width="1" height="2" fill="#ffd86b"/><rect x="4" y="3" width="8" height="7" fill="#d8324a"/><rect x="5" y="5" width="2" height="2" fill="#fff2b8"/><rect x="9" y="5" width="2" height="2" fill="#fff2b8"/><rect x="6" y="6" width="1" height="1" fill="#07060f"/><rect x="10" y="6" width="1" height="1" fill="#07060f"/><rect x="6" y="8" width="4" height="1" fill="#fff2b8"/><rect x="2" y="11" width="12" height="4" fill="#a8492a"/><rect x="3" y="12" width="10" height="2" fill="#6e2f1c"/><rect x="4" y="12" width="1" height="1" fill="#e0743a"/><rect x="7" y="12" width="1" height="1" fill="#e0743a"/><rect x="10" y="12" width="1" height="1" fill="#e0743a"/>`
-    ),
-    made: "야광귀가 체 구멍을 세느라 밤을 새운다는 옛 민속에서 장치를 가져왔습니다. 꼬마가 지나간 자리에 체가 놓이고, 도깨비가 그 둘레에 앉아 구멍을 세는 동안 돌아가 밟으면 한꺼번에 털어 냅니다.",
-    tested: "옮긴 엔진을 시안 엔진과 같은 씨앗으로 나란히 돌려 상태를 7만 번 넘게 맞대 봤고(어긋남 0), 체가 놓이는 간격·앉는 자리·털기 피해와 반경·화난 도깨비·점수 등 규칙 16가지를 시험합니다.",
-    rank: "goblin",
-  },
-];
-
-// 실험실 목록. 10-28 Dean: QA 를 소재로 한 게임(버그 잡기·버그 2048·UI 버그 찾기)은 내리고, 타워 디펜스는 「코코 타워 디펜스」로 리뉴얼 중.
-// 줄(row) 단위 구조는 남겨 둔다 — 게임이 쌓이면 줄을 나누거나 독립 메뉴로 옮기기 쉽게
-const ROWS = [{ id: "play", title: "오락실", lede: "테크블로그는 잠깐 잊고" }];
+const KEYART_DIR = path.join(process.cwd(), "public", "lab", "keyart");
+const hasKeyart = (slug: string) => fs.existsSync(path.join(KEYART_DIR, `${slug}.webp`));
+const cards = GAMES.map((g, i) => ({ ...g, keyart: hasKeyart(g.slug) ? `/lab/keyart/${g.slug}.webp` : null, lazy: i >= 3 }));
+const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 ${SOON.length}` : "");
 ---
 
-<LabLayout title="실험실" description="블로그 한구석의 작은 오락실" isIndex>
-  <section class="arc-marquee">
-    <p class="arc-eyebrow">여기까지 찾아오셨네요</p>
-    <h1 class="arc-title">실험실</h1>
-    <p class="arc-lede">AI 와 같이 만들어 본 작은 게임 오락실</p>
-    <p class="arc-insert">INSERT COIN</p>
-  </section>
+<LabLayout title="실험실" description="AI 와 같이 만들어 본 작은 게임들" isIndex>
+  <header class="lab-hero lab-popin" style="--i:1">
+    <p class="lab-kicker">여기까지 찾아오셨네요</p>
+    <h1 class="lab-h1">실험실</h1>
+    <p class="lab-lede">AI 와 같이 만들어 본 작은 게임들. 테크블로그는 잠깐 잊고 놀다 가세요.</p>
+    <span class="lab-count">{countText}</span>
+  </header>
 
-  {
-    ROWS.map(row => (
-      <section class="arc-row" aria-labelledby={`row-${row.id}`}>
-        <h2 class="arc-row-title" id={`row-${row.id}`}>{row.title}</h2>
-        <p class="arc-row-lede">{row.lede}</p>
-      <ul class="arc-cabs">
-        {GAMES.filter(g => g.row === row.id).map(g => (
-        <li class="arc-cab">
-          <a href={`/lab/${g.slug}/`} class="arc-cab-link" data-astro-reload data-coin>
-            <span class="arc-cab-screen" set:html={g.icon} />
-            <span class="arc-cab-body">
-              <span class="arc-cab-title">{g.title}</span>
-              <span class="arc-cab-blurb">{g.blurb}</span>
-              {g.rank && <span class="arc-cab-hi" data-rank-hi={g.rank} hidden />}
-              {g.lapRank && <span class="arc-cab-hi" data-lap-hi hidden />}
-            </span>
-            <span class="arc-btn arc-cab-start">START</span>
-          </a>
-          <details class="arc-notes">
-            <summary>어떻게 만들었나</summary>
-            <p>
-              <b>만든 방법</b> {g.made}
-            </p>
-            <p>
-              <b>시험한 것</b> {g.tested}
-            </p>
-          </details>
-        </li>
-        ))}
-      </ul>
-      </section>
-    ))
-  }
-
-  <div class="arc-hud" aria-hidden="true">
-    <span data-hiscore>HI-SCORE 000000</span><span>1P</span>
-  </div>
+  <ul class="lab-grid">
+    {
+      cards.map((g, i) => {
+        const thumb = (
+          <div class="lab-thumb" style={`--ph-1:${g.ph[0]};--ph-2:${g.ph[1]};--ph-ink:${g.ph[2]}`}>
+            {g.keyart ? (
+              <img src={g.keyart} width="960" height="600" alt="" decoding="async" loading={g.lazy ? "lazy" : undefined} />
+            ) : (
+              <div class="lab-ph" aria-hidden="true">
+                <b>{g.initial}</b>
+              </div>
+            )}
+            {g.soon && <span class="lab-badge">준비 중</span>}
+          </div>
+        );
+        return g.soon ? (
+          <li class="lab-card lab-popin is-soon" style={`--i:${i + 2}`} aria-disabled="true">
+            <div class="lab-card-link">
+              {thumb}
+              <div class="lab-card-body">
+                <div class="lab-title-row">
+                  <h2 class="lab-card-title">{g.title}</h2>
+                  <span class="lab-soon">곧 열려요</span>
+                </div>
+                <p class="lab-blurb">{g.blurb}</p>
+              </div>
+            </div>
+          </li>
+        ) : (
+          <li class="lab-card lab-popin" style={`--i:${i + 2}`}>
+            <a class="lab-card-link" href={`/lab/${g.slug}/`} data-astro-reload data-lab-play>
+              {thumb}
+              <div class="lab-card-body">
+                <div class="lab-title-row">
+                  <h2 class="lab-card-title">{g.title}</h2>
+                  <span class="lab-play">
+                    <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M4 2.5v9l7.5-4.5Z" fill="currentColor" /></svg>시작
+                  </span>
+                </div>
+                <p class="lab-blurb">{g.blurb}</p>
+                {(g.rank || g.lapRank) && (
+                  <span class="lab-rank" data-rank-hi={g.rank} data-lap-hi={g.lapRank ? "" : undefined} hidden>
+                    <span class="lab-medal" aria-hidden="true">1</span>
+                    <span>모두의 랭킹 1위</span>
+                    <span class="lab-rank-who"></span>
+                    <span class="lab-rank-pts"></span>
+                  </span>
+                )}
+              </div>
+            </a>
+            <details class="lab-notes">
+              <summary>
+                어떻게 만들었나
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7.5 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </summary>
+              <p><b>만든 방법</b>{g.made}</p>
+              <p><b>확인한 것</b>{g.tested}</p>
+            </details>
+          </li>
+        );
+      })
+    }
+  </ul>
+  <p class="lab-foot lab-popin" style={`--i:${cards.length + 2}`}>랭킹은 모두가 함께 봐요 · 이니셜 세 글자로 올라가요</p>
 </LabLayout>
 
 <script>
-  // HI-SCORE: 게임들이 남긴 최고 기록 중 가장 큰 것(장식). 동전 넣기: 카드를 누르면 CREDIT 00 → 01 + 「띠링」
+  // 카드 누름: 0.96 눌림(CSS)과 같은 순간에 짧은 「톡」. 이동을 늦추지 않는다
   import { sfx, unlock } from "@/lab/sound";
 
-  // 이 기기에 남은 최고 기록 키(장식). QA 게임을 내리며(10-28) 비었다 — 오락실 게임들은 모두가 보는 랭킹(카드의 HI-SCORE 줄)을 쓴다
-  const BEST_KEYS: string[] = [];
-
-  function read(k: string) {
-    try {
-      return Number(localStorage.getItem(k)) || 0;
-    } catch {
-      return 0;
-    }
-  }
-
-  function init() {
-    const hi = document.querySelector<HTMLElement>("[data-hiscore]");
-    if (!hi) return;
-    const best = Math.max(0, ...BEST_KEYS.map(read));
-    hi.textContent = `HI-SCORE ${String(best).padStart(6, "0")}`;
-
-    document.querySelectorAll<HTMLAnchorElement>("[data-coin]").forEach(a => {
-      a.addEventListener("click", e => {
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-        e.preventDefault();
-        const credit = document.querySelector("[data-lab-credit]");
-        if (credit) credit.textContent = "CREDIT 01";
+  function initPlay() {
+    document.querySelectorAll<HTMLAnchorElement>("[data-lab-play]").forEach(a => {
+      if (a.dataset.ready) return;
+      a.dataset.ready = "1";
+      const tap = () => {
         unlock();
-        sfx.coin();
-        setTimeout(() => (window.location.href = a.href), 180);
+        sfx.tap();
+      };
+      a.addEventListener("pointerdown", e => {
+        if (e.button === 0) tap();
+      });
+      a.addEventListener("keydown", e => {
+        if (e.key === "Enter") tap();
       });
     });
   }
+  document.addEventListener("astro:page-load", initPlay);
 
-  document.addEventListener("astro:page-load", init);
+  // 모두의 랭킹 1위 한 줄. 서버가 없거나 기록이 없으면 줄을 숨긴 채 둔다(장식이라 조용히 넘어간다)
+  function showTop(el: HTMLElement, name: string, value: string) {
+    const who = el.querySelector(".lab-rank-who");
+    const pts = el.querySelector(".lab-rank-pts");
+    if (!who || !pts) return;
+    who.textContent = name;
+    pts.textContent = value;
+    el.hidden = false;
+  }
 
-  // 「그냥 오락실」 카드의 HI-SCORE 한 줄: /api/rank/<게임> 의 1위(점수). 서버가 없거나 기록이 없으면 안 보인다
+  // 점수 게임: /api/rank/<게임> 의 1위
   function rankHi() {
     document.querySelectorAll<HTMLElement>("[data-rank-hi]").forEach(async el => {
       try {
@@ -153,16 +127,15 @@ const ROWS = [{ id: "play", title: "오락실", lede: "테크블로그는 잠깐
         if (!res.ok) return;
         const top = ((await res.json()) as { rows?: { name: string; score: number }[] }).rows?.[0];
         if (!top || !/^[A-Z0-9]{3}$/.test(top.name) || !Number.isInteger(top.score)) return;
-        el.textContent = `HI-SCORE ${top.name} ${top.score}`;
-        el.hidden = false;
+        showTop(el, top.name, `${top.score.toLocaleString("ko-KR")}점`);
       } catch {
-        /* 장식이라 조용히 넘어간다 */
+        /* 장식 */
       }
     });
   }
   document.addEventListener("astro:page-load", rankHi);
 
-  // 코코 타워 디펜스 카드: 바퀴(날) 기록 랭킹(/api/defense-rank)의 1위
+  // 코코 타워 디펜스: 날(바퀴) 기록 랭킹(/api/defense-rank)의 1위
   async function lapHi() {
     const el = document.querySelector<HTMLElement>("[data-lap-hi]");
     if (!el) return;
@@ -171,187 +144,312 @@ const ROWS = [{ id: "play", title: "오락실", lede: "테크블로그는 잠깐
       if (!res.ok) return;
       const top = ((await res.json()) as { rows?: { name: string; lap: number }[] }).rows?.[0];
       if (!top || !/^[A-Z0-9]{3}$/.test(top.name) || !Number.isInteger(top.lap)) return;
-      el.textContent = `HI-SCORE ${top.name} ${top.lap}일`;
-      el.hidden = false;
+      showTop(el, top.name, `${top.lap}일`);
     } catch {
-      /* 장식이라 조용히 넘어간다 */
+      /* 장식 */
     }
   }
   document.addEventListener("astro:page-load", lapHi);
 </script>
 
 <style is:global>
-  .arc-marquee {
-    margin: 12px 0 24px;
-    padding: 20px 16px 16px;
+  /* ── 첫 화면 문구 ── */
+  .lab-hero {
     text-align: center;
-    background: var(--arc-panel);
-    box-shadow:
-      inset 0 0 0 2px var(--arc-pink),
-      0 0 16px rgba(255, 95, 210, 0.35);
+    padding: 28px 8px 24px;
   }
-  .arc-cab-hi {
-    display: block;
-    margin-top: 4px;
-    font-family: var(--font-num);
-    color: var(--arc-coin);
-  }
-  .arc-eyebrow {
-    color: var(--arc-cyan);
-  }
-  .arc-title {
+  .lab-kicker {
+    margin: 0;
+    font-size: 14px;
     font-weight: 700;
-    font-size: 36px;
-    line-height: 48px;
-    margin: 4px 0;
-    color: var(--arc-text);
-    text-shadow:
-      2px 0 0 var(--arc-pink),
-      -2px 0 0 var(--arc-cyan),
-      0 0 12px rgba(255, 95, 210, 0.55);
+    color: var(--lab-teal-ink);
+    letter-spacing: 0.02em;
   }
-  .arc-lede {
-    color: var(--arc-muted);
+  .lab-h1 {
+    margin: 2px 0 6px;
+    font-size: 40px;
+    line-height: 1.15;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: var(--lab-title);
   }
-  .arc-insert {
-    margin-top: 12px;
-    color: var(--arc-coin);
+  .lab-lede {
+    margin: 0 auto;
+    max-width: 30em;
+    text-wrap: balance;
+    font-size: 15px;
+    color: var(--lab-ink-2);
+  }
+  .lab-count {
+    display: inline-flex;
+    gap: 6px;
+    margin-top: 14px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 250, 242, 0.75);
+    font-size: 13px;
     font-weight: 700;
-    animation: arc-blink 1.2s steps(1) infinite;
-  }
-  @keyframes arc-blink {
-    50% {
-      opacity: 0;
-    }
+    color: var(--lab-ink-2);
+    font-variant-numeric: tabular-nums;
   }
 
-  .arc-row + .arc-row {
-    margin-top: 32px;
-  }
-  .arc-row-title {
-    font-size: 24px;
-    line-height: 36px;
-    color: var(--arc-coin);
-  }
-  .arc-row-lede {
-    color: var(--arc-muted);
-    margin-bottom: 12px;
-  }
-  .arc-cabs {
+  /* ── 카드 격자: 1 → 600 px 2 → 960 px 3 줄 ── */
+  .lab-grid {
     list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
     gap: 16px;
+    grid-template-columns: 1fr;
   }
-  .arc-cab {
-    background: var(--arc-panel);
-    padding: 12px;
-    box-shadow: inset 0 0 0 2px var(--arc-line);
+  @media (min-width: 600px) {
+    .lab-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
-  .arc-cab:has(.arc-cab-link:hover),
-  .arc-cab:has(.arc-cab-link:focus-visible) {
-    box-shadow: inset 0 0 0 2px var(--arc-cyan);
+  @media (min-width: 960px) {
+    .lab-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+    .lab-hero {
+      padding: 44px 8px 36px;
+    }
+    .lab-h1 {
+      font-size: 52px;
+    }
+    .lab-lede {
+      font-size: 17px;
+    }
   }
-  .arc-cab-link {
+  .lab-card {
     display: flex;
-    gap: 12px;
-    align-items: center;
-    color: inherit;
-    text-decoration: none;
-    outline: none;
-  }
-  .arc-cab-screen {
-    width: 64px;
-    height: 64px;
-    flex: none;
-    background: var(--arc-screen);
-    display: grid;
-    place-items: center;
-    position: relative;
-    overflow: hidden;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--lab-card);
+    border-radius: var(--lab-r-card);
     box-shadow:
-      inset 0 0 0 2px #000,
-      inset 0 0 0 4px var(--arc-line);
+      0 2px 0 var(--lab-line),
+      0 8px 24px var(--lab-shadow);
+    transition:
+      transform 0.08s,
+      box-shadow 0.2s;
   }
-  .arc-cab-screen::after {
-    content: "";
+  .lab-card:has(a.lab-card-link:active) {
+    transform: scale(0.96);
+  }
+  @media (hover: hover) {
+    .lab-card:has(a.lab-card-link:hover) {
+      box-shadow:
+        0 2px 0 var(--lab-line),
+        0 14px 32px var(--lab-shadow-2);
+    }
+  }
+  .lab-card-link {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 8px 8px 0;
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--lab-r-card);
+  }
+  .lab-root-hub .lab-card-link:focus-visible {
+    outline-offset: -3px;
+  }
+  .lab-thumb {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--lab-r-thumb);
+    overflow: hidden;
+    background: var(--lab-thumb);
+  }
+  .lab-thumb img {
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.35) 2px 3px);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
-  .arc-cab-screen svg {
-    width: 44px;
-    height: 44px;
+  .lab-ph {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(120% 90% at 78% 100%, var(--ph-2) 0, rgba(255, 255, 255, 0) 70%),
+      linear-gradient(160deg, #fffaf2 0, var(--ph-1) 100%);
   }
-  .arc-cab-body {
+  .lab-ph b {
+    font-size: 72px;
+    line-height: 1;
+    font-weight: 900;
+    color: var(--ph-ink);
+    letter-spacing: -0.04em;
+    opacity: 0.9;
+  }
+  .lab-badge {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--lab-ink);
+    color: var(--lab-card);
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .lab-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     flex: 1;
-    min-width: 0;
+    padding: 12px 8px;
   }
-  .arc-cab-title {
-    display: block;
-    font-weight: 700;
-    font-size: 24px;
-    line-height: 32px;
+  .lab-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
   }
-  .arc-cab-blurb {
-    display: block;
-    color: var(--arc-muted);
+  .lab-card-title {
+    margin: 0;
+    font-size: 19px;
+    line-height: 1.3;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--lab-ink);
   }
-  .arc-cab-start {
+  .lab-play {
     flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--lab-coral-1), var(--lab-coral-2));
+    color: var(--lab-ink);
+    font-size: 15px;
+    font-weight: 800;
+    box-shadow:
+      inset 0 -3px 0 rgba(217, 84, 106, 0.55),
+      0 2px 6px var(--lab-shadow);
   }
-  .arc-cab-link:active .arc-cab-start {
-    box-shadow: inset 4px 4px 0 rgba(0, 0, 0, 0.28);
-    transform: translateY(2px);
+  .lab-play svg {
+    width: 14px;
+    height: 14px;
   }
-  .arc-notes {
-    margin-top: 8px;
-    color: var(--arc-muted);
+  .lab-blurb {
+    margin: 0;
+    font-size: 14px;
+    color: var(--lab-ink-2);
   }
-  .arc-notes summary {
-    cursor: pointer;
-    color: var(--arc-cyan);
-    width: fit-content;
-    list-style: none;
+  .lab-rank {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 8px;
+    font-size: 13px;
+    color: var(--lab-ink-2);
+    font-variant-numeric: tabular-nums;
   }
-  .arc-notes summary::-webkit-details-marker {
+  .lab-rank[hidden] {
     display: none;
   }
-  .arc-notes summary::before {
-    content: "▶ ";
+  .lab-medal {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff0b8, var(--lab-gold) 55%, var(--lab-gold-2));
+    color: var(--lab-ink);
+    font-size: 12px;
+    font-weight: 900;
+    box-shadow: 0 1px 0 #a8742a;
   }
-  .arc-notes[open] summary::before {
-    content: "▼ ";
+  .lab-rank-who {
+    font-weight: 800;
+    color: var(--lab-ink);
+    letter-spacing: 0.06em;
   }
-  .arc-notes p {
-    margin-top: 6px;
+  .lab-rank-pts {
+    margin-left: auto;
+    font-weight: 800;
+    color: var(--lab-ink);
   }
-  .arc-notes b {
-    color: var(--arc-text);
-    margin-right: 4px;
+  .lab-soon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: var(--lab-thumb);
+    color: var(--lab-ink-2);
+    font-size: 14px;
+    font-weight: 700;
   }
-  .arc-hud {
-    margin-top: 28px;
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--font-num);
-    color: var(--arc-dim);
+  .lab-card.is-soon .lab-thumb {
+    filter: saturate(0.75);
   }
 
-  @media (max-width: 400px) {
-    .arc-cab-link {
-      flex-wrap: wrap;
-    }
-    .arc-cab-body {
-      flex-basis: calc(100% - 76px);
-    }
-    .arc-cab-start {
-      margin-left: 76px;
-    }
+  /* 「어떻게 만들었나」 접기 */
+  .lab-notes {
+    margin: 0 16px 8px;
+    border-top: 1px solid var(--lab-line);
   }
-  /* 줄인 동작: 원래 규칙과 같은 선택자로 끈다(시안 1차에서 우선순위에 져서 안 꺼졌다) */
+  .lab-notes summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    list-style: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--lab-teal-ink);
+    border-radius: 10px;
+  }
+  .lab-notes summary::-webkit-details-marker {
+    display: none;
+  }
+  .lab-notes summary svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s var(--lab-pop);
+  }
+  .lab-notes[open] summary svg {
+    transform: rotate(180deg);
+  }
+  .lab-notes p {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: var(--lab-ink-2);
+  }
+  .lab-notes p b {
+    color: var(--lab-ink);
+    margin-right: 4px;
+  }
+
+  .lab-foot {
+    margin: 28px 0 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--lab-ink-2);
+  }
+
+  /* 줄인 동작: 눌림 크기·꺾쇠 회전 없음(같은 선택자로 끈다) */
   @media (prefers-reduced-motion: reduce) {
-    .arc-insert {
-      animation: none;
+    .lab-card:has(a.lab-card-link:active) {
+      transform: none;
+    }
+    .lab-notes summary svg {
+      transition: none;
     }
   }
 </style>

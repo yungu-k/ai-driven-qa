@@ -1,41 +1,38 @@
 ---
-// 실험실 부팅 화면 — 로고 이스터에그(와장창)로 왔을 때만 보인다. 규격: docs/lab-arcade-spec.md B4·C
-//  - 블로그 쪽 마지막 장면(src/scripts/lab-shatter.ts 의 검은 뒷면 + 부팅 4줄)과 같은 장면을
-//    「다 찍힌 상태로」 먼저 보여 줘서 페이지 이동이 눈에 안 띄게 한다(match cut).
-//    글자·글꼴·크기·여백은 Header.astro 의 .lab-boot-lines 와 같아야 한다.
-//  - 0.5 s 뒤 CRT 꺼지듯 가운데로 접히며(0.35 s, steps 6) 사라진다. 아무 데나 누르면 바로 넘어간다.
-//  - sessionStorage "lab-boot" 가 없으면(주소로 바로 옴·게임에서 돌아옴) 아예 안 보인다.
-//  - 줄인 동작이면 표시하지 않는다(C).
-// 끼우는 자리: <body> 안, 목록(.lab-root)보다 앞. 아래 첫 인라인 스크립트가 목록이 파싱되기 전에
-// html 에 lab-booting 을 달아야 첫 페인트에 목록이 번쩍이지 않는다.
-// 색은 A1 토큰 값을 직접 쓴다(--arc-screen #05060a, --arc-green #5dff8a).
+// 실험실 부팅 화면 + 첫 화면 들어옴. 규격: docs/lab-hub-spec.md 5절
+//  - 로고 이스터에그(와장창)로 왔을 때(sessionStorage "lab-boot" = "1"): 블로그 쪽 마지막 장면(src/scripts/lab-shatter.ts 의
+//    하늘 뒷면 + 부팅 카드, 막대 다 참)과 같은 장면으로 첫 페인트 → 페이지 이동이 안 보인다(match cut).
+//    카드 마크업은 src/lab/boot-card.ts 한 벌, 모양은 src/lab/lab-tokens.css 한 벌을 두 곳이 같이 쓴다.
+//  - 0.5 s 뒤 카드가 위로 14px·0.96 으로 사라지고(0.26 s), 0.64 s 에 위 막대 → 문구 → 카드가 45 ms 간격으로 튀어 오른다.
+//    아무 데나 누르면 바로 넘어간다.
+//  - 키가 없으면(주소로 바로 옴·게임에서 돌아옴) 부팅 없이 문구·카드만 튀어 오른다(40 ms 간격).
+//  - 줄인 동작: 부팅·튀어 오름 없음. 와장창 쪽 덮개를 거쳐 왔으면(키 "fade") 첫 화면이 투명도로만 0.2 s.
+// 끼우는 자리: <body> 안, 목록(.lab-root)보다 앞. 첫 인라인 스크립트가 목록이 파싱되기 전에 html 에 클래스를 달아야
+// 첫 페인트에 목록이 번쩍이지 않는다.
+import { bootCardHtml } from "@/lab/boot-card";
+import { PLAYABLE } from "@/lab/hub-games";
 ---
 
 <script is:inline>
   (function () {
-    var on = false;
+    var key = null;
     try {
-      on = sessionStorage.getItem("lab-boot") === "1";
+      key = sessionStorage.getItem("lab-boot");
       sessionStorage.removeItem("lab-boot");
     } catch (e) {
-      on = false;
+      key = null;
     }
-    if (on && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      document.documentElement.classList.add("lab-booting");
+    var root = document.documentElement;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (key) root.classList.add("lab-fadein");
+    } else if (key === "1") {
+      root.classList.add("lab-booting");
+    } else {
+      root.classList.add("lab-enter");
     }
   })();
 </script>
-<div class="lab-boot" aria-hidden="true">
-  <div class="lab-boot-lines">
-    {/* 줄 글자는 식으로 넣는다 — 그냥 쓰면 compressHTML 이 「LAB  v1.0」 두 칸을 한 칸으로 줄인다 */}
-    <p>{"AI-DRIVEN QA LAB  v1.0"}</p>
-    <p>{" "}</p>
-    <p>{"MEMORY CHECK ...... OK"}</p>
-    <p>{"GAMES ............. 3"}</p>
-    <p>{" "}</p>
-    <p>{"PRESS START"}</p>
-  </div>
-</div>
+<div class="lab-boot" aria-hidden="true" set:html={bootCardHtml(PLAYABLE.length)} />
 <script is:inline>
   (function () {
     var root = document.documentElement;
@@ -45,14 +42,19 @@
       root.classList.remove("lab-booting");
       return;
     }
-    var done = false;
-    var t = 0;
-    var end = function () {
-      if (done) return;
-      done = true;
-      clearTimeout(t);
+    var timers = [];
+    var entered = false;
+    var enter = function () {
+      if (entered) return;
+      entered = true;
+      root.classList.add("lab-enter", "lab-enter-boot");
       root.classList.remove("lab-booting");
+    };
+    var end = function () {
+      timers.forEach(clearTimeout);
+      enter();
       boot.classList.remove("lab-boot-off");
+      boot.classList.add("lab-boot-done");
       document.removeEventListener("keydown", end, true);
     };
     // 아무 데나 누르면(키보드 포함) 바로 넘어간다. pointerdown 에서 걷으면 터치는 손을 뗀 자리의
@@ -60,57 +62,57 @@
     boot.addEventListener("click", end);
     document.addEventListener("keydown", end, true);
     boot.addEventListener("animationend", end);
-    t = setTimeout(function () {
-      boot.classList.add("lab-boot-off");
-      // animationend 가 안 오는 환경(애니메이션 꺼짐 등) 대비
-      t = setTimeout(end, 600);
-    }, 500);
+    timers.push(
+      setTimeout(function () {
+        boot.classList.add("lab-boot-off");
+      }, 500),
+      setTimeout(enter, 640),
+      // animationend 가 안 오는 환경 대비
+      setTimeout(end, 1100)
+    );
   })();
 </script>
 
 <style is:global>
-  .lab-boot {
+  /* 상자 자리·하늘·카드 모양은 lab-tokens.css(.lab-boot, .lab-boot-card) — 와장창 뒷면과 같은 값 */
+  html .lab-boot {
     display: none;
-  }
-  html.lab-booting .lab-boot {
-    display: block;
-    position: fixed;
-    inset: 0;
     z-index: 2147483000;
-    background: #05060a;
   }
-  /* Header.astro 의 .lab-boot-lines 와 같은 값 — 한쪽을 고치면 다른 쪽도 */
-  .lab-boot .lab-boot-lines {
-    padding: 24px 16px;
-    color: #5dff8a;
-    font-family: LabPixelMono, LabPixel, monospace;
-    font-size: 12px;
-    line-height: 20px;
-    letter-spacing: 0;
-    -webkit-font-smoothing: none;
+  html.lab-booting .lab-boot,
+  html .lab-boot.lab-boot-off {
+    display: grid;
   }
-  .lab-boot .lab-boot-lines p {
-    margin: 0;
-    white-space: pre;
+  /* 카드가 사라지는 동안(0.5 s 뒤)엔 하늘을 걷는다 — 첫 화면 body 의 하늘과 같은 그림이라 티가 안 난다 */
+  html .lab-boot.lab-boot-off {
+    background: none;
   }
-  html.lab-booting .lab-boot.lab-boot-off {
-    animation: lab-crt-off 0.35s steps(6) forwards;
+  html .lab-boot.lab-boot-off .lab-boot-card {
+    animation: lab-boot-out 0.26s ease-in forwards;
   }
-  @keyframes lab-crt-off {
-    0% {
-      clip-path: inset(0 0 0 0);
+  @keyframes lab-boot-out {
+    to {
+      opacity: 0;
+      transform: translateY(-14px) scale(0.96);
     }
-    40% {
-      clip-path: inset(49.5% 0 49.5% 0);
-      background: #fff;
-    }
-    100% {
-      clip-path: inset(50% 50% 50% 50%);
-    }
+  }
+  /* 부팅 중엔 첫 화면을 숨겨 둔다(들어옴 애니메이션이 그 자리에서 튀어 오른다) */
+  html.lab-booting .lab-root,
+  html.lab-booting .lab-sky-deco {
+    opacity: 0;
+  }
+  /* 줄인 동작: 와장창 덮개(하늘색) 뒤 첫 화면이 투명도로만 */
+  html.lab-fadein .lab-root,
+  html.lab-fadein .lab-sky-deco {
+    animation: lab-fadein 0.2s linear backwards;
   }
   @media (prefers-reduced-motion: reduce) {
     html.lab-booting .lab-boot {
       display: none;
+    }
+    html.lab-booting .lab-root,
+    html.lab-booting .lab-sky-deco {
+      opacity: 1;
     }
   }
 </style>

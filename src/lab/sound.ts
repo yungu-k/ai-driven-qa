@@ -64,6 +64,10 @@ export const sfx = {
     tone(988, 60);
     tone(1319, 120, { at: 60 });
   },
+  /** 실험실 첫 화면 카드·소리 단추 누름: 짧고 둥근 「톡」(사인파 위에서 아래로 70 ms, 작게). 0.96 눌림과 같이 — 규격 docs/lab-hub-spec.md 4절 */
+  tap() {
+    tone(740, 70, { type: "sine", gain: 0.09, to: 420 });
+  },
   /** 맞힘 */
   hit() {
     tone(660, 40);
