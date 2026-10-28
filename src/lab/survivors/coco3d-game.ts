@@ -413,6 +413,9 @@ export function initCoco3d() {
     camera.lookAt(tx, 0, tz);
     JUICE.watch(g, (x, y) => (x - p.x) ** 2 + (y - p.y) ** 2 < 150 * 150);
     draw();
+    // 카메라와 코코 사이 나무·덤불을 반투명으로(3D 2판) — 카메라 위치가 정해진 뒤, 그리기 직전에
+    if (ground.occlude) ground.occlude(p.x, p.y, camera.position);
+    { let n = 0; for (const m of ground.root.children) if (m.name && m.name.endsWith("Ghost")) n += m.count; W.__surv.ghostFrames = (W.__surv.ghostFrames || 0) + (n > 0 ? 1 : 0); } // 리그: 가림이 실제로 일어났나
     renderer.render(scene, camera);
     W.__surv.gpu = { calls: renderer.info.render.calls, tris: renderer.info.render.triangles }; // 휴대폰 GPU 부담은 CPU 늦추기로 못 잰다 — 호출·삼각형으로 맞댄다
     // 겹 캔버스(2D): 머리 위 기운 칸 셋·입자·피해 숫자 — 3D 장면에 섞지 않고 화면 좌표로

@@ -128,11 +128,12 @@
 
       // 몸통: 납작한 공 + 곱슬 공
       var BODY_C = new V3(0, 1, 3.4), BODY_R = new V3(3.7, 3.5, 6.0);
-      mesh(GEO.ico2, C.fur2, hip, [BODY_C.x, BODY_C.y, BODY_C.z], [BODY_R.x, BODY_R.y, BODY_R.z]);
-      // 등선 곱슬(윤곽만 물결지게 — 몸 전체를 덮지 않는다)
-      [[0, 0.98, -0.75], [0, 1.0, -0.2], [0.55, 0.8, -0.45], [-0.55, 0.8, -0.45], [0.75, 0.55, 0.1], [-0.75, 0.55, 0.1], [0.7, 0.6, -0.75], [-0.7, 0.6, -0.75]].forEach(function (d) {
+      // 2판: 몸은 머리보다 두 단 짙게(fur1) — 위에서 머리·몸 덩어리가 갈린다
+      mesh(GEO.ico2, C.fur1, hip, [BODY_C.x, BODY_C.y, BODY_C.z], [BODY_R.x, BODY_R.y, BODY_R.z]);
+      // 등선 곱슬은 엉덩이 쪽에만(앞쪽 등은 옷이 보이게 비운다)
+      [[0, 0.95, -0.7], [0.6, 0.75, -0.55], [-0.6, 0.75, -0.55], [0.75, 0.5, -0.85], [-0.75, 0.5, -0.85]].forEach(function (d) {
         var p = new V3(d[0] * BODY_R.x * 0.9, d[1] * BODY_R.y * 0.9, d[2] * BODY_R.z * 0.9).add(BODY_C);
-        mesh(GEO.ico1, C.fur2, hip, [p.x, p.y, p.z], 1.7);
+        mesh(GEO.ico1, C.fur1, hip, [p.x, p.y, p.z], 1.7);
       });
       // 가슴 털(목 아래 볼록)
       mesh(GEO.ico1, C.fur2, hip, [0, 2.8, 7.4], [3.1, 3.4, 2.9]);
@@ -152,14 +153,20 @@
           mesh(GEO.ico0, f[3], cloth, [f[0] / len * 3.95, 1.15 + f[1] / len * 3.85, f[2]], [0.62, 0.62, 0.62]);
         });
         mesh(GEO.ico1, C.be1, cloth, [0, -0.6, 8.6], 0.65); // 이름표(금)
+        // 2판: 등 위 덮개(위 카메라에서 하네스가 보이게) + 보라 테 + 꽃
+        mesh(GEO.ico1, C.purp1, cloth, [0, 4.15, 5.3], [3.3, 0.75, 3.2]);
+        mesh(GEO.ico1, C.teal1, cloth, [0, 4.4, 5.3], [2.9, 0.75, 2.8]);
+        [[0, 5.05, 5.3, C.flY], [1.4, 4.85, 4.4, C.flP], [-1.4, 4.85, 6.2, C.flP], [-1.2, 4.8, 4.2, C.flY], [1.2, 4.8, 6.3, C.flY]].forEach(function (f) { mesh(GEO.ico0, f[3], cloth, [f[0], f[1], f[2]], [0.62, 0.4, 0.62]); });
       } else {
         var tee = mesh(tube(1, 6.6, 12), C.tee2, cloth, [0, 1.05, 3.5], [3.9, 1, 3.7]);
         tee.rotation.x = Math.PI / 2;
         [[3.65, 6.9], [3.75, 0.25]].forEach(function (r) {
           mesh(new THREE.TorusGeometry(1, 0.16, 4, 14), C.tee0, cloth, [0, 1.05, r[1]], [r[0] + 0.15, r[0], 1]);
         });
+        // 2판: 등 위 흰 덮개(위에서 티가 보이게)
+        mesh(GEO.ico1, C.tee2, cloth, [0, 4.1, 3.5], [3.2, 0.9, 4.2]);
         // 곰 무늬(등에 둘)
-        [[0, 4.9, 4.8], [0, 4.75, 1.8]].forEach(function (b) {
+        [[0, 4.95, 4.8], [0, 4.95, 2.2]].forEach(function (b) {
           mesh(GEO.ico1, C.fur2, cloth, [b[0], b[1], b[2]], [0.85, 0.3, 0.85]);
           mesh(GEO.ico0, C.fur2, cloth, [b[0] + 0.7, b[1] - 0.05, b[2] + 0.55], [0.38, 0.25, 0.38]);
           mesh(GEO.ico0, C.fur2, cloth, [b[0] - 0.7, b[1] - 0.05, b[2] + 0.55], [0.38, 0.25, 0.38]);
@@ -169,10 +176,10 @@
       // 다리 넷(어깨·엉덩이가 축)
       function leg(name, p, hind) {
         var g = G(name, hip, p);
-        mesh(GEO.leg, C.fur2, g, [0, -3.5, 0]);
-        mesh(GEO.curl, C.fur2, g, [0, -2.0, 0.1], [1.45, 2.0, 1.45]); // 통통한 다리 털
+        mesh(GEO.leg, C.fur1, g, [0, -3.5, 0]);
+        mesh(GEO.curl, C.fur1, g, [0, -2.0, 0.1], [1.45, 2.0, 1.45]); // 통통한 다리 털
         mesh(GEO.ico1, C.fur2, g, [0, -6.3, 0.45], [1.35, 0.85, 1.6]); // 발
-        if (hind) mesh(GEO.ico1, C.fur2, g, [0, 0.2, -0.3], [2.3, 2.6, 2.6]); // 허벅지
+        if (hind) mesh(GEO.ico1, C.fur1, g, [0, 0.2, -0.3], [2.3, 2.6, 2.6]); // 허벅지
         return g;
       }
       var legFL = leg("legFL", [1.75, -0.4, 6.6], false), legFR = leg("legFR", [-1.75, -0.4, 6.6], false);
@@ -180,33 +187,35 @@
 
       // 꼬리(뿌리가 축) + 방울
       var tail = G("tail", hip, [0, 3.6, -2.0]);
-      mesh(GEO.stick, C.fur2, tail, [0, 1.6, 0]);
+      mesh(GEO.stick, C.fur1, tail, [0, 1.6, 0]);
       mesh(GEO.ico1, C.fur2, tail, [0, 4.0, 0], 2.0);
       fib(4).forEach(function (d, i) { mesh(GEO.curl, i % 2 ? C.fur3 : C.fur2, tail, [d.x * 1.55, 4 + d.y * 1.55, d.z * 1.55], 1.1); });
 
       // 목·머리
-      var NECK0 = new V3(0, 4.4, 7.8), HEAD0 = new V3(0, 3.6, 1.6), HEAD_PITCH = -0.14;
+      var NECK0 = new V3(0, 4.4, 7.8), HEAD0 = new V3(0, 4.3, 2.5), HEAD_PITCH = -0.3, HEAD_S = 1.2; // 2판: 머리 1.2배·앞·위, 얼굴을 더 들어 50° 위 카메라에 보이게
       var neck = G("neck", hip, [NECK0.x, NECK0.y, NECK0.z]);
       var head = G("head", neck, [HEAD0.x, HEAD0.y, HEAD0.z]);
+      head.scale.setScalar(HEAD_S);
       var HR = 4.3;
-      mesh(GEO.ico2, C.fur2, head, [0, 0, 0], [HR * 1.04, HR, HR]);
+      // 2판: 머리는 몸보다 밝게(fur3), 정수리 곱슬은 한 단 더 밝게(fur4)
+      mesh(GEO.ico2, C.fur3, head, [0, 0, 0], [HR * 1.04, HR, HR]);
       // 정수리 볼록(테디 컷) + 둘레 곱슬 한 줄(가리비 윤곽)
-      mesh(GEO.ico2, C.fur2, head, [0, 1.7, -0.4], [HR * 0.92, HR * 0.72, HR * 0.9]);
+      mesh(GEO.ico2, C.fur3, head, [0, 1.7, -0.4], [HR * 0.92, HR * 0.72, HR * 0.9]);
       for (var ci = 0; ci < 12; ci++) {
         var ca = ci / 12 * TAU + 0.26, front = Math.cos(ca) > 0.55; // 앞쪽(얼굴 위) 곱슬은 낮고 작게
-        mesh(GEO.ico1, C.fur2, head, [Math.sin(ca) * HR * 0.86, 2.9 + (front ? -0.3 : 0), Math.cos(ca) * HR * 0.84 - 0.4], front ? 1.25 : 1.6);
+        mesh(GEO.ico1, C.fur3, head, [Math.sin(ca) * HR * 0.86, 2.9 + (front ? -0.3 : 0), Math.cos(ca) * HR * 0.84 - 0.4], front ? 1.25 : 1.6);
       }
-      [[0, 4.6, -0.2], [1.3, 4.1, -1.8], [-1.3, 4.1, -1.8]].forEach(function (c) { mesh(GEO.ico1, C.fur2, head, c, 1.55); });
+      [[0, 4.6, -0.2], [1.3, 4.1, -1.8], [-1.3, 4.1, -1.8]].forEach(function (c) { mesh(GEO.ico1, C.fur4, head, c, 1.55); });
       // 볼 털(얼굴을 둥글게)
-      mesh(GEO.ico1, C.fur2, head, [2.7, -1.3, 1.6], [2.0, 2.0, 2.2]);
-      mesh(GEO.ico1, C.fur2, head, [-2.7, -1.3, 1.6], [2.0, 2.0, 2.2]);
+      mesh(GEO.ico1, C.fur3, head, [2.7, -1.3, 1.6], [2.0, 2.0, 2.2]);
+      mesh(GEO.ico1, C.fur3, head, [-2.7, -1.3, 1.6], [2.0, 2.0, 2.2]);
       // 주둥이 + 흰 털 조금 + 코
-      mesh(GEO.ico1, C.fur4, head, [0, -1.55, 3.4], [2.15, 1.6, 2.05]);
+      mesh(GEO.ico1, C.cream1, head, [0, -1.55, 3.4], [2.15, 1.6, 2.05]); // 밝은 주둥이
       [[0.9, -2.55, 4.5], [-0.9, -2.55, 4.5], [0, -2.8, 4.1], [1.5, -1.9, 4.6], [-1.5, -1.9, 4.6]].forEach(function (w, i) {
         mesh(GEO.ico0, i < 3 ? C.cream3 : C.cream2, head, w, 0.5);
       });
-      mesh(GEO.ico1, C.ink0, head, [0, -0.9, 5.35], [0.75, 0.58, 0.55]);
-      mesh(GEO.ico0, C.shine1, head, [-0.25, -0.55, 5.85], 0.18);
+      mesh(GEO.ico1, C.ink0, head, [0, -0.85, 5.35], [0.95, 0.72, 0.65]);
+      mesh(GEO.ico0, C.shine1, head, [-0.3, -0.45, 5.95], 0.22);
       // 입(짖기) · 혀(스키)
       var mouth = mesh(GEO.ico1, C.ink1, head, [0, -2.55, 4.6], [0.85, 0.55, 0.5]);
       var tongue = mesh(GEO.ico1, C.tongue1, head, [0, -2.95, 5.0], [0.5, 0.3, 0.75]);
@@ -216,24 +225,25 @@
       mesh(GEO.ico0, C.blush, head, [-2.65, -1.1, 3.25], [0.75, 0.5, 0.3]).rotation.y = -0.7;
       // 눈(크고 까맣게) + 반짝
       function eye(x) {
-        var g = G("eye", head, [x, 0.5, 3.6]);
-        mesh(GEO.ico1, C.ink0, g, [0, 0, 0], [1.3, 1.4, 0.9]);
-        var s = mesh(GEO.ico0, C.shine1, g, [-0.38, 0.5, 0.78], 0.42);
-        var s2 = mesh(GEO.ico0, C.shine0, g, [0.42, -0.42, 0.8], 0.2);
+        var g = G("eye", head, [x, 0.55, 3.55]);
+        mesh(GEO.ico1, C.ink0, g, [0, 0, 0], [1.5, 1.65, 1.0]);
+        var s = mesh(GEO.ico0, C.shine1, g, [-0.45, 0.6, 0.85], 0.52);
+        var s2 = mesh(GEO.ico0, C.shine0, g, [0.5, -0.5, 0.9], 0.24);
         s.userData.solo = s2.userData.solo = true;
         g.userData.shine = [s, s2];
         g.rotation.y = x * 0.12;
         return g;
       }
-      var eyeL = eye(1.75), eyeR = eye(-1.75);
+      var eyeL = eye(1.85), eyeR = eye(-1.85);
       // 귀(위 끝이 축) — 길게 늘어지고 끝은 크림
       function ear(sx) {
         var g = G("ear", head, [sx * 4.1, 1.7, 0.6]);
-        mesh(GEO.ico1, C.fur3, g, [sx * 0.7, -1.2, 0], [1.8, 2.2, 1.5]);
-        mesh(GEO.ico1, C.fur4, g, [sx * 1.0, -3.2, 0.1], [1.8, 1.9, 1.5]);
-        mesh(GEO.ico1, C.cream1, g, [sx * 0.95, -4.9, 0.1], [1.7, 1.5, 1.45]);
-        mesh(GEO.curl, C.cream2, g, [sx * 1.1, -5.3, 0.6], 0.9);
-        mesh(GEO.curl, C.cream2, g, [sx * 0.3, -5.5, -0.3], 0.85);
+        // 2판: 귀 몸통은 짙게(fur1·fur2), 끝은 크림 — 밝은 머리 옆에서 대비
+        mesh(GEO.ico1, C.fur1, g, [sx * 0.7, -1.2, 0], [1.8, 2.2, 1.5]);
+        mesh(GEO.ico1, C.fur2, g, [sx * 1.0, -3.1, 0.1], [1.8, 1.9, 1.5]);
+        mesh(GEO.ico1, C.cream2, g, [sx * 1.0, -4.8, 0.2], [1.9, 1.6, 1.6]);
+        mesh(GEO.curl, C.cream3, g, [sx * 1.3, -5.4, 0.8], 1.0);
+        mesh(GEO.curl, C.cream3, g, [sx * 0.4, -5.6, -0.3], 0.95);
         return g;
       }
       var earL = ear(1), earR = ear(-1);
@@ -244,7 +254,7 @@
       function eyes(open, squint) {
         [eyeL, eyeR].forEach(function (e) {
           e.scale.set(1, open ? 1 : squint ? 0.22 : 0.16, 1);
-          e.position.y = open ? 0.5 : squint ? 0.8 : 0.3;
+          e.position.y = open ? 0.55 : squint ? 0.85 : 0.35;
           e.userData.shine.forEach(function (s) { s.visible = open; });
         });
       }
@@ -370,6 +380,9 @@
           default:
             sitBase();
         }
+        // 2판: 옆을 볼 때 머리를 카메라 쪽(+z)으로 살짝 돌린다 — 위·뒤 카메라에서 얼굴이 보이게.
+        // 시안이 pose 전에 root.rotation.y(진행 방향)를 정해 두는 것에 기댄다. 뱅글은 몸 전체가 도니 뺀다.
+        if (name !== "spin") head.rotation.y += -0.55 * Math.sin(root.rotation.y);
         // 맞음: 0.9 찌그러짐 + 밝은 크림 번쩍
         if (hurt > 0) {
           if (!red) { rig.scale.y *= 1 - 0.1 * hurt; rig.scale.x *= 1 + 0.06 * hurt; rig.scale.z *= 1 + 0.06 * hurt; }
@@ -435,19 +448,17 @@
         p.push(part(new THREE.BoxGeometry(1, 1, 1), C.be0, [-2.4, 0.9, 0], [2.0, 1.8, 3.0]));
         return p;
       },
-      vacuum: function () {
+      vacuum: function () { // 2판: 바퀴 달린 둥근 통 청소기 — 위에서 둥근 파란 통, 보스(납작한 짙은 원반)와 높이·색으로 갈린다
         var p = [];
-        p.push(part(lowBall(7, 5), C.va1, [0, 6.2, -2.5], [5.6, 4.9, 6.0]));
-        p.push(part(GEO.ico0, C.va3, [0, 10.3, -3.2], [2.8, 1.2, 3.4])); // 덮개
-        p.push(part(new THREE.TorusGeometry(1.6, 0.45, 3, 6, Math.PI), C.va0, [0, 10.8, -3.4], 1, [0, Math.PI / 2, 0])); // 손잡이
-        p.push(part(cyl(2.5, 2.5, 1.3, 6), C.rub, [4.9, 2.5, -3.5], 1, [0, 0, Math.PI / 2]));
-        p.push(part(cyl(2.5, 2.5, 1.3, 6), C.rub, [-4.9, 2.5, -3.5], 1, [0, 0, Math.PI / 2]));
-        // 호스: 앞으로 굽은 관 셋
-        p.push(part(cyl(0.8, 0.8, 4.2, 5), C.va0, [0, 9.0, 3.2], 1, [1.15, 0, 0]));
-        p.push(part(cyl(0.8, 0.8, 4.2, 5), C.va0, [0, 7.4, 6.6], 1, [2.2, 0, 0]));
-        p.push(part(cyl(0.8, 0.8, 4.4, 5), C.va0, [0, 3.6, 8.2], 1, [2.95, 0, 0]));
-        p.push(part(new THREE.BoxGeometry(1, 1, 1), C.va2, [0, 0.7, 8.9], [6.4, 1.4, 2.6]));
-        face(p, 0, 6.8, 2.9, 0.8, 1.7, true, false);
+        p.push(part(cyl(6.0, 6.6, 5.6, 9), C.va1, [0, 4.4, 0])); // 둥근 통
+        p.push(part(lowBall(8, 4), C.va2, [0, 7.1, -0.4], [5.7, 2.5, 5.7])); // 둥근 뚜껑
+        p.push(part(GEO.ico0, C.va3, [0, 9.6, -1.4], [2.4, 0.9, 1.5])); // 손잡이
+        p.push(part(cyl(2.6, 2.6, 1.3, 5), C.rub, [6.6, 2.6, -2.2], 1, [0, 0, Math.PI / 2])); // 큰 뒷바퀴
+        p.push(part(cyl(2.6, 2.6, 1.3, 5), C.rub, [-6.6, 2.6, -2.2], 1, [0, 0, Math.PI / 2]));
+        p.push(part(new THREE.TorusGeometry(2.3, 0.75, 3, 8), C.va0, [2.6, 8.4, 2.6], 1, [Math.PI / 2 - 0.3, 0, 0.2])); // 감긴 호스
+        p.push(part(cyl(0.9, 0.9, 3.4, 5), C.va0, [1.4, 2.6, 7.0], 1, [-1.0, 0, 0])); // 짧은 호스(통 앞 → 흡입구)
+        p.push(part(new THREE.BoxGeometry(1, 1, 1), C.va3, [1.4, 0.8, 8.4], [5.4, 1.4, 2.4])); // 앞 흡입구(통에 바짝)
+        face(p, 0, 5.4, 6.3, 0.85, 2.0, true, false);
         return p;
       },
       dog: function () {
@@ -640,6 +651,41 @@
         list.forEach(function (it, k) { o.position.set(it.x, 0, it.z); o.rotation.set(0, it.ry || 0, 0); o.scale.setScalar(it.s || 1); o.updateMatrix(); m.setMatrixAt(k, o.matrix); });
         m.name = name; m.castShadow = true; m.receiveShadow = true; root.add(m); return m;
       }
+      // 가림 처리(2판): 카메라와 코코 사이·코코 앞(카메라 쪽) 가까이의 나무·덤불을 반투명 인스턴스로 옮긴다.
+      // 인스턴스는 하나만 투명하게 못 하니 불투명·반투명 두 InstancedMesh 에 나눠 담는다. 바뀐 프레임에만 행렬을 다시 쓴다.
+      var ghostMat = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, transparent: true, opacity: 0.3, depthWrite: false });
+      function occluder(name, geo, list, rad, hgt, pad) {
+        var n = list.length, solid = inst(name, geo, list);
+        var ghost = new THREE.InstancedMesh(geo, ghostMat, n);
+        ghost.name = name + "Ghost"; ghost.count = 0; ghost.castShadow = false; ghost.renderOrder = 2; root.add(ghost);
+        solid.frustumCulled = ghost.frustumCulled = false; // count 가 바뀌니 경계 구를 믿지 않는다
+        // 자주 다시 쓰는 버퍼라고 알린다(정적 버퍼를 고쳐 쓰면 ANGLE·D3D11 에서 GPU 를 기다리는 일이 생겼다)
+        solid.instanceMatrix.setUsage(THREE.DynamicDrawUsage); ghost.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        var M0 = new Float32Array(solid.instanceMatrix.array), X = new Float32Array(n), Z = new Float32Array(n), RR = new Float32Array(n), HH = new Float32Array(n);
+        for (var i = 0; i < n; i++) { X[i] = list[i].x; Z[i] = list[i].z; RR[i] = rad * (list[i].s || 1); HH[i] = hgt * (list[i].s || 1); }
+        var flag = new Uint8Array(n);
+        return function (px, pz, dx, dz, tanT) {
+          var changed = false, i;
+          for (i = 0; i < n; i++) {
+            var vx = X[i] - px, vz = Z[i] - pz, along = vx * dx + vz * dz, lat = vx * dz - vz * dx;
+            if (lat < 0) lat = -lat;
+            // 카메라 쪽으로 (높이+반경)/tan(기울기) 까지는 코코 둘레를 덮을 수 있다. 뒤쪽은 반경만큼.
+            // 문턱에 걸쳐 매 프레임 깜빡이지 않게 이력(hysteresis): 이미 반투명이면 10 단위 더 멀어져야 돌아온다.
+            // (행렬을 다시 올리면 GPU 가 쓰던 버퍼라 기다림이 생긴다 — 바뀌는 프레임을 드물게)
+            var hy = flag[i] ? 10 : 0;
+            var hit = along > -RR[i] - 6 - hy && along < (HH[i] + RR[i]) / tanT + pad + hy && lat < RR[i] + pad + hy ? 1 : 0;
+            if (hit !== flag[i]) { flag[i] = hit; changed = true; }
+          }
+          if (!changed) return;
+          var a = solid.instanceMatrix.array, b = ghost.instanceMatrix.array, ns = 0, ng = 0, k;
+          for (i = 0; i < n; i++) {
+            if (flag[i]) { for (k = 0; k < 16; k++) b[ng * 16 + k] = M0[i * 16 + k]; ng++; }
+            else { for (k = 0; k < 16; k++) a[ns * 16 + k] = M0[i * 16 + k]; ns++; }
+          }
+          solid.count = ns; ghost.count = ng;
+          solid.instanceMatrix.needsUpdate = true; ghost.instanceMatrix.needsUpdate = true;
+        };
+      }
       function scatter(n, minPath, maxPath, minGap, taken, edge) {
         var out = [], tries = 0;
         while (out.length < n && tries++ < n * 60) {
@@ -663,10 +709,11 @@
         part(GEO.ico1, C.g2, [3.2, 21, -1], 5.6),
         part(GEO.ico0, C.g3, [-1.5, 24.5, 1.2], 3.0),
       ]);
-      inst("trees", treeGeo, scatter(26, 26, 1e9, 30, taken, 24));
+      var occ = [];
+      occ.push(occluder("trees", treeGeo, scatter(26, 26, 1e9, 30, taken, 24), 10, 27, 26));
       // 덤불
       var bushGeo = merge([part(GEO.ico1, C.g1, [0, 3.4, 0], [5, 4.2, 4.6]), part(GEO.ico1, C.g2, [3.6, 2.8, 1.2], 3.4), part(GEO.ico1, C.g0, [-3.4, 2.6, -0.8], 3.2), part(GEO.ico0, C.g3, [0.8, 6.4, 0.6], 1.6)]);
-      inst("bushes", bushGeo, scatter(46, 16, 1e9, 14, taken, 14));
+      occ.push(occluder("bushes", bushGeo, scatter(46, 16, 1e9, 14, taken, 14), 6, 8, 14));
       // 꽃무리
       var fl = [part(lowBall(6, 3), C.g2, [0, 0.6, 0], [4.2, 0.9, 3.4])];
       [[0, 0, C.flP], [2.2, 1.0, C.flY], [-2.1, 0.8, C.flB], [1.0, -1.8, C.purp2], [-1.2, -1.5, C.flY], [2.6, -1.0, C.flP], [-2.6, -0.6, C.purp2]].forEach(function (f, k) {
@@ -714,8 +761,15 @@
         bulbMat.color.set(on > 0.5 ? C.glow : C.cr1);
       }
       setTod(tod);
+      // occlude(px, pz, camPos): 매 프레임 시안이 부른다(코코 규칙 좌표 x·y, 카메라 THREE.Vector3). 할당 없음.
+      function occlude(px, pz, cam) {
+        var dx = cam.x - px, dz = cam.z - pz, hd = Math.sqrt(dx * dx + dz * dz);
+        if (hd < 1e-3) { dx = 0; dz = 1; hd = 1e-3; } else { dx /= hd; dz /= hd; }
+        var tanT = Math.max(0.2, cam.y / hd);
+        for (var i = 0; i < occ.length; i++) occ[i](px, pz, dx, dz, tanT);
+      }
       root.userData.drawCalls = root.children.length;
-      return { root: root, setTod: setTod, curve: curve };
+      return { root: root, setTod: setTod, curve: curve, occlude: occlude };
     }
 
     // ══ 접지 그림자 ════════════════════════════════════════════
