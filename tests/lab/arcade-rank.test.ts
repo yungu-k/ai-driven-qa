@@ -15,6 +15,7 @@ test("정상 점수는 받는다, 모르는 게임은 거른다", () => {
   assert.equal(reason("sheep", ok), "ok");
   assert.equal(reason("sheep", { ...ok, score: 0, sec: 0, say: "" }), "ok");
   assert.equal(reason("coco", ok), "ok");
+  assert.equal(reason("goblin", ok), "ok");
   assert.equal(reason("nope", ok), "game");
   assert.equal(reason("__proto__", ok), "game");
 });

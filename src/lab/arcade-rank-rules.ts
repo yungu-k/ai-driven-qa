@@ -19,6 +19,9 @@ export const GAMES: Record<string, Game> = {
   // 코코의 하루: 버틴 초×10 + 처치 + 가득 스키×30 + (이기면 5000 + 남은 체력×20). 규격 docs/lab-surv-coco-spec.md 6절 B4
   // 기운은 초당 40 이라 가득(100) 스키는 2.5초에 한 번 꼴 → 초당 30×0.4 = 12. 체력은 400 을 넘기 어렵다고 본다
   coco: { key: "surv:coco:rank", maxSec: 605, maxScore: sec => Math.ceil(sec * (10 + 12 + 12) + 5000 + 400 * 20) },
+  // 도깨비 퇴치: 버틴 초×10 + 처치 + 체 털기×5 + 한 번에 가장 많이×30 + (이기면 5000 + 남은 체력×20). 규격 docs/lab-surv-goblin-spec.md 6절 A5
+  // 털기는 초당 1 번을 넘기 어렵고, 한 번에 앉는 수는 체 셋 × 12 를 넘지 않는다고 넉넉히 본다
+  goblin: { key: "surv:goblin:rank", maxSec: 605, maxScore: sec => Math.ceil(sec * (10 + 12 + 5) + 40 * 30 + 5000 + 400 * 20) },
 };
 
 export type ScoreCheck = { ok: true; entry: ScoreEntry } | { ok: false; reason: string };

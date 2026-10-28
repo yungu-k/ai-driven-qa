@@ -1,0 +1,78 @@
+---
+// 그냥 오락실 — 도깨비 퇴치. 밤 장터 엿장수 꼬마가 체로 도깨비를 붙들고(구멍을 세느라 앉는다) 털어 내며 닭 울 때까지 버틴다(서바이버류).
+// 규격 docs/lab-surv-goblin-spec.md · 뼈대 src/lab/survivors/core.ts · 소재 goblin.ts · 화면 goblin-game.ts(공통 껍데기 shell.ts) · 그림 goblin-art.js
+// 화면을 꽉 채우는 게임이라 실험실 위 막대 없이(bare) 그린다. 돌아가기·소리·그만두기는 Ⅱ 메뉴.
+import LabLayout from "@/lab/LabLayout.astro";
+import "@/lab/survivors/shell.css";
+---
+
+<LabLayout title="도깨비 퇴치" description="체로 도깨비를 붙들고 닭 울 때까지 버티기" bare>
+  <div id="app">
+    <header id="hud">
+      <span class="chip" title="아이"><span class="num" id="hpNum">100</span></span>
+      <div class="bar" id="hpBar" aria-label="체력"><i></i></div>
+      <span class="chip" title="놓인 체 / 앉아 세는 도깨비">체 <span class="num" id="sieveNum">0</span></span>
+      <button class="hbtn" id="menuBtn" aria-label="멈춤 메뉴" title="멈춤">II</button>
+    </header>
+    <div id="sub">
+      <div class="bar" id="dawnBar" aria-label="닭 울 때까지"><i></i></div>
+      <span class="num" id="clock">10:00</span>
+      <div class="bar" id="xpBar" aria-label="경험치"><i></i></div>
+      <span class="num" id="lvNum">LV 1</span>
+    </div>
+    <div id="wrap">
+      <canvas id="cv" width="180" height="300" aria-label="밤 장터. 화면 아무 데나 눌러 끌면 걷는다. 지나간 자리에 체가 놓인다"></canvas>
+      <div id="say"></div>
+      <div id="stick"><i></i></div>
+      <div id="hint">끌어서 걷기 · 도깨비가 앉은 체를 밟기</div>
+    </div>
+
+    <div class="over on" id="start">
+      <div class="box">
+        <p>밤 장터 엿장수 꼬마</p>
+        <h1>도깨비 퇴치</h1>
+        <p class="hi" id="hi" hidden></p>
+        <p>지나간 자리에 <b>체</b>가 놓인다.<br />도깨비는 체만 보면 앉아서 구멍을 센다.<br />돌아가 체를 밟으면 <b>체 털기</b>!</p>
+        <p>닭이 울 때까지 버티면 이긴다.</p>
+        <button class="btn" id="go">시작</button>
+        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
+      </div>
+    </div>
+    <div class="over" id="lvl">
+      <div class="box">
+        <h2 id="lvTitle">LV 2</h2>
+        <div class="cards" id="cards"></div>
+        <button class="btn ghost" id="reroll">다시 뽑기 (<span id="rr">2</span>)</button>
+      </div>
+    </div>
+    <div class="over" id="menu">
+      <div class="box">
+        <h2>잠깐 멈춤</h2>
+        <button class="btn" id="mResume">계속</button>
+        <button class="btn ghost" id="mSnd">소리 켬</button>
+        <button class="btn ghost" id="mQuit">그만두기 → 점수 남기기</button>
+        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
+      </div>
+    </div>
+    <div class="over" id="end">
+      <div class="box">
+        <h2 id="endTitle">닭이 울었다</h2>
+        <p id="endSub"></p>
+        <div class="res" id="res"></div>
+        <div id="entry">
+          <label class="field">이니셜 3글자(영문·숫자)<input id="ini" class="ini" maxlength="3" autocapitalize="characters" autocomplete="off" spellcheck="false" /></label>
+          <label class="field">한마디(20자)<input id="sayIn" maxlength="20" autocomplete="off" placeholder="예: 체가 최고" /></label>
+          <button class="btn" id="enter">이름 남기기</button>
+        </div>
+        <div id="board" hidden></div>
+        <button class="btn ghost" id="again">다시</button>
+        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
+      </div>
+    </div>
+  </div>
+</LabLayout>
+
+<script>
+  import { initGoblin } from "@/lab/survivors/goblin-game";
+  initGoblin();
+</script>
