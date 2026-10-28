@@ -1,0 +1,18 @@
+---
+// 내기 모음 8 — 5초 릴레이(폰 하나 돌려 가며 2–4명, 봇과 혼자 연습도). 라운드마다 과제 하나(연타·박자·멈춰!·기억)를 모두가 차례로 5초씩.
+// 규격 docs/lab-party-relay-spec.md(게임) · docs/lab-party-spec.md(공통 틀) · 시안 docs/lab-party-relay-mock.html
+// 엔진 src/lab/party/relay.ts · 화면 relay-game.ts + relay.css · 틀 shell.ts + shell.css. 옮기는 법 docs/lab-party-port-recipe.md
+// bare: 틀이 제 위 막대(돌아가기·제목·?·소리)를 그린다. paint 는 틀 바탕 하늘 맨 위 색(shell.css body 그라데이션 첫 정지점).
+import LabLayout from "@/lab/LabLayout.astro";
+import "@/lab/party/shell.css";
+import "@/lab/party/relay.css";
+---
+
+<LabLayout title="5초 릴레이" description="폰 하나 돌려 가며 2–4명 — 차례마다 5초 과제 하나(연타·박자·멈춰!·기억), 합계가 가장 적은 사람이 꼴찌" bare paint="#bfe6ff">
+  <div id="pt-app"><div id="pt-game"></div></div>
+</LabLayout>
+
+<script>
+  import { initRelay } from "@/lab/party/relay-game";
+  initRelay();
+</script>

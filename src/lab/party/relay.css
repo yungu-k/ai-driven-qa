@@ -1,0 +1,47 @@
+/* 내기 모음 8 「5초 릴레이」 화면 겉모양 — 시안 docs/lab-party-relay-mock.html(0fa31e16) 의 <style> 그대로. 틀 겉모양은 ./shell.css */
+.rl { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 8px; padding-bottom: 64px; } /* 아래 64: 봇 「하는 중」 띠 자리 · 위아래로 고루(아이패드에서 위에 몰리지 않게)
+   알림 줄은 판 위(고리 아래) — 판 아래에 두니 첫 판 말풍선(판 아래로 뜸)이 「잘 봐요…」 를 반쯤 가렸다(화면 보고 고침) */
+.rl-round { font-size: 14px; font-weight: 700; color: var(--lab-ink-2); }
+.rl-who { display: flex; align-items: center; gap: 8px; font-size: 21px; font-weight: 900; color: var(--lab-title); word-break: keep-all; text-align: center; }
+.rl-who .pt-mark { width: 22px; height: 22px; }
+.rl-ring { width: clamp(96px, 16dvh, 150px); height: clamp(96px, 16dvh, 150px); }
+.rl-ring .bg { fill: #fffaf2; stroke: var(--lab-line); stroke-width: 10; }
+.rl-ring .arc { fill: none; stroke: #2fb5a8; stroke-width: 10; stroke-linecap: round; }
+.rl-ring.count .arc { stroke: #ecd3a6; }
+.rl-ring.low .arc { stroke: #f07a8a; }
+.rl-ring text { font-weight: 900; fill: var(--lab-ink); font-variant-numeric: tabular-nums; }
+.rl-stage { width: min(100%, 420px); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.rl-stage.wait, .rl-stage.botturn { pointer-events: none; } /* 3·2·1 동안 · 봇 차례엔 못 누른다 */
+.rl-stage.wait .rl-press { opacity: .7; }
+.rl-msg { min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 17px; font-weight: 800; color: var(--lab-ink); text-align: center; word-break: keep-all; }
+.rl-msg .pt-btn { min-height: 44px; font-size: 15px; padding: 0 16px; }
+.rl-pop { font-size: 26px; color: var(--lab-title); }
+/* 큰 누름판(연타·박자) — 누를 때마다 다시 만들지 않는다(연타 끊김) */
+.rl-press { width: min(100%, 260px, 32dvh); aspect-ratio: 1; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px var(--lab-line) inset, 0 8px 18px var(--lab-shadow); cursor: pointer; display: grid; place-items: center; touch-action: manipulation; user-select: none; -webkit-user-select: none; padding: 0; }
+.rl-press svg { width: 88%; height: 88%; pointer-events: none; }
+.rl-press.hit { box-shadow: 0 0 0 6px #2fb5a8 inset, 0 4px 10px var(--lab-shadow); }
+.rl-bar { width: min(100%, 300px); height: 14px; border-radius: 7px; background: #fff; box-shadow: 0 0 0 2px var(--lab-line) inset; overflow: hidden; }
+.rl-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffd36b, #e0a640); border-radius: 7px; }
+.rl-dots { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.rl-dots i { width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px var(--lab-line) inset; }
+.rl-dots i.g { background: #2fb5a8; box-shadow: none; } .rl-dots i.m { background: #e0a640; box-shadow: none; } .rl-dots i.x { background: #f0c8cf; box-shadow: none; }
+/* 멈춰!: 바늘이 막대 위를 오간다 — 초록 칸 가운데일수록 높은 점수 */
+.rl-gauge { position: relative; width: min(100%, 360px); height: clamp(64px, 11dvh, 96px); border-radius: 18px; background: #fff; box-shadow: 0 0 0 3px var(--lab-line) inset; overflow: hidden; }
+.rl-band { position: absolute; top: 0; bottom: 0; background: linear-gradient(90deg, rgba(47,181,168,0), rgba(47,181,168,.55) 50%, rgba(47,181,168,0)); }
+.rl-mid { position: absolute; top: 8px; bottom: 8px; width: 4px; margin-left: -2px; border-radius: 2px; background: #15665f; }
+.rl-needle { position: absolute; top: 0; bottom: 0; width: 0; }
+.rl-needle::before { content: ""; position: absolute; top: 4px; bottom: 4px; left: -4px; width: 8px; border-radius: 4px; background: var(--lab-ink); }
+.rl-needle svg { position: absolute; left: -16px; top: 50%; width: 32px; height: 32px; margin-top: -16px; }
+.rl-bowl { width: 40px; height: 30px; margin-bottom: -6px; position: relative; }
+.rl-stopb { width: min(100%, 300px); min-height: 84px; font-size: 26px; border-radius: 26px; touch-action: manipulation; }
+/* 기억: 간식 6칸 — 빛난 차례대로 */
+.rl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: min(100%, 340px); }
+.rl-cell { position: relative; aspect-ratio: 1; min-height: 84px; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 0 0 3px var(--lab-line) inset, 0 4px 10px var(--lab-shadow); cursor: pointer; display: grid; place-items: center; touch-action: manipulation; padding: 0; }
+.rl-cell svg { width: 62%; height: 62%; pointer-events: none; }
+.rl-cell.lit { background: #fff4c8; box-shadow: 0 0 0 5px #e0a640 inset, 0 0 22px #ffd36b; }
+.rl-cell.done { background: #e9f8f5; box-shadow: 0 0 0 4px #2fb5a8 inset; }
+.rl-cell.wrong { background: #fde6ea; box-shadow: 0 0 0 4px #f07a8a inset; }
+.rl-cell b { position: absolute; top: 4px; right: 8px; font-size: 18px; font-weight: 900; color: var(--lab-title); }
+body.reduce .rl-press.hit, body.reduce .rl-cell.lit { transition: none; }
+/* 360×640 처럼 짧은 폰: 4명 연타·박자 차례에 문서가 12 px 넘쳐 페이지가 밀렸다(tw 10-28) — 봇 띠 자리를 48 로 */
+@media (max-height: 680px) { .rl { padding-bottom: 48px; } }

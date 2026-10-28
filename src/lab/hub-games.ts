@@ -155,6 +155,16 @@ export const GAMES: HubGame[] = [
     group: "party",
     players: "2–4명",
   },
+  {
+    slug: "relay",
+    title: "5초 릴레이",
+    blurb: "라운드마다 과제 하나 — 연타·박자·멈춰!·기억을 모두가 차례로 5초씩. 과제마다 0–100점, 합계가 가장 적은 사람이 꼴찌!",
+    guide: "차례마다 5초 과제 하나 — 연타·박자·멈춰!·기억, 합계 꼴찌가 음료",
+    wip: "초시계 감는 중",
+    ph: ["#fde6ea", "#f5a3b0", "#a8344a"],
+    group: "party",
+    players: "2–4명",
+  },
 ];
 
 export const PLAYABLE = GAMES.filter(g => !g.soon);
