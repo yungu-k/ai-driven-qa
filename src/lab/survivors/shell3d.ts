@@ -44,6 +44,9 @@ export type Shell3D = {
   outerColor: number; // 월드 밖 바닥 색
   todOf(g: any): number;
   camBottom?: number; // 카메라 목표 아래쪽 묶음(월드 끝에서 이만큼 안쪽, 기본 45)
+  rings?: Record<string, [number, number, number]>; // 바닥 고리 종류 더하기·덮기 [색, 불투명, 안쪽 반경] — 기본 6종(bark·wave·zone·warn·aura·trail) 뒤에 붙는다
+  parts?: Record<string, string>; // 입자 색 더하기·덮기(겹 캔버스) — 기본 6종 위에
+  hemiGround?: number; // 반구광 땅 색(기본 잔디색 0x47a35a — 밤 장터처럼 바닥이 초록으로 물들면 덮는다)
   build(st: Stage): Scene3D;
   cardText(c: any, D: any): CardText;
   onEvent?(ev: any, g: any, fx: { say(t: string): void; juice: Juice; sfx: typeof sfx }): void;
@@ -74,7 +77,7 @@ export function runSurvivor3D(S: Shell3D) {
   const camera = new THREE.PerspectiveCamera(32, 1, 20, 1400);
   // 1판 55°·폭 180 은 주인공이 화면 폭 1/9 의 덩어리로 보였다 → 50°·폭 150(원근이라 위쪽은 더 넓게 보인다)
   const CAM = { tilt: (50 * Math.PI) / 180, dist: 560, ahead: 18, width: 150 }; // ahead: 주인공을 화면 가운데보다 위에(엄지가 아래)
-  const hemi = new THREE.HemisphereLight(0xfff4e3, 0x47a35a, 1.6);
+  const hemi = new THREE.HemisphereLight(0xfff4e3, S.hemiGround ?? 0x47a35a, 1.6);
   const sun = new THREE.DirectionalLight(0xfffbf4, 1.6);
   sun.position.set(-160, 300, -120);
   scene.add(hemi, sun);
@@ -89,7 +92,7 @@ export function runSurvivor3D(S: Shell3D) {
   blob.count = 0; blob.frustumCulled = false; blob.renderOrder = 1; scene.add(blob);
   // 바닥 고리(짖음·바람·물웅덩이·오라·자국): 고리 메시 묶음
   const ringMat = (c: number, o: number) => new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: o, depthWrite: false, side: THREE.DoubleSide });
-  const RINGS: Record<string, [number, number, number]> = { bark: [0xffd36b, 0.75, 0.82], wave: [0xe9fbff, 0.8, 0.86], zone: [0x7fd4ff, 0.5, 0], warn: [0x7fd4ff, 0.6, 0.9], aura: [0xb99af0, 0.35, 0.93], trail: [0xcdeea0, 0.7, 0] };
+  const RINGS: Record<string, [number, number, number]> = { bark: [0xffd36b, 0.75, 0.82], wave: [0xe9fbff, 0.8, 0.86], zone: [0x7fd4ff, 0.5, 0], warn: [0x7fd4ff, 0.6, 0.9], aura: [0xb99af0, 0.35, 0.93], trail: [0xcdeea0, 0.7, 0], ...S.rings };
   const RP: Record<string, any> = {};
   for (const k in RINGS) { const [c, o, inner] = RINGS[k]; const m = new THREE.InstancedMesh(new THREE.RingGeometry(inner, 1, 40).rotateX(-Math.PI / 2), ringMat(c, o), 40); m.count = 0; m.frustumCulled = false; m.renderOrder = 2; scene.add(m); RP[k] = m; }
   const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3(), _e = new THREE.Euler(), _c = new THREE.Color();
@@ -340,7 +343,7 @@ export function runSurvivor3D(S: Shell3D) {
   // ── 그리기 틀 ────────────────────────────────────────────
   const _v = new THREE.Vector3();
   function toScreen(x: number, h: number, y: number): [number, number, boolean] { _v.set(x, h, y).project(camera); return [(_v.x * 0.5 + 0.5) * ov.width, (-_v.y * 0.5 + 0.5) * ov.height, _v.z < 1]; }
-  const PC: Record<string, string> = { dust: "#ecd3a6", sparkle: "#fff0b8", fur: "#b8643a", bubble: "#eef8ff", heart: "#f07a8a", star: "#ffd36b" };
+  const PC: Record<string, string> = { dust: "#ecd3a6", sparkle: "#fff0b8", fur: "#b8643a", bubble: "#eef8ff", heart: "#f07a8a", star: "#ffd36b", ...S.parts };
   const CAM_BOTTOM = S.camBottom ?? 45;
   function render() {
     const p = g.p;

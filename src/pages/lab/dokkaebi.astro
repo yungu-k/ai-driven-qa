@@ -1,40 +1,37 @@
 ---
-// 그냥 오락실 — 도깨비 퇴치. 밤 장터 엿장수 꼬마가 체로 도깨비를 붙들고(구멍을 세느라 앉는다) 털어 내며 닭 울 때까지 버틴다(서바이버류).
-// 규격 docs/lab-surv-goblin-spec.md · 뼈대 src/lab/survivors/core.ts · 소재 goblin.ts · 화면 goblin-game.ts(공통 껍데기 shell.ts) · 그림 goblin-art.js
-// 화면을 꽉 채우는 게임이라 실험실 위 막대 없이(bare) 그린다. 돌아가기·소리·그만두기는 Ⅱ 메뉴.
+// 그냥 오락실 — 도깨비 퇴치(3D). 밤 장터 엿장수 꼬마가 체로 도깨비를 붙들고(구멍을 세느라 앉는다) 털어 내며 닭 울 때까지 버틴다(서바이버류).
+// 10-28 도트판 → 로우폴리 3D(규칙은 그대로). 규격 docs/lab-surv-goblin-spec.md(규칙) + docs/lab-surv-goblin-3d-spec.md(3D)
+// 규칙 src/lab/survivors/core.ts + goblin.ts · 화면 goblin3d-game.ts(공통 shell3d.ts) · 모델 goblin3d-models.js · 카드 아이콘 goblin-icons.js
 import LabLayout from "@/lab/LabLayout.astro";
-import "@/lab/survivors/shell.css";
+import "@/lab/survivors/coco3d.css";
 ---
 
-<LabLayout title="도깨비 퇴치" description="체로 도깨비를 붙들고 닭 울 때까지 버티기" bare paint="#0e0c1c">
+<LabLayout title="도깨비 퇴치" description="체로 도깨비를 붙들고 닭 울 때까지 버티기" bare paint="#2a2440">
   <div id="app">
-    <header id="hud">
-      <span class="chip" title="아이"><span class="num" id="hpNum">100</span></span>
-      <div class="bar" id="hpBar" aria-label="체력"><i></i></div>
-      <span class="chip" title="놓인 체 / 앉아 세는 도깨비">체 <span class="num" id="sieveNum">0</span></span>
-      <button class="hbtn" id="menuBtn" aria-label="멈춤 메뉴" title="멈춤">II</button>
-    </header>
-    <div id="sub">
-      <div class="bar" id="dawnBar" aria-label="닭 울 때까지"><i></i></div>
-      <span class="num" id="clock">10:00</span>
-      <div class="bar" id="xpBar" aria-label="경험치"><i></i></div>
-      <span class="num" id="lvNum">LV 1</span>
-    </div>
     <div id="wrap">
-      <canvas id="cv" width="180" height="300" aria-label="밤 장터. 화면 아무 데나 눌러 끌면 걷는다. 지나간 자리에 체가 놓인다"></canvas>
-      <div id="say"></div>
+      <canvas id="cv" style="position:absolute;inset:0;width:100%;height:100%;transform:none;left:0;top:0" aria-label="밤 장터. 화면 아무 데나 눌러 끌면 걷는다. 지나간 자리에 체가 놓인다"></canvas>
+      <canvas id="ov" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas>
       <div id="stick"><i></i></div>
-      <div id="hint">끌어서 걷기 · 도깨비가 앉은 체를 밟기</div>
+      <div id="hint"><span>끌어서 걷기 · 도깨비가 앉은 체를 다시 밟기</span></div>
     </div>
+    <div id="hud">
+      <div class="pill"><span class="num" id="hpNum">100</span><div class="bar" id="hpBar"><i></i></div></div>
+      <div class="pill"><span class="num" id="clock">10:00</span><div class="bar" id="dawnBar"><i></i></div></div>
+      <div class="pill" title="체 · 앉은 도깨비">체 <span class="num" id="sieveNum">0</span></div>
+      <div class="pill"><span class="num" id="lvNum">LV 1</span></div>
+      <button class="pill hbtn" id="menuBtn" aria-label="멈춤 메뉴" title="멈춤">II</button>
+      <div style="grid-column: 1 / -1; height: 5px; border-radius: 999px; background: rgba(255, 250, 242, .5); overflow: hidden"><div class="bar" id="xpBar" style="height: 5px; background: none"><i></i></div></div>
+    </div>
+    <div id="say"><span></span></div>
 
     <div class="over on" id="start">
       <div class="box">
-        <p>밤 장터 엿장수 꼬마</p>
+        <div class="kicker">설날 밤 장터</div>
         <h1>도깨비 퇴치</h1>
         <p class="hi" id="hi" hidden></p>
-        <p>지나간 자리에 <b>체</b>가 놓인다.<br />도깨비는 체만 보면 앉아서 구멍을 센다.<br />돌아가 체를 밟으면 <b>체 털기</b>!</p>
-        <p>닭이 울 때까지 버티면 이긴다.</p>
-        <button class="btn" id="go">시작</button>
+        <p>지나간 자리에 <b>체</b>가 놓여요.<br />도깨비는 체만 보면 앉아서 구멍을 세요.</p>
+        <p>돌아가 체를 밟으면 <b>체 털기</b>! 닭이 울 때까지 버텨요.</p>
+        <button class="btn" id="go">장터로</button>
         <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
       </div>
     </div>
@@ -47,9 +44,10 @@ import "@/lab/survivors/shell.css";
     </div>
     <div class="over" id="menu">
       <div class="box">
-        <h2>잠깐 멈춤</h2>
+        <h2>잠깐 쉬기</h2>
         <button class="btn" id="mResume">계속</button>
-        <button class="btn ghost" id="mSnd">소리 켬</button>
+        <button class="btn ghost" id="mSnd" aria-pressed="true">소리 <span class="mstate">켬</span></button>
+        <button class="btn ghost" id="mReduce" aria-pressed="false">줄인 동작 <span class="mstate">끔</span></button>
         <button class="btn ghost" id="mQuit">그만두기 → 점수 남기기</button>
         <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
       </div>
@@ -65,14 +63,19 @@ import "@/lab/survivors/shell.css";
           <button class="btn" id="enter">이름 남기기</button>
         </div>
         <div id="board" hidden></div>
-        <button class="btn ghost" id="again">다시</button>
+        <button class="btn ghost" id="again">한 번 더</button>
         <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
       </div>
     </div>
   </div>
 </LabLayout>
 
+<style is:global>
+  /* 넓은 화면의 좌우(게임 밖)도 장터 바깥 밤 흙색 — coco3d.css 의 남보라 위에 */
+  html, body { background: #2a2440; }
+</style>
+
 <script>
-  import { initGoblin } from "@/lab/survivors/goblin-game";
-  initGoblin();
+  import { initGoblin3d } from "@/lab/survivors/goblin3d-game";
+  initGoblin3d();
 </script>
