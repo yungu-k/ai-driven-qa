@@ -1,0 +1,24 @@
+/* 내기 모음 3 「한 칸 더?」 화면 겉모양 — 시안 docs/lab-party-pushluck-mock.html(adf31d38) 의 <style> 그대로. 틀 겉모양은 ./shell.css */
+.pl { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 12px; padding-bottom: 20px; }
+.pl-round { font-size: 14px; font-weight: 700; color: var(--lab-ink-2); }
+.pl-stage { position: relative; width: min(100%, 420px, 44dvh); aspect-ratio: 1; } /* 넓은 화면에선 판이 커진다(휴대폰은 폭 · 낮은 화면은 높이로 묶음) */
+.pl-stage > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* 접시 칸 여섯: 눈 = 간식. 찬 칸은 간식 그림, 빈 칸은 옅은 숫자 점 */
+.pl-slot { transition: transform .25s cubic-bezier(.3, 1.5, .5, 1); transform-box: fill-box; transform-origin: center; }
+.pl-slot.pop { transform: scale(1.18); }
+body.reduce .pl-slot { transition: none; }
+.pl-pot { font-size: 40px; font-weight: 900; color: var(--lab-title); line-height: 1; font-variant-numeric: tabular-nums; }
+.pl-pot small { display: block; font-size: 13px; font-weight: 700; color: var(--lab-ink-2); margin-top: 4px; }
+.pl-risk { display: flex; gap: 4px; align-items: center; font-size: 13px; font-weight: 700; color: var(--lab-ink-2); }
+.pl-risk i { width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px var(--lab-line) inset; }
+.pl-risk i.on { background: #f07a8a; box-shadow: none; }
+.pl-acts { display: flex; gap: 10px; width: 100%; max-width: 360px; }
+.pl-acts .pt-btn { flex: 1; min-height: 60px; font-size: 19px; }
+.pl-toast { min-height: 24px; font-size: 16px; font-weight: 800; color: var(--lab-title); text-align: center; word-break: keep-all; }
+.pl-die { transform-box: fill-box; transform-origin: center; }
+@keyframes pl-tumble { 0% { transform: rotate(0) scale(.8); } 60% { transform: rotate(320deg) scale(1.1); } 100% { transform: rotate(360deg) scale(1); } }
+.pl-die.roll { animation: pl-tumble .45s ease-out; }
+body.reduce .pl-die.roll { animation: none; }
+@keyframes pl-shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.pl-coco.stare { animation: pl-shake .3s 2; transform-box: fill-box; }
+body.reduce .pl-coco.stare { animation: none; }

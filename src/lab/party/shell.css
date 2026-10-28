@@ -1,0 +1,144 @@
+/* 실험실 「내기 모음」 공통 틀 겉모양 — 규격 docs/lab-party-spec.md. 허브 토큰(lab-tokens.css)과 같은 값 · 크림·하늘 결.
+   게임 화면은 #pt-game 안에 그린다. 덮개(설정·넘기기·규칙·결과)는 그 위에 겹친다. */
+:root {
+  --lab-sky-1: #bfe6ff; --lab-sky-2: #dff1ff; --lab-sky-3: #fff4e3;
+  --lab-card: #fffaf2; --lab-thumb: #f6e3c4; --lab-line: #ecd3a6;
+  --lab-ink: #3a2228; --lab-ink-2: #5a3a42; --lab-title: #8e4526; --lab-teal-ink: #15665f;
+  --lab-gold: #ffd36b; --lab-gold-2: #e0a640;
+  --lab-shadow: rgba(58, 34, 40, .12); --lab-shadow-2: rgba(58, 34, 40, .2);
+  --lab-font: "Pretendard Variable", Pretendard, system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  /* 사람 색 4 — 색만으로 가르지 않는다(모양 표지 ● ▲ ■ ★ 와 한 짝). 크림 위 글자 대비 ≥ 4.5 는 진한 짝(-ink)으로 */
+  --p1: #f07a8a; --p1-ink: #a8344a; --p2: #2fb5a8; --p2-ink: #15665f; --p3: #e0a640; --p3-ink: #7a4e0a; --p4: #8b5cd6; --p4-ink: #5a3196;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: linear-gradient(180deg, var(--lab-sky-1), var(--lab-sky-2) 40%, var(--lab-sky-3)); color: var(--lab-ink); font-family: var(--lab-font); -webkit-tap-highlight-color: transparent; }
+#pt-app { position: relative; max-width: 560px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; padding: 0 16px env(safe-area-inset-bottom); }
+button { font: inherit; color: inherit; }
+.pt-btn { min-height: 48px; min-width: 48px; padding: 0 22px; border: 0; border-radius: 999px; background: linear-gradient(180deg, #ffd36b, #e0a640); color: var(--lab-ink); font-weight: 800; font-size: 17px; box-shadow: 0 3px 0 #b07a1c, 0 6px 14px var(--lab-shadow); cursor: pointer; }
+.pt-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #b07a1c; }
+.pt-btn.ghost { background: var(--lab-card); box-shadow: 0 0 0 2px var(--lab-line) inset; }
+.pt-btn[disabled] { opacity: .45; }
+
+/* 위 막대: 돌아가기 · 제목 · ? · 소리 */
+.pt-top { display: flex; align-items: center; gap: 8px; height: 56px; }
+.pt-top h1 { flex: 1; margin: 0; font-size: 17px; font-weight: 800; color: var(--lab-title); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-icon { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--lab-card); box-shadow: 0 2px 8px var(--lab-shadow); font-weight: 900; font-size: 18px; cursor: pointer; display: grid; place-items: center; }
+.pt-icon svg { width: 22px; height: 22px; }
+
+/* 차례 띠: 사람 넷 알약, 지금 차례는 커지고 색이 찬다 */
+.pt-turns { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); grid-auto-flow: column; gap: 6px; margin: 4px 0 10px; }
+@media (max-width: 459px) { .pt-turns.n4 { grid-template-columns: 1fr 1fr; grid-auto-flow: row; } } /* 360 폭에 넷이 한 줄이면 이름이 「4..」 로 잘렸다 */
+.pt-chip { min-width: 0; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: var(--lab-card); box-shadow: 0 0 0 2px var(--lab-line) inset; font-size: 14px; font-weight: 700; }
+.pt-chip b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pt-chip .pt-sc { font-variant-numeric: tabular-nums; }
+.pt-chip.now { box-shadow: 0 0 0 3px var(--c) inset, 0 4px 10px var(--lab-shadow); transform: translateY(-2px); }
+.pt-mark { width: 18px; height: 18px; flex: none; }
+
+#pt-game { position: relative; flex: 1; display: flex; flex-direction: column; }
+
+/* 덮개 공통 */
+.pt-over { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(58, 34, 40, .35); }
+.pt-over.on { display: flex; }
+.pt-box { width: 100%; max-width: 420px; max-height: calc(100dvh - 32px); overflow: auto; background: var(--lab-card); border-radius: 24px; padding: 22px 18px; box-shadow: 0 12px 40px var(--lab-shadow-2); text-align: center; }
+.pt-box h2 { margin: 0 0 6px; font-size: 22px; color: var(--lab-title); }
+.pt-box p { margin: 6px 0; color: var(--lab-ink-2); line-height: 1.5; word-break: keep-all; }
+
+/* 설정: 인원 · 이름 · 색 */
+.pt-count { display: flex; gap: 8px; justify-content: center; margin: 10px 0 14px; }
+.pt-count button { width: 56px; height: 48px; border-radius: 14px; border: 0; background: var(--lab-thumb); font-weight: 800; font-size: 18px; cursor: pointer; }
+.pt-count button[aria-pressed="true"] { background: var(--lab-gold); box-shadow: 0 0 0 3px var(--lab-gold-2) inset; }
+.pt-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.pt-row input { flex: 1; min-width: 0; height: 48px; border-radius: 14px; border: 2px solid var(--lab-line); padding: 0 12px; font: inherit; font-size: 16px; background: #fff; color: var(--lab-ink); }
+.pt-row input:focus { outline: 3px solid var(--c); outline-offset: 1px; }
+.pt-swatch { width: 48px; height: 48px; border-radius: 14px; border: 0; background: var(--c); display: grid; place-items: center; cursor: pointer; }
+.pt-swatch .pt-mark { width: 24px; height: 24px; }
+.pt-opts { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; text-align: left; font-size: 15px; }
+.pt-opts label { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.pt-opts input { width: 22px; height: 22px; }
+
+/* 넘기기: 다음 사람 색이 화면을 덮는다. 숨은 정보 게임은 「열기」 를 눌러야 열린다 */
+#pt-hand { background: var(--c); z-index: 30; flex-direction: column; color: #fff; text-align: center; }
+#pt-hand .pt-big { width: 112px; height: 112px; border-radius: 50%; background: rgba(255, 255, 255, .92); display: grid; place-items: center; box-shadow: 0 8px 24px rgba(0, 0, 0, .15); }
+#pt-hand .pt-big .pt-mark { width: 60px; height: 60px; }
+#pt-hand h2 { margin: 18px 0 6px; font-size: 30px; text-shadow: 0 2px 0 rgba(0, 0, 0, .15); color: #fff; }
+#pt-hand p { margin: 0 0 22px; font-size: 17px; font-weight: 600; color: #fff; opacity: .95; }
+#pt-hand .pt-hint { font-size: 13px; opacity: .85; margin-top: 14px; }
+#pt-hand .pt-hand-art { width: 160px; height: 70px; margin: 8px 0 0; }
+@keyframes pt-pass { 0% { transform: translateX(-24px) rotate(-8deg); } 50% { transform: translateX(24px) rotate(8deg); } 100% { transform: translateX(-24px) rotate(-8deg); } }
+#pt-hand .pt-hand-art .phone { animation: pt-pass 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+body.reduce #pt-hand .pt-hand-art .phone { animation: none; }
+/* 숨은 정보가 안 비치게: 넘기기 덮개가 켜진 동안 게임 층은 아예 그리지 않는다(반투명 덮개만으로는 화면 캡처·밝기에서 비친다) */
+body.pt-handing #pt-game, body.pt-handing .pt-turns { visibility: hidden; }
+
+/* 규칙 카드: 그림 카드 3–5장 넘겨 보기. 글자는 그림 밑 한 줄(없어도 읽혀야 한다 — 그림만 판 시험) */
+.pt-cards { position: relative; overflow: hidden; border-radius: 18px; background: #fff; box-shadow: 0 0 0 2px var(--lab-line) inset; }
+.pt-track { display: flex; transition: transform .28s ease; }
+body.reduce .pt-track { transition: none; }
+.pt-card { flex: 0 0 100%; padding: 14px 12px 12px; }
+.pt-card svg { width: 100%; height: auto; aspect-ratio: 4 / 3; display: block; }
+.pt-card .pt-cap { margin: 8px 0 0; font-size: 15px; font-weight: 700; color: var(--lab-ink); min-height: 1.5em; }
+body.pt-nocap .pt-card .pt-cap { visibility: hidden; } /* 그림만 판(#nocap) — 가이드 시험용 */
+.pt-dots { display: flex; justify-content: center; gap: 8px; margin: 12px 0; }
+.pt-dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--lab-line); }
+.pt-dots i.on { background: var(--lab-gold-2); width: 22px; border-radius: 9px; }
+.pt-nav { display: flex; gap: 10px; justify-content: center; }
+
+/* 조작 말풍선: 첫 판에만, 그 조작을 하면 사라진다 */
+.pt-coach { position: absolute; z-index: 15; max-width: 240px; padding: 10px 14px; border-radius: 16px; background: var(--lab-ink); color: #fffaf2; font-size: 15px; font-weight: 700; line-height: 1.4; box-shadow: 0 6px 18px var(--lab-shadow-2); pointer-events: none; word-break: keep-all; }
+.pt-coach::after { content: ""; position: absolute; left: var(--ax, 50%); top: 100%; border: 8px solid transparent; border-top-color: var(--lab-ink); transform: translateX(-50%); }
+.pt-coach.below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--lab-ink); }
+@keyframes pt-bob { 50% { transform: translateY(-4px); } }
+.pt-coach { animation: pt-bob 1.2s ease-in-out infinite; }
+body.reduce .pt-coach { animation: none; }
+
+/* 결과 */
+.pt-rank { list-style: none; margin: 12px 0; padding: 0; text-align: left; }
+.pt-rank li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin: 6px 0; border-radius: 14px; background: #fff; box-shadow: 0 0 0 2px var(--lab-line) inset; font-weight: 700; }
+.pt-rank .pt-no { width: 26px; text-align: center; font-weight: 900; color: var(--lab-title); }
+.pt-rank b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pt-rank .pt-sc { font-variant-numeric: tabular-nums; }
+.pt-rank li.last { background: #fff4e3; box-shadow: 0 0 0 3px var(--lab-gold-2) inset; }
+.pt-last { margin: 6px 0 2px; padding: 12px; border-radius: 16px; background: var(--lab-thumb); }
+.pt-last svg { width: 64px; height: 64px; }
+.pt-last strong { display: block; font-size: 18px; color: var(--lab-title); }
+.pt-rec { font-size: 13px; color: var(--lab-ink-2); margin: 8px 0 12px; }
+.pt-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+@media (prefers-reduced-motion: reduce) { .pt-coach, #pt-hand .pt-hand-art .phone, .pt-track { animation: none !important; transition: none !important; } }
+
+/* 봇 자리(2판): 자리마다 사람/봇 · 봇 세기 · 「생각 중…」 띠 · 봇 표지 */
+.pt-kind { min-width: 72px; height: 48px; border: 0; border-radius: 14px; background: var(--lab-thumb); font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: var(--lab-ink); }
+.pt-kind svg { width: 18px; height: 18px; }
+.pt-kind[aria-pressed="true"] { background: #e6ddf7; color: #5a3196; box-shadow: 0 0 0 2px #8b5cd6 inset; }
+.pt-level { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 8px 0 0; font-size: 14px; font-weight: 700; color: var(--lab-ink-2); }
+.pt-level button { min-width: 64px; height: 44px; border: 0; border-radius: 12px; background: var(--lab-thumb); font-weight: 800; cursor: pointer; }
+.pt-level button[aria-pressed="true"] { background: var(--lab-gold); box-shadow: 0 0 0 3px var(--lab-gold-2) inset; }
+.pt-botb { flex: none; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 999px; background: #e6ddf7; color: #5a3196; }
+.pt-think { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 18; display: none; align-items: center; gap: 10px; padding: 6px 6px 6px 16px; border-radius: 999px; background: var(--lab-ink); color: #fffaf2; font-weight: 800; font-size: 15px; box-shadow: 0 8px 22px var(--lab-shadow-2), 0 0 0 3px var(--c, transparent) inset; max-width: calc(100% - 32px); white-space: nowrap; }
+.pt-think.on { display: flex; }
+.pt-think .pt-btn { min-height: 44px; padding: 0 14px; font-size: 14px; }
+.pt-think.fast .pt-btn { display: none; }
+
+/* 넓은 화면(아이패드): 앱을 --pt-z 배로 확대(틀 js fitWide). 덮개 상자도 같이. 가로면 왼쪽 칸 + 놀이판 */
+body.pt-wide #pt-app { max-width: none; zoom: var(--pt-z); min-height: calc(100dvh / var(--pt-z)); padding: 0 24px; }
+body.pt-wide .pt-box, body.pt-wide #pt-hand > *, body.pt-wide .pt-think { zoom: var(--pt-z); }
+body.pt-wide .pt-box { max-height: calc((100dvh - 32px) / var(--pt-z)); }
+body.pt-land #pt-app { display: grid; grid-template-columns: 300px 1fr; grid-template-rows: auto 1fr; column-gap: 28px; align-content: start; }
+body.pt-land .pt-top { grid-column: 1 / -1; }
+body.pt-land .pt-turns { grid-column: 1; grid-row: 2; grid-template-columns: 1fr !important; grid-auto-flow: row; align-content: start; gap: 10px; }
+body.pt-land .pt-chip { padding: 12px 14px; font-size: 17px; }
+body.pt-land #pt-game { grid-column: 2; grid-row: 2; }
+
+/* ── 블로그 페이지 안에 앉힐 때(src/pages/lab/<slug>.astro, LabLayout bare) — 시안(맨 html)과 같은 겉모양으로 되돌리는 몫 ──
+   블로그 묶음의 Tailwind preflight(@layer base)가 브라우저 기본값을 바꿔 둔 것 중 틀이 기대던 것만 되돌린다(층 밖 규칙이라 preflight 를 이긴다).
+   :where() 로 묶어 위 시안 규칙(.pt-btn 등 클래스)보다 늘 약하다. 위 시안 몫은 docs/lab-party-shell.css 와 한 글자도 다르지 않게 둔다.
+   빠뜨리면: 줄 높이 1.5(상자가 길어짐) · 상자 제목 굵기 보통 · 확인 칸 여백 0 · svg block(꼴찌 음료 컵이 왼쪽으로) · 자간 — 리그의 시안 픽셀 맞대기가 6 % 로 잡았다
+   (tmp/lab-party-port/pushluck-page-rig.cjs 0절, 남은 차이는 tmp/lab-party-port/style-probe.cjs 로 계산 스타일을 맞대 찾는다). */
+html:has(#pt-app), html:has(#pt-app) body { line-height: normal; }
+html:has(#pt-app) body { letter-spacing: normal; word-break: normal; overflow-wrap: normal; } /* 블로그 body 의 자간 -0.011em·keep-all — 시안 글자 폭과 줄바꿈이 달라졌다 */
+.lab-root-bare:has(#pt-app) { font-family: var(--lab-font); color: var(--lab-ink); font-size: 16px; line-height: normal; -webkit-font-smoothing: auto; } /* bare 상자의 옛 글자 결(LabPixel 12px·밝은 글자) */
+:where(#pt-app, .pt-over, .pt-think) :where(h1, h2) { font-weight: bold; }
+:where(#pt-app, .pt-over, .pt-think) :where(svg) { display: inline; vertical-align: baseline; }
+:where(#pt-app, .pt-over, .pt-think) :where(button) { padding: 1px 6px; border-radius: revert; }
+:where(#pt-app, .pt-over, .pt-think) :where(input[type="checkbox"]) { margin: 3px 3px 3px 4px; }

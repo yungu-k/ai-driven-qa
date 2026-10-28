@@ -1,6 +1,6 @@
 // 실험실 첫 화면(허브)의 게임 목록 — 규격 docs/lab-hub-spec.md 3절. 다 만든 것만 싣고, 만드는 중인 것은 soon 으로 한 장만.
 // 키 아트는 public/lab/keyart/<slug>.webp(16:10, 960×600). 파일이 없으면 빌드가 「공사 중」 자리표시(고깔 + wip 한 줄 + ph 색)를 넣는다.
-// 개수는 src/lab/boot-card.ts 의 LAB_GAME_COUNT 와 같아야 한다(tests/lab/lab-hub.test.ts).
+// 개수는 src/lab/boot-card.ts 의 LAB_GAME_COUNT 와 같아야 한다(tests/lab/lab-hub.test.ts) — 줄(오락실·내기 모음)을 가리지 않고 놀 수 있는 것 전부를 센다.
 
 export type HubGame = {
   slug: string;
@@ -18,7 +18,24 @@ export type HubGame = {
   lapRank?: boolean;
   /** 준비 중 — 링크·랭킹·접기 없음 */
   soon?: boolean;
+  /** 허브의 어느 줄인가(없으면 "arcade" — 맨 위 「오락실」 줄). 줄 이름·한 줄은 아래 GROUPS */
+  group?: HubGroupId;
+  /** 몇 명이 하나(카드 썸네일 알약, 예 「2–4명」) — 내기 모음은 늘 단다 */
+  players?: string;
 };
+
+export type HubGroupId = "arcade" | "party";
+export type HubGroup = {
+  id: HubGroupId;
+  /** 줄 머리 — 없으면 머리 없이 카드만(「오락실」 줄은 10-28 전부터 머리 없이 맨 위에 있었다) */
+  title?: string;
+  lede?: string;
+};
+/** 허브 줄 순서. 「내기 모음」(여럿이 폰 하나로 하는 턴제)은 「오락실」 아래 새 줄 — 의뢰서 docs/lab-party-brief.md 1절 */
+export const GROUPS: HubGroup[] = [
+  { id: "arcade" },
+  { id: "party", title: "내기 모음", lede: "폰 하나 돌려 가며 2–4명 · 랭킹 없이 전적은 이 폰에만" },
+];
 
 export const GAMES: HubGame[] = [
   {
@@ -67,7 +84,21 @@ export const GAMES: HubGame[] = [
     ph: ["#ffe29a", "#ffd166", "#7a4a10"],
     rank: "pocha",
   },
+  // ── 내기 모음(group "party") — 랭킹 없음(rank·lapRank 를 달지 않는다, 전적은 기기 localStorage). 옮기는 법 docs/lab-party-port-recipe.md ──
+  {
+    slug: "pushluck",
+    title: "한 칸 더?",
+    blurb: "굴릴수록 코코 간식이 접시에 쌓여요. 같은 간식이 두 번 겹치면 코코가 접시를 낚아채요. 언제 멈출지가 전부!",
+    guide: "차례마다 「한 칸 더!」 또는 「멈춤」 · 같은 간식이 두 번 겹치면 이번 차례 0",
+    wip: "간식 담는 중",
+    ph: ["#ffe1c8", "#ffb38a", "#8e4526"],
+    group: "party",
+    players: "2–4명",
+  },
 ];
 
 export const PLAYABLE = GAMES.filter(g => !g.soon);
 export const SOON = GAMES.filter(g => g.soon);
+/** 줄마다 카드(GROUPS 순서). 줄이 비면 빼고 */
+export const groupOf = (g: HubGame): HubGroupId => g.group ?? "arcade";
+export const ROWS = GROUPS.map(gr => ({ ...gr, games: GAMES.filter(g => groupOf(g) === gr.id) })).filter(r => r.games.length > 0);

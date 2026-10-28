@@ -4,8 +4,8 @@
 // 모양은 src/lab/lab-tokens.css 의 .lab-boot-card. 블로그 모든 페이지 묶음에 들어가므로 가볍게 둔다
 // (게임 목록 자체는 src/lab/hub-games.ts — 여기선 개수만. 둘이 같은지는 tests/lab/lab-hub.test.ts 가 본다).
 
-/** 실험실에서 지금 놀 수 있는 게임 수(준비 중 제외). hub-games.ts 의 목록과 같아야 한다 */
-export const LAB_GAME_COUNT = 5;
+/** 실험실에서 지금 놀 수 있는 게임 수(준비 중 제외, 오락실 + 내기 모음 전부). hub-games.ts 의 목록과 같아야 한다 */
+export const LAB_GAME_COUNT = 6;
 
 /** 플라스크 아이콘(64). id 는 한 페이지에 하나만 들어가니 겹치지 않는다 */
 const FLASK = `<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="labBootSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset="1" stop-color="#9fd8ff"/></linearGradient><linearGradient id="labBootLiq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fe0d4"/><stop offset="1" stop-color="#2fb5a8"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="18" fill="url(#labBootSky)"/><path d="M26 14h12M28 14v12L18 44a5 5 0 0 0 4.4 7.4h19.2A5 5 0 0 0 46 44L36 26V14" fill="#fffaf2" stroke="#1f8f86" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><path d="M22.6 38h18.8L46 44a5 5 0 0 1-4.4 7.4H22.4A5 5 0 0 1 18 44Z" fill="url(#labBootLiq)"/><circle cx="29" cy="44" r="2.4" fill="#fffaf2"/><circle cx="36" cy="40.5" r="1.6" fill="#fffaf2"/><circle cx="45" cy="16" r="3" fill="#ffd36b"/><circle cx="50" cy="24" r="2" fill="#ff8fb1"/></svg>`;

@@ -5,11 +5,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import LabLayout from "@/lab/LabLayout.astro";
-import { GAMES, PLAYABLE, SOON } from "@/lab/hub-games";
+import { PLAYABLE, ROWS, SOON } from "@/lab/hub-games";
 
 const KEYART_DIR = path.join(process.cwd(), "public", "lab", "keyart");
 const hasKeyart = (slug: string) => fs.existsSync(path.join(KEYART_DIR, `${slug}.webp`));
-const cards = GAMES.map((g, i) => ({ ...g, keyart: hasKeyart(g.slug) ? `/lab/keyart/${g.slug}.webp` : null, lazy: i >= 3 }));
+// 줄(ROWS: 오락실 → 내기 모음) 순서대로 번호를 이어 매긴다 — 튀어 오름 차례(--i)·느린 읽기(lazy)가 화면 순서를 따른다
+let seq = 0;
+const rows = ROWS.map(r => ({ ...r, cards: r.games.map(g => { const i = seq++; return { ...g, i, keyart: hasKeyart(g.slug) ? `/lab/keyart/${g.slug}.webp` : null, lazy: i >= 3 }; }) }));
+const total = seq;
 const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 ${SOON.length}` : "");
 ---
 
@@ -21,9 +24,18 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
     <span class="lab-count">{countText}</span>
   </header>
 
+  {
+    rows.map(row => (
+      <section class:list={["lab-row", `lab-row-${row.id}`]} data-lab-row={row.id} aria-labelledby={row.title ? `lab-row-${row.id}` : undefined}>
+        {row.title && (
+          <div class="lab-row-head lab-popin" style={`--i:${row.cards[0].i + 2}`}>
+            <h2 class="lab-row-title" id={`lab-row-${row.id}`}>{row.title}</h2>
+            {row.lede && <p class="lab-row-lede">{row.lede}</p>}
+          </div>
+        )}
   <ul class="lab-grid">
     {
-      cards.map((g, i) => {
+      row.cards.map(g => { const i = g.i;
         const thumb = (
           <div class="lab-thumb" style={`--ph-1:${g.ph[0]};--ph-2:${g.ph[1]};--ph-ink:${g.ph[2]}`}>
             {g.keyart ? (
@@ -41,6 +53,11 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
               </div>
             )}
             {g.soon && <span class="lab-badge">준비 중</span>}
+            {g.players && (
+              <span class="lab-players">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.4" fill="currentColor" /><path d="M2.5 20c0-3.8 2.9-6 6.5-6s6.5 2.2 6.5 6z" fill="currentColor" /><circle cx="16.5" cy="9" r="2.8" fill="currentColor" opacity=".55" /><path d="M14.6 14.4c3.7-.6 7 1.4 7 5.6h-4.8" fill="currentColor" opacity=".55" /></svg>{g.players}
+              </span>
+            )}
           </div>
         );
         return g.soon ? (
@@ -72,7 +89,7 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
                 {(g.rank || g.lapRank) && (
                   <span class="lab-rank" data-rank-hi={g.rank} data-lap-hi={g.lapRank ? "" : undefined} hidden>
                     <span class="lab-medal" aria-hidden="true">1</span>
-                    <span>모두의 랭킹 1위</span>
+                    <span style="flex:none">모두의 랭킹 1위</span>
                     <span class="lab-rank-who"></span>
                     <span class="lab-rank-pts"></span>
                   </span>
@@ -84,7 +101,10 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
       })
     }
   </ul>
-  <p class="lab-foot lab-popin" style={`--i:${cards.length + 2}`}>랭킹은 모두가 함께 봐요 · 이니셜 세 글자로 올라가요</p>
+      </section>
+    ))
+  }
+  <p class="lab-foot lab-popin" style={`--i:${total + 2}`}>랭킹은 모두가 함께 봐요 · 이름을 남겨 올라가요</p>
 </LabLayout>
 
 <script>
@@ -119,6 +139,9 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
     el.hidden = false;
   }
 
+  // 이름은 1~9글자(10-28, 예전 3글자 이니셜도 그대로 보인다). 화면엔 textContent 로만 넣는다
+  const okName = (n: unknown): n is string => typeof n === "string" && n.trim() !== "" && [...n].length <= 9;
+
   // 점수 게임: /api/rank/<게임> 의 1위
   function rankHi() {
     document.querySelectorAll<HTMLElement>("[data-rank-hi]").forEach(async el => {
@@ -126,7 +149,7 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
         const res = await fetch(`/api/rank/${el.dataset.rankHi}`);
         if (!res.ok) return;
         const top = ((await res.json()) as { rows?: { name: string; score: number }[] }).rows?.[0];
-        if (!top || !/^[A-Z0-9]{3}$/.test(top.name) || !Number.isInteger(top.score)) return;
+        if (!top || !okName(top.name) || !Number.isInteger(top.score)) return;
         showTop(el, top.name, `${top.score.toLocaleString("ko-KR")}점`);
       } catch {
         /* 장식 */
@@ -143,7 +166,7 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
       const res = await fetch("/api/defense-rank");
       if (!res.ok) return;
       const top = ((await res.json()) as { rows?: { name: string; lap: number }[] }).rows?.[0];
-      if (!top || !/^[A-Z0-9]{3}$/.test(top.name) || !Number.isInteger(top.lap)) return;
+      if (!top || !okName(top.name) || !Number.isInteger(top.lap)) return;
       showTop(el, top.name, `${top.lap}일`);
     } catch {
       /* 장식 */
@@ -401,11 +424,17 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
     box-shadow: 0 1px 0 #a8742a;
   }
   .lab-rank-who {
+    /* 이름 9글자(10-28) — 좁은 카드에선 말줄임, 점수는 안 밀린다 */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-weight: 800;
     color: var(--lab-ink);
     letter-spacing: 0.06em;
   }
   .lab-rank-pts {
+    flex: none;
     margin-left: auto;
     font-weight: 800;
     color: var(--lab-ink);
@@ -424,6 +453,50 @@ const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 $
   }
   .lab-card.is-soon .lab-thumb {
     filter: saturate(0.75);
+  }
+
+  /* ── 줄(오락실·내기 모음): 머리가 있는 줄만 머리를 단다. 맨 위 오락실 줄은 머리 없이 그대로 ── */
+  .lab-row + .lab-row {
+    margin-top: 32px;
+  }
+  .lab-row-head {
+    padding: 0 4px 12px;
+  }
+  .lab-row-title {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--lab-title);
+  }
+  .lab-row-lede {
+    margin: 2px 0 0;
+    font-size: 14px;
+    color: var(--lab-ink-2);
+    word-break: keep-all;
+  }
+  /* 몇 명이 하나(내기 모음): 썸네일 왼쪽 위 크림 알약 — 오른쪽 위는 「준비 중」 자리 */
+  .lab-players {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px 4px 8px;
+    border-radius: 999px;
+    background: var(--lab-card);
+    color: var(--lab-ink);
+    font-size: 13px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 2px 6px var(--lab-shadow);
+  }
+  .lab-players svg {
+    width: 16px;
+    height: 16px;
+    color: var(--lab-teal-ink);
   }
 
   /* 조작 한 줄 */
