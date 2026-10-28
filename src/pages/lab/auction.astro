@@ -1,0 +1,18 @@
+---
+// 내기 모음 7 — 비밀 경매(폰 하나 돌려 가며 3–4명, 봇과 혼자 연습도). 물건마다 뼈다귀를 몰래 걸고, 모두 내면 한꺼번에 공개해 가장 많이 건 사람만 내고 가져가는 코코 장터 경매.
+// 규격 docs/lab-party-auction-spec.md(게임) · docs/lab-party-spec.md(공통 틀) · 시안 docs/lab-party-auction-mock.html
+// 엔진 src/lab/party/auction.ts · 화면 auction-game.ts + auction.css · 틀 shell.ts + shell.css. 옮기는 법 docs/lab-party-port-recipe.md
+// bare: 틀이 제 위 막대(돌아가기·제목·?·소리)를 그린다. paint 는 틀 바탕 하늘 맨 위 색(shell.css body 그라데이션 첫 정지점).
+import LabLayout from "@/lab/LabLayout.astro";
+import "@/lab/party/shell.css";
+import "@/lab/party/auction.css";
+---
+
+<LabLayout title="비밀 경매" description="폰 하나 돌려 가며 3–4명 — 물건마다 뼈다귀를 몰래 걸고, 한꺼번에 공개해 가장 많이 건 사람만 내고 가져가요" bare paint="#bfe6ff">
+  <div id="pt-app"><div id="pt-game"></div></div>
+</LabLayout>
+
+<script>
+  import { initAuction } from "@/lab/party/auction-game";
+  initAuction();
+</script>

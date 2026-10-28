@@ -135,6 +135,16 @@ export const GAMES: HubGame[] = [
     group: "party",
     players: "2–4명",
   },
+  {
+    slug: "auction",
+    title: "비밀 경매",
+    blurb: "물건이 나올 때마다 뼈다귀를 몰래 걸어요. 한꺼번에 공개하면 가장 많이 건 사람만 내고 가져가요 — 같으면 뼈다귀 적은 쪽, 그것도 같으면 코코가 물고 가요!",
+    guide: "물건마다 뼈다귀를 몰래 걸어요 — 가장 많이 건 사람만 내고 가져가요",
+    wip: "뼈다귀 세는 중",
+    ph: ["#fff4e3", "#e0a640", "#8e4526"],
+    group: "party",
+    players: "3–4명",
+  },
 ];
 
 export const PLAYABLE = GAMES.filter(g => !g.soon);
