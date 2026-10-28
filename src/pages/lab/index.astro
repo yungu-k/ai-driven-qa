@@ -8,51 +8,6 @@ const px = (rects: string) =>
 
 const GAMES = [
   {
-    slug: "bug-whack",
-    row: "qa",
-    title: "버그 잡기",
-    blurb: "30초 동안 튀어나오는 버그를 톡톡. 「기능」은 건드리면 안 돼요.",
-    icon: px(
-      `<rect x="5" y="3" width="6" height="2" fill="#3ee8ff"/><rect x="4" y="5" width="8" height="7" fill="#5dff8a"/><rect x="6" y="7" width="1" height="1" fill="#000"/><rect x="9" y="7" width="1" height="1" fill="#000"/><rect x="2" y="6" width="2" height="1" fill="#5dff8a"/><rect x="12" y="6" width="2" height="1" fill="#5dff8a"/><rect x="2" y="10" width="2" height="1" fill="#5dff8a"/><rect x="12" y="10" width="2" height="1" fill="#5dff8a"/>`
-    ),
-    made: "Claude Code 와 같이 만들었습니다. 규칙 코드와 화면 코드를 나눠서, 규칙에는 30초 판을 순식간에 돌려 보는 테스트를 붙였습니다.",
-    tested: "점수 계산, 같은 버그 두 번 잡기, 끝난 뒤 누르기 등 규칙 10가지. 규칙을 일부러 틀리게 바꿨을 때 테스트가 잡아내는지도 봤습니다.",
-  },
-  {
-    slug: "merge-2048",
-    row: "qa",
-    title: "버그 2048",
-    blurb: "같은 버그끼리 밀어서 합쳐요. 2048 이 되면 출시!",
-    icon: px(
-      `<rect x="2" y="2" width="12" height="12" fill="#ffd23f"/><rect x="4" y="6" width="2" height="2" fill="#000"/><rect x="10" y="6" width="2" height="2" fill="#000"/><rect x="5" y="10" width="6" height="1" fill="#000"/>`
-    ),
-    made: "규칙(밀기·합치기·끝 판정)과 화면을 나눠 만들었습니다. 버그가 클수록 표정이 바뀝니다.",
-    tested: "한 번에 두 번 합쳐지지 않는지, 안 움직였는데 새 타일이 나오지 않는지 등 규칙 12가지. 휴대폰에서 밀 때 페이지가 같이 스크롤되지 않는지, 큰 숫자가 칸 안에 드는지도 봤습니다.",
-  },
-  {
-    slug: "ui-bug-hunt",
-    row: "qa",
-    title: "UI 버그 찾기",
-    blurb: "기획서와 실제 화면을 비교해 숨은 UI 버그를 찾아요. 4단계, 버그 16개.",
-    icon: px(
-      `<rect x="3" y="2" width="6" height="1" fill="#f2f0ff"/><rect x="2" y="3" width="1" height="6" fill="#f2f0ff"/><rect x="9" y="3" width="1" height="6" fill="#f2f0ff"/><rect x="3" y="9" width="6" height="1" fill="#f2f0ff"/><rect x="4" y="5" width="3" height="3" fill="#ff5fd2"/><rect x="9" y="10" width="2" height="2" fill="#3ee8ff"/><rect x="11" y="12" width="2" height="2" fill="#3ee8ff"/>`
-    ),
-    made: "그림 대신 HTML 로 가짜 앱 화면을 짜고, 한쪽에만 코드로 버그를 심었습니다. 글자 잘림, 합계 계산 틀림, 요일 틀림처럼 실제로 자주 보는 버그들입니다.",
-    tested: "기획서 쪽에는 버그가 하나도 없는지, 버그마다 화면이 정말 달라지는지, 장바구니 합계와 달력 요일이 맞는지 등 28가지.",
-  },
-  {
-    slug: "release-defense",
-    row: "qa",
-    title: "릴리스 디펜스",
-    blurb: "검사를 세워 버그를 막고 운영을 지켜요. 맵 5장을 깨면 다음 버전, 끝이 없어요.",
-    icon: px(
-      `<rect x="3" y="2" width="10" height="2" fill="#9a64f0"/><rect x="2" y="4" width="12" height="9" fill="#3a1a6b"/><rect x="4" y="6" width="8" height="5" fill="#123a66"/><rect x="5" y="7" width="6" height="1" fill="#6ee6ff"/><rect x="5" y="9" width="6" height="1" fill="#7ee87e"/><rect x="1" y="13" width="14" height="1" fill="#ffd86b"/><rect x="0" y="14" width="2" height="1" fill="#ff5e5b"/><rect x="14" y="14" width="2" height="1" fill="#ff5e5b"/>`
-    ),
-    made: "디자인 세션이 실제 타워 디펜스 게임들을 조사해 규격과 움직이는 시안을 만들고, 구현 세션이 옮겼습니다. 규칙(엔진)은 그림과 떼어 내 숫자 시뮬레이션으로 난이도를 맞췄습니다.",
-    tested: "옮긴 엔진이 시안 엔진과 한 프레임도 다르지 않은지 4만 번 넘게 맞대 봤고, 방어 계산·환급·보스 방패·분열 등 규칙 10가지와 랭킹·저장 규칙 9가지를 시험합니다. 기준 봇이 첫 바퀴 맵 5장을 다 깨는지도 매번 봅니다.",
-    hiscore: true,
-  },
-  {
     slug: "dawn-shepherd",
     row: "play",
     title: "새벽 양치기",
@@ -90,11 +45,9 @@ const GAMES = [
   },
 ];
 
-// 실험실 목록의 두 줄. 「그냥 오락실」은 QA 와 상관없는 게임 — 게임이 쌓이면 독립 메뉴로 옮길 수 있게 줄 단위로 나눠 둔다
-const ROWS = [
-  { id: "qa", title: "QA 오락실", lede: "버그·테스트를 소재로 만든 게임" },
-  { id: "play", title: "그냥 오락실", lede: "테크블로그는 잠깐 잊고" },
-];
+// 실험실 목록. 10-28 Dean: QA 를 소재로 한 게임(버그 잡기·버그 2048·UI 버그 찾기)은 내리고, 타워 디펜스는 「코코 타워 디펜스」로 리뉴얼 중.
+// 줄(row) 단위 구조는 남겨 둔다 — 게임이 쌓이면 줄을 나누거나 독립 메뉴로 옮기기 쉽게
+const ROWS = [{ id: "play", title: "오락실", lede: "테크블로그는 잠깐 잊고" }];
 ---
 
 <LabLayout title="실험실" description="블로그 한구석의 작은 오락실" isIndex>
@@ -118,7 +71,6 @@ const ROWS = [
             <span class="arc-cab-body">
               <span class="arc-cab-title">{g.title}</span>
               <span class="arc-cab-blurb">{g.blurb}</span>
-              {g.hiscore && <span class="arc-cab-hi" data-defense-hi hidden />}
               {g.rank && <span class="arc-cab-hi" data-rank-hi={g.rank} hidden />}
             </span>
             <span class="arc-btn arc-cab-start">START</span>
@@ -148,7 +100,8 @@ const ROWS = [
   // HI-SCORE: 게임들이 남긴 최고 기록 중 가장 큰 것(장식). 동전 넣기: 카드를 누르면 CREDIT 00 → 01 + 「띠링」
   import { sfx, unlock } from "@/lab/sound";
 
-  const BEST_KEYS = ["lab.bug-whack.best", "lab:merge-2048:best"];
+  // 이 기기에 남은 최고 기록 키(장식). QA 게임을 내리며(10-28) 비었다 — 오락실 게임들은 모두가 보는 랭킹(카드의 HI-SCORE 줄)을 쓴다
+  const BEST_KEYS: string[] = [];
 
   function read(k: string) {
     try {
@@ -177,24 +130,7 @@ const ROWS = [
     });
   }
 
-  // 릴리스 디펜스 카드의 HI-SCORE 한 줄(D5): 모두가 보는 랭킹의 1위. 서버가 없거나 기록이 없으면 안 보인다
-  async function defenseHi() {
-    const el = document.querySelector<HTMLElement>("[data-defense-hi]");
-    if (!el) return;
-    try {
-      const res = await fetch("/api/defense-rank");
-      if (!res.ok) return;
-      const top = ((await res.json()) as { rows?: { name: string; lap: number }[] }).rows?.[0];
-      if (!top || !/^[A-Z0-9]{3}$/.test(top.name) || !Number.isInteger(top.lap)) return;
-      el.textContent = `HI-SCORE ${top.name} v${top.lap}.0`;
-      el.hidden = false;
-    } catch {
-      /* 장식이라 조용히 넘어간다 */
-    }
-  }
-
   document.addEventListener("astro:page-load", init);
-  document.addEventListener("astro:page-load", defenseHi);
 
   // 「그냥 오락실」 카드의 HI-SCORE 한 줄: /api/rank/<게임> 의 1위(점수). 서버가 없거나 기록이 없으면 안 보인다
   function rankHi() {
