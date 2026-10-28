@@ -1,4 +1,4 @@
-// 릴리스 디펜스 — 랭킹판 주고받기(규격 12절). 서버는 /api/defense-rank (GET 상위 10, POST 한 줄).
+// 코코 타워 디펜스 — 랭킹판 주고받기(규격 12절). 서버는 /api/defense-rank (GET 상위 10, POST 한 줄).
 // 서버가 없거나 실패해도 게임은 멈추지 않는다: GET 실패 = 빈 판, POST 실패 = 「지금은 등록이 안 된다」.
 
 export const RANK_URL = "/api/defense-rank";

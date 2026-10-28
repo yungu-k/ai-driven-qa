@@ -1,10 +1,10 @@
-// 실행: node --test tests/lab/release-defense-rank.test.ts
+// 실행: node --test tests/lab/coco-td-rank.test.ts
 // 릴리스 디펜스 랭킹 규칙(서버가 받는 값)과 이어하기 저장 규칙.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkEntry, scoreOf, kstDate, MIN_SIM_SEC_PER_LAP } from "../../src/lab/release-defense/rank-rules.ts";
-import { afterMapWon, clearedLaps, freshRun, hasProgress, parseRun } from "../../src/lab/release-defense/save.ts";
-import { cleanEntry } from "../../src/lab/release-defense/rank.ts";
+import { checkEntry, scoreOf, kstDate, MIN_SIM_SEC_PER_LAP } from "../../src/lab/coco-td/rank-rules.ts";
+import { afterMapWon, clearedLaps, freshRun, hasProgress, parseRun } from "../../src/lab/coco-td/save.ts";
+import { cleanEntry } from "../../src/lab/coco-td/rank.ts";
 
 const ok = { name: "QAQ", lap: 2, say: "회귀는 꼭 돌리자", simSec: 2 * MIN_SIM_SEC_PER_LAP };
 const reason = (b: unknown) => {

@@ -32,6 +32,18 @@ const GAMES = [
     rank: "coco",
   },
   {
+    slug: "coco-td",
+    row: "play",
+    title: "코코 타워 디펜스",
+    blurb: "저녁밥 그릇을 노리는 칫솔·목욕 거품·청소기 떼. 코코의 장난감과 습관으로 길목을 지켜요. 하루를 버틸 때마다 더 세져요.",
+    icon: px(
+      `<rect x="3" y="10" width="10" height="4" fill="#e0a640"/><rect x="4" y="9" width="8" height="1" fill="#ffd36b"/><rect x="5" y="8" width="6" height="1" fill="#b8643a"/><rect x="1" y="2" width="2" height="5" fill="#2fb5a8"/><rect x="1" y="1" width="2" height="1" fill="#7fe0d4"/><rect x="13" y="3" width="2" height="2" fill="#f07a8a"/><rect x="12" y="5" width="3" height="1" fill="#d9546a"/><rect x="6" y="3" width="4" height="3" fill="#b8643a"/><rect x="7" y="4" width="1" height="1" fill="#24161d"/><rect x="9" y="4" width="1" height="1" fill="#24161d"/>`
+    ),
+    made: "QA 소재였던 「릴리스 디펜스」의 뼈대와 수치를 그대로 두고, 타워·몬스터·맵·아이템을 코코 이야기로 바꿨습니다. 화면 글자만 바꿨다는 것을 옛 엔진과 같은 씨앗으로 나란히 돌려 확인했고, 그림은 코코의 하루와 같은 로우폴리 3D 입니다.",
+    tested: "TESTED_PLACEHOLDER_TD",
+    lapRank: true,
+  },
+  {
     slug: "dokkaebi",
     row: "play",
     title: "도깨비 퇴치",
@@ -72,6 +84,7 @@ const ROWS = [{ id: "play", title: "오락실", lede: "테크블로그는 잠깐
               <span class="arc-cab-title">{g.title}</span>
               <span class="arc-cab-blurb">{g.blurb}</span>
               {g.rank && <span class="arc-cab-hi" data-rank-hi={g.rank} hidden />}
+              {g.lapRank && <span class="arc-cab-hi" data-lap-hi hidden />}
             </span>
             <span class="arc-btn arc-cab-start">START</span>
           </a>
@@ -148,6 +161,23 @@ const ROWS = [{ id: "play", title: "오락실", lede: "테크블로그는 잠깐
     });
   }
   document.addEventListener("astro:page-load", rankHi);
+
+  // 코코 타워 디펜스 카드: 바퀴(날) 기록 랭킹(/api/defense-rank)의 1위
+  async function lapHi() {
+    const el = document.querySelector<HTMLElement>("[data-lap-hi]");
+    if (!el) return;
+    try {
+      const res = await fetch("/api/defense-rank");
+      if (!res.ok) return;
+      const top = ((await res.json()) as { rows?: { name: string; lap: number }[] }).rows?.[0];
+      if (!top || !/^[A-Z0-9]{3}$/.test(top.name) || !Number.isInteger(top.lap)) return;
+      el.textContent = `HI-SCORE ${top.name} ${top.lap}일`;
+      el.hidden = false;
+    } catch {
+      /* 장식이라 조용히 넘어간다 */
+    }
+  }
+  document.addEventListener("astro:page-load", lapHi);
 </script>
 
 <style is:global>

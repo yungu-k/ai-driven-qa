@@ -1,14 +1,15 @@
-// 릴리스 디펜스 랭킹 서버(블로그에서 유일하게 서버에서 도는 길). 저장소는 Upstash Redis(REST, 무료 범위).
+// 코코 타워 디펜스 랭킹 서버(바퀴 기록 — 옛 릴리스 디펜스 뼈대 그대로). 저장소는 Upstash Redis(REST, 무료 범위).
 //  GET    → 상위 10 { ok: true, rows } · 실패면 { ok: false, error, rows: [] }(브라우저 화면만으로 성공·실패를 가를 수 있게)
 //  POST   {name, lap, say, simSec} → 거르고 넣은 뒤 새 상위 10. 같은 기기(IP 해시) 30초에 한 번
 //  DELETE ?id=…  (Authorization: Bearer ADMIN_TOKEN) → 한 줄 지우기(Dean 몫)
 // IP 는 저장하지 않는다: 솔트 넣은 해시를 30초짜리 키 이름으로만 쓰고 저절로 사라진다.
 import type { APIRoute } from "astro";
-import { checkEntry, scoreOf, kstDate, type Row } from "@/lab/release-defense/rank-rules";
+import { checkEntry, scoreOf, kstDate, type Row } from "@/lab/coco-td/rank-rules";
 
 export const prerender = false;
 
-const KEY = "defense:rank";
+// 10-28 리뉴얼로 새 키 — 옛 QA 판 기록(defense:rank)과 섞이지 않는다(옛 키는 지우지 않고 남겨 둠)
+const KEY = "cocotd:rank";
 const KEEP = 100; // 상위 100줄만 남긴다
 const env = (k: string) => process.env[k] ?? "";
 const REDIS_URL = () => env("KV_REST_API_URL") || env("UPSTASH_REDIS_REST_URL");

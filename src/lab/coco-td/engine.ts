@@ -1,6 +1,6 @@
-// 릴리스 디펜스 — 엔진(순수 로직). 규격 docs/lab-defense-spec.md 의 수치표가 그대로 DATA 다.
-// 시안 엔진 docs/lab-defense-engine.js 를 그대로 옮긴 판이다(14절). 동작은 한 줄도 바꾸지 않고 타입만 붙였다 —
-// 같은 시드·같은 입력이면 두 엔진의 상태·사건이 같아야 한다(tmp/lab-defense/equiv.mjs 가 잰다).
+// 코코 타워 디펜스 — 엔진(순수 로직). 시안 엔진 docs/lab-coco-td-engine.js 를 옮긴 판이다.
+// src/lab/release-defense/engine.ts(docs/lab-defense-engine.js 를 그대로 옮긴 판)를 복사해 화면에 나가는 이름과 바퀴 이름(v1.0 → 1일째)만
+// docs/lab-coco-td-engine.js 와 같게 바꿨다. 키·수치·동작은 한 줄도 안 바꿨다 — tmp/lab-surv/equiv-cocotd.mjs 가 두 엔진을 맞댄다.
 // 그리기·소리는 g.events 를 읽고 비우는 쪽 몫이다.
 
 // ── 타입 ────────────────────────────────────────────────
@@ -256,75 +256,75 @@ const TRAITS: Record<TraitKind, TraitDef> = {
 // 타워: lv[0] 이 지을 때, lv[1]·lv[2] 업그레이드, br.a / br.b 가 4단계 갈래. cost 는 그 단계에 내는 값.
 const TOWERS: Record<TowerKind, TowerDef> = {
   unit: {
-    name: "단위 테스트", role: "단일·연사", cost: 50,
+    name: "삑삑이 공 발사대", role: "한 마리·빠르게", cost: 50,
     lv: [
       { dmg: 5, period: 0.42, range: 2.0 },
       { cost: 40, dmg: 7, period: 0.4, range: 2.0 },
       { cost: 70, dmg: 10, period: 0.36, range: 2.2 },
     ],
     br: {
-      a: { cost: 120, name: "커버리지", dmg: 11, period: 0.36, range: 2.2, multi: 2 },
-      b: { cost: 120, name: "회귀 테스트", dmg: 12, period: 0.36, range: 2.2, ramp: { to: 0.15, over: 2.0 } },
+      a: { cost: 120, name: "공 두 개", dmg: 11, period: 0.36, range: 2.2, multi: 2 },
+      b: { cost: 120, name: "신난 연사", dmg: 12, period: 0.36, range: 2.2, ramp: { to: 0.15, over: 2.0 } },
     },
   },
   lint: {
-    name: "린터", role: "감속", cost: 60,
+    name: "개껌 밭", role: "느리게", cost: 60,
     lv: [
       { dps: 2, slow: 0.35, range: 1.6 },
       { cost: 45, dps: 3, slow: 0.42, range: 1.8 },
       { cost: 75, dps: 4, slow: 0.48, range: 2.0 },
     ],
     br: {
-      a: { cost: 130, name: "엄격 모드", dps: 5, slow: 0.62, range: 2.0 },
-      b: { cost: 130, name: "자동 수정", dps: 5, slow: 0.48, range: 2.2, vuln: 0.3 },
+      a: { cost: 130, name: "왕개껌", dps: 5, slow: 0.62, range: 2.0 },
+      b: { cost: 130, name: "침 묻은 개껌", dps: 5, slow: 0.48, range: 2.2, vuln: 0.3 },
     },
   },
   integ: {
-    name: "통합 테스트", role: "범위", cost: 90,
+    name: "뼈다귀 투석기", role: "여럿 한꺼번에", cost: 90,
     lv: [
       { dmg: 12, period: 1.4, range: 2.2, splash: 0.9 },
       { cost: 65, dmg: 18, period: 1.35, range: 2.2, splash: 0.95 },
       { cost: 105, dmg: 27, period: 1.3, range: 2.4, splash: 1.0 },
     ],
     br: {
-      a: { cost: 190, name: "병렬 실행", dmg: 26, period: 0.75, range: 2.4, splash: 0.85 },
-      b: { cost: 190, name: "전체 회귀", dmg: 34, period: 1.3, range: 2.6, splash: 1.6 },
+      a: { cost: 190, name: "연속 투척", dmg: 26, period: 0.75, range: 2.4, splash: 0.85 },
+      b: { cost: 190, name: "왕뼈다귀", dmg: 34, period: 1.3, range: 2.6, splash: 1.6 },
     },
   },
   review: {
-    name: "코드 리뷰", role: "저격·관통", cost: 120,
+    name: "짖는 코코", role: "멀리·단단한 것도", cost: 120,
     lv: [
       { dmg: 50, period: 2.0, range: 4.0, pierceArmor: true },
       { cost: 85, dmg: 80, period: 1.9, range: 4.2, pierceArmor: true },
       { cost: 135, dmg: 120, period: 1.8, range: 4.6, pierceArmor: true },
     ],
     br: {
-      a: { cost: 240, name: "깐깐한 리뷰", dmg: 140, period: 1.8, range: 4.6, pierceArmor: true, bigMul: 2.5 },
-      b: { cost: 240, name: "페어 리뷰", dmg: 130, period: 1.8, range: 4.6, pierceArmor: true, line: 3 },
+      a: { cost: 240, name: "큰 소리 멍", dmg: 140, period: 1.8, range: 4.6, pierceArmor: true, bigMul: 2.5 },
+      b: { cost: 240, name: "연달아 멍멍", dmg: 130, period: 1.8, range: 4.6, pierceArmor: true, line: 3 },
     },
   },
   monitor: {
-    name: "모니터링", role: "탐지·약화", cost: 70,
+    name: "킁킁 코", role: "찾아내기·약하게", cost: 70,
     lv: [
       { range: 2.5, mark: 0.15 },
       { cost: 50, range: 3.0, mark: 0.2 },
       { cost: 80, range: 3.3, mark: 0.25 },
     ],
     br: {
-      a: { cost: 150, name: "알림", range: 3.3, mark: 0.45 },
-      b: { cost: 150, name: "대시보드", range: 4.5, mark: 0.25, steady: true },
+      a: { cost: 150, name: "냄새 표시", range: 3.3, mark: 0.45 },
+      b: { cost: 150, name: "높은 데서 망보기", range: 4.5, mark: 0.25, steady: true },
     },
   },
   ci: {
-    name: "CI 파이프라인", role: "지원", cost: 100,
+    name: "간식 응원단", role: "옆 친구 빠르게", cost: 100,
     lv: [
       { range: 1.5, haste: 0.2 },
       { cost: 70, range: 1.5, haste: 0.27 },
       { cost: 110, range: 1.8, haste: 0.34 },
     ],
     br: {
-      a: { cost: 200, name: "캐시", range: 1.8, haste: 0.5 },
-      b: { cost: 200, name: "병렬 러너", range: 1.8, haste: 0.34, rangeAdd: 0.6 },
+      a: { cost: 200, name: "간식 한 줌", range: 1.8, haste: 0.5 },
+      b: { cost: 200, name: "칭찬 쓰담", range: 1.8, haste: 0.34, rangeAdd: 0.6 },
     },
   },
 };
@@ -341,13 +341,13 @@ const ECON = {
 // 배치 칸은 길과 8방향으로 닿는 빈 칸 중 deco 를 뺀 것(엔진이 계산).
 const MAPS: MapDef[] = [
   {
-    id: "dev", name: "개발 서버", hpMul: 1.0, start: 160,
+    id: "dev", name: "아침 공원", hpMul: 1.0, start: 160,
     towers: ["unit", "lint", "integ"],
     lanes: [[[1, -1], [1, 2], [7, 2], [7, 5], [1, 5], [1, 8], [7, 8], [7, 10], [4, 10], [4, 12]]],
     deco: [[0, 0], [8, 0], [8, 11], [0, 11]],
   },
   {
-    id: "staging", name: "스테이징", hpMul: 1.3, start: 300,
+    id: "staging", name: "산책길", hpMul: 1.3, start: 300,
     towers: ["unit", "lint", "integ", "review"],
     lanes: [
       [[0, -1], [0, 3], [4, 3], [4, 6], [1, 6], [1, 9], [7, 9], [7, 12]],
@@ -356,7 +356,7 @@ const MAPS: MapDef[] = [
     deco: [],
   },
   {
-    id: "prod", name: "운영 데이터센터", hpMul: 1.25, start: 520,
+    id: "prod", name: "미용실 앞", hpMul: 1.25, start: 520,
     towers: ["unit", "lint", "integ", "review", "monitor"],
     lanes: [
       [[1, -1], [1, 4], [3, 4], [3, 8], [1, 8], [1, 10], [4, 10], [4, 12]],
@@ -365,13 +365,13 @@ const MAPS: MapDef[] = [
     deco: [],
   },
   {
-    id: "warroom", name: "장애 대응실", hpMul: 1.6, start: 600,
+    id: "warroom", name: "동네 골목", hpMul: 1.6, start: 600,
     towers: ["unit", "lint", "integ", "review", "monitor", "ci"],
     lanes: [[[-1, 1], [6, 1], [6, 9], [2, 9], [2, 5], [9, 5]]],
     deco: [],
   },
   {
-    id: "release", name: "릴리스 게이트", hpMul: 1.45, start: 600, boss: true,
+    id: "release", name: "저녁 현관 앞", hpMul: 1.45, start: 600, boss: true,
     towers: ["unit", "lint", "integ", "review", "monitor", "ci"],
     lanes: [[[4, -1], [4, 1], [1, 1], [1, 10], [7, 10], [7, 3], [3, 3], [3, 8], [5, 8], [5, 5]]],
     deco: [[5, 4], [4, 5], [6, 5]], // 가운데 큰 게이트(탑 + 기둥 둘) 자리
@@ -443,9 +443,9 @@ const WAVES: Record<MapDef["id"], WaveGroup[][]> = {
 // 보스 Blocker: 체력 비율로 단계. 단계가 바뀌면 2 초 「빌드 실패」(멈춤·받는 피해 2배).
 const BOSS: { phases: BossPhase[]; stagger: number; staggerMul: number; slowResist: number } = {
   phases: [
-    { at: 1.0, name: "방패", shield: 10, shieldRegen: 0.7 }, // 맞을 때마다 방패 1칸. 방패가 있으면 체력은 안 깎임 → 연타 시험
-    { at: 0.66, name: "소환", every: 4.5, spawn: [[T, 3], [MI, 1]], warn: 1.0 }, // 범위 시험
-    { at: 0.33, name: "롤백", every: 6.0, disable: 3.0, reach: 3.0, warn: 1.0, speedMul: 1.3 }, // 분산 배치 시험
+    { at: 1.0, name: "범퍼 방패", shield: 10, shieldRegen: 0.7 }, // 맞을 때마다 방패 1칸. 방패가 있으면 체력은 안 깎임 → 연타 시험
+    { at: 0.66, name: "칫솔 쏟기", every: 4.5, spawn: [[T, 3], [MI, 1]], warn: 1.0 }, // 범위 시험
+    { at: 0.33, name: "되감기 충전", every: 6.0, disable: 3.0, reach: 3.0, warn: 1.0, speedMul: 1.3 }, // 분산 배치 시험
   ],
   stagger: 2.0,
   staggerMul: 2.0,
@@ -467,15 +467,15 @@ const ITEMS: {
   slots: 3,
   bossMul: 0.5,
   kinds: {
-    palm: { tier: "low", name: "손바닥", r: 0.7, dmg: 40, coin: 10 }, // 찰싹 — 납작
-    slipper: { tier: "low", name: "슬리퍼", r: 0.55, dmg: 55, coin: 10 },
-    swatter: { tier: "mid", name: "파리채", r: 1.0, dmg: 90, coin: 20 },
-    paper: { tier: "mid", name: "말아 쥔 신문지", r: 0.8, dmg: 70, stun: 1.2, coin: 20 },
-    hammer: { tier: "high", name: "뿅망치", r: 1.0, dmg: 260, stun: 1.5, coin: 40 },
-    spray: { tier: "high", name: "살충제", r: 1.3, dps: 60, dur: 5, coin: 40 }, // 뿌린 자리 지속 피해
-    trap: { tier: "high", name: "끈끈이", r: 1.1, slow: 0.7, dur: 8, coin: 40 },
-    flamer: { tier: "top", name: "화염방사기", row: true, dmg: 700, coin: 80 }, // 누른 줄 전체(가로 9 칸, 위아래 0.6)
-    vacuum: { tier: "top", name: "진공청소기", r: 1.8, dmg: 400, suck: "minor", strip: true, coin: 80 }, // Minor 이하 즉사
+    palm: { tier: "low", name: "코코 발 도장", r: 0.7, dmg: 40, coin: 10 }, // 찰싹 — 납작
+    slipper: { tier: "low", name: "꼬리 찰싹", r: 0.55, dmg: 55, coin: 10 },
+    swatter: { tier: "mid", name: "공 던지기", r: 1.0, dmg: 90, coin: 20 },
+    paper: { tier: "mid", name: "멍! 한 번", r: 0.8, dmg: 70, stun: 1.2, coin: 20 },
+    hammer: { tier: "high", name: "뼈다귀 쿵", r: 1.0, dmg: 260, stun: 1.5, coin: 40 },
+    spray: { tier: "high", name: "물그릇 엎기", r: 1.3, dps: 60, dur: 5, coin: 40 }, // 뿌린 자리 지속 피해
+    trap: { tier: "high", name: "산책 줄", r: 1.1, slow: 0.7, dur: 8, coin: 40 },
+    flamer: { tier: "top", name: "똥꼬 스키 한 줄", row: true, dmg: 700, coin: 80 }, // 누른 줄 전체(가로 9 칸, 위아래 0.6)
+    vacuum: { tier: "top", name: "큰 수건", r: 1.8, dmg: 400, suck: "minor", strip: true, coin: 80 }, // Minor 이하 즉사
   },
 };
 
@@ -498,7 +498,7 @@ const LAPS: {
     { lap: 5, grade: "critical", trait: "tough" }, // v5.0: 단단해진다
     { lap: 6, grade: "minor", trait: "flaky" }, // v6.0 이후는 배수만
   ],
-  name: (k) => "v" + k + ".0",
+  name: (k) => k + "일째",
 };
 // 전설 아이템(Dean 10-27 6판: 패시브). 보스를 잡으면 하나 확정, 다음 바퀴부터 가지고 있는 동안 계속 듣는다.
 // 칸 2개. 같은 것이 또 오면 강화(최대 3단계). 다른 것이 3개째로 오면 플레이어가 하나를 버린다(addLegend).
@@ -508,11 +508,11 @@ const LEGENDS = {
   maxLv: 3,
   kinds: {
     // 모든 검사의 피해 +% (아이템 피해는 빼고)
-    exterminator: { name: "방역 업체 계약", dmgMul: [0.06, 0.09, 0.12] },
+    exterminator: { name: "칭찬 스티커", dmgMul: [0.06, 0.09, 0.12] },
     // 단위 테스트·통합 테스트가 n 발째마다 맞힌 자리에 작은 살충 구름(반경 0.6, 1.5 s, 초당 dps)
-    bugbomb: { name: "살충 폭탄 탄두", nth: [10, 8, 6], r: 0.6, dur: 1.5, dps: [10, 14, 18] },
+    bugbomb: { name: "간식 봉지 폭탄", nth: [10, 8, 6], r: 0.6, dur: 1.5, dps: [10, 14, 18] },
     // every 초마다 가장 앞선 버그 자리에 거대 슬리퍼 낙하(반경 1.0, 보스는 절반·방패 3칸)
-    bigslipper: { name: "하늘에서 떨어지는 거대 슬리퍼", every: [20, 16, 12], r: 1.0, dmg: [140, 190, 240] },
+    bigslipper: { name: "하늘에서 떨어지는 큰 쿠션", every: [20, 16, 12], r: 1.0, dmg: [140, 190, 240] },
   },
 };
 

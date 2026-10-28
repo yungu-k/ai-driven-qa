@@ -1,4 +1,4 @@
-// 릴리스 디펜스 랭킹 — 서버가 받는 값의 규칙(순수 함수). 서버 src/pages/api/defense-rank.ts 와 단위 테스트가 같이 쓴다.
+// 코코 타워 디펜스 랭킹(바퀴=날 기록) — 서버가 받는 값의 규칙(순수 함수). 서버 src/pages/api/defense-rank.ts 와 단위 테스트가 같이 쓴다.
 // 저장하는 것은 이니셜·한마디·바퀴·날짜뿐(개인정보 없음). 거르는 것: 꼴이 틀린 값, 링크, 욕설, 말이 안 되는 기록.
 
 import { checkNameSay, orderScore, kstDate, SAY_MAX } from "../rank-common.ts";

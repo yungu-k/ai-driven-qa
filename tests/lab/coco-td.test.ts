@@ -1,5 +1,6 @@
 // 실행: node --test "tests/lab/*.test.ts"   (Node 22.18+ 는 .ts 를 그대로 돌린다)
-// 규격 docs/lab-defense-spec.md 14절 「단위 테스트로 묶을 것」. 사건을 모아 보는 검사는 먼저 그 사건이 나왔는지(> 0)부터 단언한다.
+// 코코 타워 디펜스 엔진(src/lab/coco-td/engine.ts) — tests/lab/release-defense.test.ts 의 동작 검사를 그대로 새 엔진에 돌린다(키·수치가 같다).
+// 끝에 붙인 두 검사: 화면 이름에 QA·업무 낱말이 없나(tmp/lab-surv/td-terms.cjs 의 낱말 목록), 이름이 docs/lab-coco-td-engine.js 와 같나(vm 으로 원본을 돌려 맞댄다).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -24,7 +25,7 @@ import {
   type Pt,
   type TowerKind,
   type Branch,
-} from "../../src/lab/release-defense/engine.ts";
+} from "../../src/lab/coco-td/engine.ts";
 
 /** 손으로 적 하나를 길 위 dist 자리에 세운다(speed 0 이면 그 자리에 선다) */
 function putEnemy(g: Game, grade: Grade, over: Partial<Enemy> = {}): Enemy {
@@ -348,4 +349,61 @@ test("균형 회귀: 기준 봇 v1.0 이 다섯 맵을 다 이긴다(시드 1)",
   assert.equal(res.length, 5);
   assert.deepEqual(res.map((r) => r.split("@")[0]), DATA.MAPS.map((m) => `${m.id}:won`), res.join(" "));
   assert.ok(ms < 20000, `시뮬이 느리다(${ms} ms) — 느린 검사는 꺼진 검사다`);
+});
+
+// ── 코코 TD 이름 검사 ────────────────────────────────────
+import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
+// 옛 릴리스 디펜스(QA 판) 엔진은 10-28 운영 코드에서 지웠다 — 비교 기준은 디자인 정본 docs/lab-defense-engine.js 를 vm 으로 돌려 얻는다
+function loadDocsEngine(file: string) {
+  const ctx: Record<string, unknown> = { console, Math };
+  ctx.globalThis = ctx;
+  runInNewContext(readFileSync(new URL(`../../docs/${file}`, import.meta.url), "utf8"), ctx);
+  return ctx.TDEngine as { DATA: typeof DATA };
+}
+const RD = loadDocsEngine("lab-defense-engine.js");
+
+/** DATA 를 다 훑어 [경로, 값] 잎을 모은다. 함수 칸은 뺀다(LAPS.name 은 따로 본다) */
+function leaves(o: unknown, at = "DATA", out: [string, unknown][] = []): [string, unknown][] {
+  if (typeof o === "function") return out;
+  if (o === null || typeof o !== "object") { out.push([at, o]); return out; }
+  for (const k of Object.keys(o as object)) leaves((o as Record<string, unknown>)[k], `${at}.${k}`, out);
+  return out;
+}
+const strings = (d: unknown) => leaves(d).filter(([, v]) => typeof v === "string") as [string, string][];
+const laps = (d: { LAPS: { name: (k: number) => string } }) => [1, 2, 3, 7, 10].map((k) => d.LAPS.name(k));
+
+// tmp/lab-surv/td-terms.cjs 의 낱말 목록·판정 그대로(금지 대상이라 목록은 그대로 적는다 — 이 칸 자체는 화면에 안 나간다)
+const WORDS = ["버그", "테스트", "리뷰", "배포", "운영", "릴리스", "CI", "린터", "커버리지", "회귀", "모니터링", "대시보드", "캐시", "러너", "게이트", "버전", "장애", "스테이징", "서버", "Blocker", "Critical", "Major", "Minor", "Trivial", "방역", "살충", "롤백", "QA", "검사", "결함", "이슈", "코드", "빌드", "패치", "핫픽스", "데이터센터", "파이프라인"];
+const termHits = (d: typeof DATA) =>
+  [...strings(d), ...laps(d).map((v, i) => [`LAPS.name#${i}`, v] as [string, string])].flatMap(([p, t]) =>
+    WORDS.filter((w) => t.includes(w) && /[가-힣]/.test(t + w)).map((w) => `${p}: ${w} ← ${t}`),
+  );
+
+test("코코 TD: DATA 화면 이름에 QA·업무 낱말이 없다(같은 판정이 릴리스 디펜스에선 빨강을 낸다)", () => {
+  const rd = termHits(RD.DATA);
+  assert.ok(rd.length > 0, "판정이 빨강을 못 낸다 — 릴리스 디펜스 DATA 에서도 0");
+  assert.ok(strings(DATA).length > 0);
+  assert.deepEqual(termHits(DATA), []);
+});
+
+test("코코 TD: DATA 의 문자열 칸·바퀴 이름이 docs/lab-coco-td-engine.js 와 같고, 그 밖의 값은 릴리스 디펜스와 같다", () => {
+  const src = readFileSync(new URL("../../docs/lab-coco-td-engine.js", import.meta.url), "utf8");
+  const ctx: Record<string, unknown> = { console, Math };
+  ctx.globalThis = ctx;
+  runInNewContext(src, ctx);
+  const J = (ctx.TDEngine as { DATA: typeof DATA }).DATA;
+  const sj = strings(J), st = strings(DATA);
+  assert.ok(sj.length > 40, `문자열 칸이 너무 적다(${sj.length}) — 비교가 헛돈다`);
+  assert.deepEqual(st, sj);
+  assert.deepEqual(laps(DATA), laps(J));
+  assert.equal(DATA.LAPS.name(1), "1일째");
+  // 문자열 아닌 잎(키·수치·참거짓)은 릴리스 디펜스와 하나도 안 다르다, 바뀐 문자열은 이름 44개
+  const nonStr = (d: unknown) => leaves(d).filter(([, v]) => typeof v !== "string");
+  assert.deepEqual(nonStr(DATA), nonStr(RD.DATA));
+  const rs = new Map(strings(RD.DATA));
+  const changed = st.filter(([p, v]) => rs.get(p) !== v);
+  assert.equal(st.length, rs.size);
+  assert.equal(changed.length, 44, changed.map(([p]) => p).join(" "));
+  assert.ok(changed.every(([p]) => /\.(name|role)$/.test(p)), "이름·역할 말고 바뀐 문자열이 있다");
 });

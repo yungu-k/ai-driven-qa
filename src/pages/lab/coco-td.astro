@@ -1,0 +1,71 @@
+---
+// 실험실 오락실 — 코코 타워 디펜스. 릴리스 디펜스(QA 소재)를 뼈대·수치 그대로 두고 코코 소재로 바꾼 판(Dean 10-28).
+// 놀잇감(코코의 습관·장난감)으로 저녁밥 그릇을 지킨다. 싫은 것 5등급(칫솔 → 목욕 거품 → 초인종 → 청소기 → 로봇 청소기 대왕).
+// 규격 docs/lab-coco-td-spec.md · 규칙 src/lab/coco-td/engine.ts · 화면 game.ts · 3D 렌더러 td3d.js · 겉모양 ui.css
+// 화면을 꽉 채우는 게임이라 실험실 위 막대 없이(bare) 그린다. 돌아가기·소리·그만두기는 ≡ 메뉴.
+import LabLayout from "@/lab/LabLayout.astro";
+import "@/lab/coco-td/ui.css";
+---
+
+<LabLayout title="코코 타워 디펜스" description="코코의 놀잇감으로 저녁밥 그릇 지키기" bare>
+  <div id="app">
+    <header id="hud">
+      <div class="gate" title="밥그릇">
+        <img id="gateIco" alt="" width="20" height="20" />
+        <div class="bar" id="gateBar"><i></i></div>
+        <span class="num" id="gateNum">100</span>
+      </div>
+      <span class="coin num" id="money">160</span>
+      <span class="tag num" id="waveNo">W 0/10</span>
+      <button class="ghost hudbtn" id="speed" aria-pressed="false" title="빠르게">1×</button>
+      <button class="ghost hudbtn" id="menuBtn" aria-haspopup="dialog" aria-controls="menu" title="메뉴">≡</button>
+    </header>
+    <div id="mapwrap"><canvas id="cv" aria-label="맵. 빈 칸을 눌러 놀잇감을 짓는다"></canvas><canvas id="fxc" aria-hidden="true"></canvas><div class="toast" id="toast"></div></div>
+    <div id="wave">
+      <div class="legs" id="legs" aria-label="전설(가지고 있는 동안 계속 듣는다)"></div>
+      <span class="tag">다음</span>
+      <div id="preview"></div>
+      <button class="btn" id="call">▶ 부르기</button>
+    </div>
+    <section id="panel" aria-live="polite"></section>
+  </div>
+
+  <div class="over on" id="start">
+    <div class="box">
+      <p class="sub" id="startWhere">1일째 · 아침 공원</p>
+      <h1 class="title">코코 타워 디펜스</h1>
+      <p class="hi" id="hi" hidden>HI-SCORE <span id="hiName"></span> <span id="hiLap"></span></p>
+      <div class="dex" id="dex"></div>
+      <p class="sub">작은 건 조금 들어와도 괜찮아.<br />큰 걸 놓치면 밥그릇이 텅!</p>
+      <div id="startActs"></div>
+      <p class="sub"><a class="back" href="/lab/" data-astro-reload>◀ 실험실</a></p>
+    </div>
+  </div>
+
+  <div class="over" id="result">
+    <div class="box" id="resultBox"></div>
+  </div>
+
+  <div class="over sheet" id="menu" role="dialog" aria-modal="true" aria-label="메뉴">
+    <div class="box menu">
+      <h2 class="mtitle">잠깐 쉬기</h2>
+      <p class="sub" id="menuWhere">1일째 · 맵 1 아침 공원</p>
+      <a class="btn ghost mrow" id="mLab" href="/lab/" data-astro-reload><i class="mi mi-back"></i>실험실로</a>
+      <button class="btn ghost mrow" id="mSnd" aria-pressed="true"><i class="mi mi-snd"></i>소리<span class="mstate">켬</span></button>
+      <button class="btn ghost mrow" id="mReduce" aria-pressed="false"><i class="mi mi-motion"></i>줄인 동작<span class="mstate">끔</span></button>
+      <button class="btn ghost mrow danger" id="mQuit"><i class="mi mi-flag"></i>그만두기 → 랭크 등록</button>
+      <button class="btn mrow" id="mResume">▶ 계속</button>
+    </div>
+  </div>
+</LabLayout>
+
+<style is:global>
+  /* 실험실 틀(.lab-root)은 도트 글꼴·밝은 글자색을 깐다 — 이 판은 ui.css 의 크림·Pretendard 를 그대로 받게 되돌린다 */
+  .lab-root.lab-root-bare { font: inherit; color: inherit; -webkit-font-smoothing: auto; }
+  .box a.back { color: var(--c4); text-decoration: none; font-weight: 700; }
+</style>
+
+<script>
+  import { initCocoTd } from "@/lab/coco-td/game";
+  initCocoTd();
+</script>

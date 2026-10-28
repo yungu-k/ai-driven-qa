@@ -1,9 +1,9 @@
-// 릴리스 디펜스 — 이어하기 저장(규격 2절, D2: 맵을 깰 때마다). 순수 함수만 두고 localStorage 는 부르는 쪽 몫.
+// 코코 타워 디펜스 — 이어하기 저장(릴리스 디펜스 뼈대 그대로)(규격 2절, D2: 맵을 깰 때마다). 순수 함수만 두고 localStorage 는 부르는 쪽 몫.
 // 웨이브 중간은 저장하지 않는다. 저장이 막힌 창(사생활 보호 등)이면 저장 없이 돈다.
 
 import { DATA, type Legend } from "./engine.ts";
 
-export const SAVE_KEY = "lab.defense";
+export const SAVE_KEY = "lab.cocotd"; // 옛 릴리스 디펜스 저장(lab.defense)과 섞이지 않게 새 키
 export const MAP_COUNT = 5;
 
 export type { Legend };
