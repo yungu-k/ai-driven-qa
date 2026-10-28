@@ -1,0 +1,18 @@
+---
+// 내기 모음 5 — 그림 전달(폰 하나 돌려 가며 3–4명, 봇과 혼자 연습도). 몰래 받은 말을 그리고, 다음 사람은 그림만 보고 맞히는 그림 릴레이.
+// 규격 docs/lab-party-sketch-spec.md(게임) · docs/lab-party-spec.md(공통 틀) · 시안 docs/lab-party-sketch-mock.html
+// 엔진 src/lab/party/sketch.ts · 화면 sketch-game.ts + sketch.css · 틀 shell.ts + shell.css. 옮기는 법 docs/lab-party-port-recipe.md
+// bare: 틀이 제 위 막대(돌아가기·제목·?·소리)를 그린다. paint 는 틀 바탕 하늘 맨 위 색(shell.css body 그라데이션 첫 정지점).
+import LabLayout from "@/lab/LabLayout.astro";
+import "@/lab/party/shell.css";
+import "@/lab/party/sketch.css";
+---
+
+<LabLayout title="그림 전달" description="폰 하나 돌려 가며 3–4명 — 몰래 받은 말을 그리고, 다음 사람은 그림만 보고 맞혀요. 끝에 줄 전체 공개" bare paint="#bfe6ff">
+  <div id="pt-app"><div id="pt-game"></div></div>
+</LabLayout>
+
+<script>
+  import { initSketch } from "@/lab/party/sketch-game";
+  initSketch();
+</script>

@@ -105,6 +105,16 @@ export const GAMES: HubGame[] = [
     group: "party",
     players: "2–4명",
   },
+  {
+    slug: "sketch",
+    title: "그림 전달",
+    blurb: "몰래 받은 말을 30초 안에 손가락으로 그리고, 다음 사람은 그림만 보고 맞혀요. 끝에 줄 전체를 공개하면 처음 말이 어디까지 갔는지 보여요!",
+    guide: "몰래 받은 말을 그리고, 다음 사람은 그림만 보고 맞혀요 — 끝에 줄 전체 공개",
+    wip: "크레용 깎는 중",
+    ph: ["#e9f8f5", "#7fd3c8", "#15665f"],
+    group: "party",
+    players: "3–4명",
+  },
 ];
 
 export const PLAYABLE = GAMES.filter(g => !g.soon);

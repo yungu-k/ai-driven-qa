@@ -1,0 +1,54 @@
+/* 내기 모음 5 「그림 전달」 화면 겉모양 — 시안 docs/lab-party-sketch-mock.html(ee056c8f) 의 <style> 그대로. 틀 겉모양은 ./shell.css */
+.sk { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 10px; padding-bottom: 18px; } /* 아이패드에서 세로로 고루 */
+.sk-head { text-align: center; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.sk-step { font-size: 13px; font-weight: 700; color: var(--lab-ink-2); }
+.sk-ask { font-size: 17px; font-weight: 800; color: var(--lab-ink); word-break: keep-all; }
+.sk-word { font-size: 30px; font-weight: 900; color: var(--lab-title); background: #fff; border-radius: 16px; padding: 4px 18px; box-shadow: 0 0 0 3px var(--lab-gold) inset; }
+.sk-pad { width: min(100%, 420px, 44dvh); aspect-ratio: 1; position: relative; }
+.sk-pad canvas { width: 100%; height: 100%; display: block; background: #fff; border-radius: 18px; box-shadow: 0 0 0 3px var(--lab-line) inset, 0 6px 14px var(--lab-shadow); touch-action: none; }
+.sk-time { width: min(100%, 420px, 44dvh); height: 10px; border-radius: 6px; background: var(--lab-line); overflow: hidden; position: relative; }
+.sk-time i { position: absolute; inset: 0; background: #2fb5a8; transform-origin: left; }
+.sk-time.low i { background: #e85a5a; }
+.sk-sec { font-size: 13px; font-weight: 800; color: var(--lab-ink-2); min-height: 18px; }
+.sk-tools { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; width: min(100%, 420px); }
+.sk-col { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--c); box-shadow: 0 0 0 3px #fff inset, 0 0 0 2px var(--lab-line); cursor: pointer; }
+.sk-col[aria-pressed="true"] { box-shadow: 0 0 0 3px #fff inset, 0 0 0 4px var(--lab-ink); }
+.sk-tool { min-width: 52px; height: 44px; border-radius: 14px; border: 0; background: #fff; box-shadow: 0 0 0 2px var(--lab-line) inset; font: 800 14px var(--lab-font); color: var(--lab-ink); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.sk-tool svg { width: 24px; height: 24px; }
+.sk-big { width: min(100%, 420px); min-height: 56px; font-size: 19px; }
+.sk-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: min(100%, 420px); }
+.sk-ch { min-height: 52px; border: 0; border-radius: 14px; background: #fff; box-shadow: 0 0 0 2px var(--lab-line) inset, 0 3px 8px var(--lab-shadow); font: 800 16px var(--lab-font); color: var(--lab-ink); cursor: pointer; word-break: keep-all; padding: 4px; }
+.sk-ch[aria-pressed="true"] { background: #e9f8f5; box-shadow: 0 0 0 3px #2fb5a8 inset; color: var(--lab-teal-ink); }
+.sk-typer { display: flex; gap: 8px; width: min(100%, 420px); }
+.sk-typer input { flex: 1; min-width: 0; height: 48px; border-radius: 14px; border: 0; box-shadow: 0 0 0 2px var(--lab-line) inset; padding: 0 14px; font: 800 17px var(--lab-font); color: var(--lab-ink); background: #fff; }
+.sk-typer input:focus { outline: none; box-shadow: 0 0 0 3px #2fb5a8 inset; }
+.sk-hint { font-size: 15px; font-weight: 800; color: var(--lab-title); background: #fff4e3; border-radius: 12px; padding: 6px 12px; text-align: center; }
+.sk-typer[hidden], .sk-pick[hidden] { display: none; } /* hidden 이 display:flex/grid 에 지면 입력칸이 늘 보였다(화면 보고 고침) */
+.sk-row2 { display: flex; gap: 8px; width: min(100%, 420px); }
+.sk-row2 > * { flex: 1; }
+/* 봇 차례: 줄 내용 없이 연필만 꼼지락(남의 그림·낱말을 비추지 않는다) */
+.sk-botpane { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.sk-botpane svg { width: clamp(120px, 22dvh, 200px); height: auto; }
+.sk-botpane p { font-size: 18px; font-weight: 800; color: var(--lab-ink); }
+@keyframes sk-wig { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+.sk-botpane .pen { transform-box: fill-box; transform-origin: 50% 100%; animation: sk-wig .7s ease-in-out infinite; }
+body.reduce .sk-botpane .pen { animation: none; }
+/* 공개: 줄마다 이야기 한 장(세로로 스크롤) */
+.sk-rev { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 14px; padding: 4px 0 24px; margin: 0 auto; }
+.sk-rev h2 { font-size: 22px; font-weight: 900; color: var(--lab-title); text-align: center; margin: 4px 0 0; }
+.sk-rev > p { text-align: center; font-size: 14px; color: var(--lab-ink-2); margin: 0; }
+.sk-chain { background: #fff; border-radius: 20px; box-shadow: 0 0 0 2px var(--lab-line) inset, 0 4px 12px var(--lab-shadow); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.sk-chain h3 { margin: 0; font-size: 16px; font-weight: 900; color: var(--lab-ink); display: flex; align-items: center; gap: 6px; }
+.sk-chain h3 .pt-mark, .sk-it .pt-mark { width: 18px; height: 18px; flex: none; }
+.sk-it { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; color: var(--lab-ink); }
+.sk-it svg.pic { width: min(46vw, 170px); height: auto; flex: none; background: #fffaf2; border-radius: 12px; box-shadow: 0 0 0 2px var(--lab-line) inset; }
+.sk-it b { font-size: 19px; font-weight: 900; color: var(--lab-title); }
+.sk-it .who { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--lab-ink-2); }
+.sk-it .res { font-size: 13px; font-weight: 800; border-radius: 999px; padding: 2px 8px; }
+.sk-it .res.ok { background: #e9f8f5; color: var(--lab-teal-ink); }
+.sk-it .res.no { background: #f3ece4; color: var(--lab-ink-2); }
+.sk-it.word { background: #fff4e3; border-radius: 12px; padding: 6px 10px; }
+.sk-arrow { width: 22px; height: 16px; margin-left: 74px; color: var(--lab-line); }
+.sk-sum { font-size: 14px; font-weight: 800; color: var(--lab-ink-2); border-top: 2px dashed var(--lab-line); padding-top: 8px; }
+.sk-revgo { position: sticky; bottom: 10px; }
+@media (prefers-reduced-motion: reduce) { .sk-botpane .pen { animation: none; } }
