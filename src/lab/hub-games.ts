@@ -145,6 +145,16 @@ export const GAMES: HubGame[] = [
     group: "party",
     players: "3–4명",
   },
+  {
+    slug: "hide",
+    title: "간식 숨기기",
+    blurb: "몰래 내 컵 셋 중 하나에 간식, 하나에 삑삑이를 숨겨요. 다 같이 남의 컵을 하나씩 들어 간식이면 빼앗고, 삑삑이면 하나 물어 줘요. 발자국 컵엔 간식이 없어요!",
+    guide: "몰래 컵에 간식을 숨기고, 남의 컵을 들어 찾아요 — 삑삑이를 들면 하나 물어 줘요",
+    wip: "컵 엎는 중",
+    ph: ["#fff4e3", "#f6c27a", "#8e4526"],
+    group: "party",
+    players: "2–4명",
+  },
 ];
 
 export const PLAYABLE = GAMES.filter(g => !g.soon);

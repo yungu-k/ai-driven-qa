@@ -1,0 +1,18 @@
+---
+// 내기 모음 2 — 간식 숨기기(폰 하나 돌려 가며 2–4명, 봇과 혼자 연습도). 몰래 컵에 간식·삑삑이를 숨기고, 다 같이 남의 컵을 들어 찾는 블러핑.
+// 규격 docs/lab-party-hide-spec.md(게임) · docs/lab-party-spec.md(공통 틀) · 시안 docs/lab-party-hide-mock.html
+// 엔진 src/lab/party/hide.ts · 화면 hide-game.ts + hide.css · 틀 shell.ts + shell.css. 옮기는 법 docs/lab-party-port-recipe.md
+// bare: 틀이 제 위 막대(돌아가기·제목·?·소리)를 그린다. paint 는 틀 바탕 하늘 맨 위 색(shell.css body 그라데이션 첫 정지점).
+import LabLayout from "@/lab/LabLayout.astro";
+import "@/lab/party/shell.css";
+import "@/lab/party/hide.css";
+---
+
+<LabLayout title="간식 숨기기" description="폰 하나 돌려 가며 2–4명 — 몰래 컵에 간식과 삑삑이를 숨기고, 다 같이 남의 컵을 들어 찾아요. 삑삑이를 들면 하나 물어 줘요" bare paint="#bfe6ff">
+  <div id="pt-app"><div id="pt-game"></div></div>
+</LabLayout>
+
+<script>
+  import { initHide } from "@/lab/party/hide-game";
+  initHide();
+</script>

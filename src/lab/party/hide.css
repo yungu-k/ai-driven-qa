@@ -1,0 +1,52 @@
+/* 내기 모음 2 「간식 숨기기」 화면 겉모양 — 시안 docs/lab-party-hide-mock.html(md5 aeb861bf…, 1판)의 <style> 그대로. 틀 겉모양은 ./shell.css */
+.hd { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 10px; padding-bottom: 20px; } /* 위아래로 고루 — 아이패드에서 위에 몰리지 않게 */
+.hd-round { font-size: 14px; font-weight: 700; color: var(--lab-ink-2); }
+.hd-who { font-size: 21px; font-weight: 900; color: var(--lab-title); text-align: center; word-break: keep-all; display: flex; align-items: center; gap: 8px; justify-content: center; }
+.hd-who .pt-mark { width: 22px; height: 22px; }
+.hd-step { font-size: 15px; font-weight: 800; color: var(--lab-ink); display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.hd-step span { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 2px var(--lab-line) inset; color: var(--lab-ink-2); }
+.hd-step span.on { box-shadow: 0 0 0 3px var(--lab-gold-2) inset; background: #fff4e3; color: var(--lab-ink); }
+.hd-step span.ok { background: #e9f8f5; box-shadow: 0 0 0 2px #2fb5a8 inset; color: #15665f; }
+.hd-step svg { width: 22px; height: 22px; }
+.hd-coco { width: clamp(84px, 15dvh, 140px); height: clamp(84px, 15dvh, 140px); }
+/* 내 컵 셋(숨기기) — 크게 */
+.hd-mine { width: min(100%, 420px); display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.hd-mine .hd-cup { height: clamp(112px, 22dvh, 190px); }
+/* 찾기·공개: 사람마다 한 줄(이름 + 컵 셋) */
+#hd-mid, .hd-hidebox { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; } /* 가운데 칸이 내용 폭으로 줄면(shrink-to-fit) 컵 판이 아이패드에서 안 커졌다(화면 보고 고침) */
+.hd-rows { width: min(100%, 440px); display: flex; flex-direction: column; gap: 8px; }
+.hd-row { display: grid; grid-template-columns: 78px repeat(3, 1fr); gap: 6px; align-items: center; padding: 4px 6px; border-radius: 18px; background: var(--lab-card); box-shadow: 0 0 0 2px var(--lab-line) inset; }
+.hd-row.me { background: #f3ece2; }
+.hd-row.safe { box-shadow: 0 0 0 3px #2fb5a8 inset; }
+.hd-name { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font-size: 14px; font-weight: 800; }
+.hd-name b { display: flex; align-items: center; gap: 4px; max-width: 100%; }
+.hd-name b span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hd-name small { font-size: 12px; font-weight: 700; color: var(--lab-ink-2); }
+.hd-name small.safe { color: #15665f; }
+.hd-rows .hd-cup { height: clamp(64px, 10.5dvh, 96px); }
+.hd-cup { position: relative; width: 100%; min-width: 44px; min-height: 64px; border: 0; padding: 0; background: transparent; border-radius: 16px; cursor: pointer; }
+.hd-cup:focus-visible { outline: 3px solid var(--lab-gold-2); }
+.hd-cup svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.hd-cup[disabled] { cursor: default; }
+.hd-cup .lid { transition: transform .35s cubic-bezier(.3, 1.4, .5, 1); transform-box: view-box; transform-origin: 50% 50%; }
+.hd-cup.up .lid { transform: translate(-14px, -40px) rotate(-22deg); } /* 30 px 만 들면 개껌 반이 컵에 가렸다(화면 보고 고침) */
+.hd-cup.sniff { animation: hd-sniff .45s ease-in-out; }
+@keyframes hd-sniff { 25% { transform: translateX(-3px) rotate(-3deg); } 75% { transform: translateX(3px) rotate(3deg); } }
+.hd-cup.pick { box-shadow: 0 0 0 3px var(--lab-gold-2) inset; background: #fff4e3; }
+body.reduce .hd-cup .lid { transition: none; }
+body.reduce .hd-cup.sniff { animation: none; }
+.hd-lock { pointer-events: none; }
+.hd-toast { min-height: 52px; width: min(100%, 420px); font-size: 16px; font-weight: 800; color: var(--lab-ink); text-align: center; word-break: keep-all; line-height: 1.45; }
+.hd-toast .pt-mark { width: 16px; height: 16px; vertical-align: -2px; }
+.hd-toast .big { display: block; font-size: 19px; color: var(--lab-title); }
+.hd-toast .big.good { color: #15665f; }
+.hd-acts { display: flex; gap: 10px; width: 100%; max-width: 360px; min-height: 56px; }
+.hd-acts .pt-btn { flex: 1; min-height: 56px; font-size: 18px; }
+@keyframes hd-pop { 40% { transform: scale(1.12); } }
+.pt-chip.hd-pop { animation: hd-pop .5s ease-out; }
+body.reduce .pt-chip.hd-pop { animation: none; }
+/* 아이패드 가로: 놀이판 칸이 위에만 붙어 아래 1/3 이 비었다(화면 보고 고침) — 칸 높이를 채우고 줄·컵을 키운다 */
+body.pt-land .hd { min-height: calc(100dvh / var(--pt-z) - 76px); }
+body.pt-land .hd-rows { width: min(100%, 560px); }
+body.pt-land .hd-mine { width: min(100%, 520px); }
+body.pt-land .hd-rows .hd-cup { height: clamp(64px, 12.5dvh, 112px); }
