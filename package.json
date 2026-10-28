@@ -31,7 +31,8 @@
     "satori": "^0.26.0",
     "sharp": "^0.34.5",
     "slugify": "^1.6.9",
-    "tailwindcss": "^4.3.0"
+    "tailwindcss": "^4.3.0",
+    "three": "0.180.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
