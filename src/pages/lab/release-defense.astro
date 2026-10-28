@@ -1,0 +1,19 @@
+---
+// 옛 주소 넘겨주기 — 릴리스 디펜스(QA 소재)는 10-28 「코코 타워 디펜스」로 바뀌었다.
+// astro redirects 설정은 Vercel 에서 끝 슬래시 형태(/lab/release-defense/)를 못 넘겼다(404) — 정적 페이지로 두 형태 다 받는다
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="refresh" content="0; url=/lab/coco-td/" />
+    <link rel="canonical" href="/lab/coco-td/" />
+    <title>코코 타워 디펜스로 옮겼어요</title>
+    <script is:inline>location.replace("/lab/coco-td/" + location.hash);</script>
+  </head>
+  <body>
+    <p><a href="/lab/coco-td/">코코 타워 디펜스로 옮겼어요 →</a></p>
+  </body>
+</html>

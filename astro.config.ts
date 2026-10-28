@@ -24,8 +24,6 @@ export default defineConfig({
   site: config.site.url,
   // 사이트는 그대로 정적이다. prerender = false 인 길(실험실 랭킹 src/pages/api/defense-rank.ts)만 Vercel 함수가 된다
   adapter: vercel(),
-  // 실험실 릴리스 디펜스(QA 소재)는 10-28 「코코 타워 디펜스」로 바뀌었다 — 옛 주소는 새 주소로 넘긴다
-  redirects: { "/lab/release-defense": "/lab/coco-td", "/lab/release-defense/": "/lab/coco-td/" },
   integrations: [
     mdx(),
     sitemap({
