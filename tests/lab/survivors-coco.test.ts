@@ -4,7 +4,7 @@
 // 사건을 모아 보는 검사는 먼저 그 사건이 나왔는지(> 0)부터 단언한다 — 빈 집합의 집계는 통과 쪽으로 기운다.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CORE, create, step, choose, spawnAt, score, wstat, type GameEvent } from "../../src/lab/survivors/core.ts";
+import { CORE, create, step, choose, spawnAt, score, wstat, damage, gainXp, PASSIVE_AXES, type GameEvent } from "../../src/lab/survivors/core.ts";
 import { THEME, DATA, type CocoGame, type CocoEnemy } from "../../src/lab/survivors/coco.ts";
 
 const DT = CORE.DT;
@@ -350,4 +350,111 @@ test("한 판(시드 3개, 안 죽게, 앉았다 가기 입력): 스키·가득 
     }
   }
   for (const k of ["scoot", "spin", "bellbark", "otherdog", "summon", "kill"]) assert.ok((counts[k] ?? 0) > 0, `${k} 0 — ${JSON.stringify(counts)}`);
+});
+
+// ── 2판(docs/lab-surv-coco-spec.md 「2판」): 삑삑이 공 갈래 카드 둘 ─────────────────
+test("2판 수치: 장난감 욕심 max 2·공 +1 · 침 묻은 공 max 3·반경 16/22/28·배율 0.5/0.7/0.9", () => {
+  assert.deepEqual(DATA.THEME_CARDS.more, { name: "장난감 욕심", max: 2, wt: 1.1, n: 1 });
+  assert.deepEqual(DATA.THEME_CARDS.splash, { name: "침 묻은 공", max: 3, wt: 1.1, R: [16, 22, 28], mul: [0.5, 0.7, 0.9] });
+});
+
+test("장난감 욕심: 고를 때마다 공 +1(진화 판에도), 2단계 뒤로는 안 나온다", () => {
+  const g = quietGame();
+  const w = { key: "ball", lv: 1, cd: 0, t: 0, evo: false as boolean };
+  g.weapons.push(w);
+  const ns = [wstat(g as never, w).n];
+  for (const lv of [1, 2]) {
+    g.state = "levelup";
+    g.offer = [{ type: "theme", key: "more", lv }];
+    assert.equal(choose(g as never, 0), true);
+    ns.push(wstat(g as never, w).n);
+  }
+  assert.deepEqual(ns, [1, 2, 3]);
+  w.evo = true;
+  assert.equal(wstat(g as never, w).n, 5 + 2);
+  // 상한: 1단계일 땐 나오고(빈 집합 아님), 2단계면 200번 레벨업해도 안 나온다
+  let seenBelow = 0, seenAtMax = 0;
+  for (const [lvNow, seed] of [[1, 11], [2, 12]] as const) {
+    const h = quietGame(seed);
+    h.themeLv.more = lvNow;
+    for (let i = 0; i < 200; i++) {
+      gainXp(h as never, CORE.need(h.lv));
+      const n = h.offer!.filter((c) => c.type === "theme" && c.key === "more").length;
+      if (lvNow === 1) seenBelow += n; else seenAtMax += n;
+      for (const c of h.offer!) assert.ok(!(c.type === "theme" && c.key === "more" && c.lv > 2), "lv 3 장난감 욕심");
+      h.state = "play"; h.offer = null; h.levelsQueued = 0;
+    }
+  }
+  assert.ok(seenBelow > 0, "1단계에서 한 번도 안 나왔다 — 검사가 헛돈다");
+  assert.equal(seenAtMax, 0);
+});
+
+/** 공을 쥔 판 + 가운데 적 하나(곧 쓰러짐) + 둘레 적들 */
+function splashRig(level: number, area = 0) {
+  const g = quietGame();
+  g.weapons.push({ key: "ball", lv: 1, cd: 99, t: 0 });
+  if (level) g.themeLv.splash = level;
+  if (area) g.passives.area = area;
+  const victim = dummy(g, "brush", 60, 0, 1);
+  return { g, victim };
+}
+
+test("침 묻은 공: 공으로 쓰러진 적 둘레 R(16·22·28)에 공 피해 × 0.5·0.7·0.9, 밖은 안 맞고 사건이 하나 나온다", () => {
+  for (const level of [1, 2, 3]) {
+    const { g, victim } = splashRig(level);
+    const R = DATA.THEME_CARDS.splash.R[level - 1];
+    const inside = dummy(g, "brush", 60 + R - 1, 0); // 안쪽(중심 거리 R-1, 반경 더하면 확실히 닿는다)
+    const outside = dummy(g, "brush", 60, R + inside.r + 6); // 바깥
+    tick(g); // 격자 채우기
+    const before = [inside.hp, outside.hp];
+    damage(g as never, victim, 999, "ball");
+    const ev = g.events.filter((e) => e.e === "splash");
+    assert.equal(victim.dead, true);
+    assert.equal(ev.length, 1, `lv${level} 사건 수`);
+    assert.ok(close(ev[0].r!, R) && close(ev[0].x!, victim.x) && close(ev[0].y!, victim.y), JSON.stringify(ev[0]));
+    const ballDmg = wstat(g as never, g.weapons[0]).dmg;
+    assert.ok(close(before[0] - inside.hp, ballDmg * DATA.THEME_CARDS.splash.mul[level - 1]), `lv${level} 안쪽 피해 ${before[0] - inside.hp}`);
+    assert.equal(outside.hp, before[1], `lv${level} 바깥이 맞았다`);
+    g.events.length = 0;
+  }
+});
+
+test("침 묻은 공: 곱슬 털(area)이 반경을 키운다, 카드가 없거나 공이 아니면 안 튄다", () => {
+  const { g, victim } = splashRig(1, 4);
+  const R = 16 * (1 + 4 * PASSIVE_AXES.area);
+  tick(g);
+  damage(g as never, victim, 999, "ball");
+  const ev = g.events.filter((e) => e.e === "splash");
+  assert.equal(ev.length, 1);
+  assert.ok(close(ev[0].r!, R), `반경 ${ev[0].r} ≠ ${R}`);
+  for (const [lvl, src] of [[0, "ball"], [3, "wag"], [3, "scoot"]] as const) {
+    const r = splashRig(lvl);
+    tick(r.g);
+    damage(r.g as never, r.victim, 999, src);
+    assert.equal(r.g.events.filter((e) => e.e === "splash").length, 0, `lv${lvl} ${src}`);
+  }
+});
+
+test("침 묻은 공: 튄 피해로 쓰러진 적은 다시 안 튄다(사건 하나, 사슬 끝 적은 멀쩡)", () => {
+  const { g, victim } = splashRig(3);
+  const b = dummy(g, "brush", 60 + 20, 0, 1); // 튄 피해로 쓰러질 적
+  const c = dummy(g, "brush", 60 + 40, 0); // b 둘레엔 있지만 victim 둘레 밖
+  tick(g);
+  const cHp = c.hp;
+  damage(g as never, victim, 999, "ball");
+  assert.equal(b.dead, true, "튄 피해가 b 를 못 잡았다 — 검사가 헛돈다");
+  assert.ok(g.events.some((e) => e.e === "kill" && e.src === "ballsplash"));
+  assert.equal(g.events.filter((e) => e.e === "splash").length, 1);
+  assert.equal(c.hp, cHp);
+});
+
+test("침 묻은 공: 실제 공이 날아가 잡으면 step 안에서 splash 사건이 나온다", () => {
+  const g = quietGame();
+  g.weapons.push({ key: "ball", lv: 1, cd: 0, t: 0 });
+  g.themeLv.splash = 1;
+  dummy(g, "brush", 40, 0, 1);
+  dummy(g, "brush", 52, 0);
+  const ev = frames(g, 120);
+  assert.ok(ev.some((e) => e.e === "kill" && e.src === "ball"), "공 처치가 없다");
+  assert.ok(ev.filter((e) => e.e === "splash").length > 0);
 });

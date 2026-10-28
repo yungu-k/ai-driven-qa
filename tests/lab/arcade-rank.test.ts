@@ -1,9 +1,10 @@
 // 실행: node --test tests/lab/arcade-rank.test.ts
-// 「그냥 오락실」 점수 랭킹 규칙(서버가 받는 값)과 공통 정렬·이니셜 거르기.
+// 「그냥 오락실」 점수 랭킹 규칙(서버가 받는 값)과 공통 정렬·이름 거르기.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { checkScoreEntry, GAMES } from "../../src/lab/arcade-rank-rules.ts";
-import { orderScore } from "../../src/lab/rank-common.ts";
+import { orderScore, NAME_MAX } from "../../src/lab/rank-common.ts";
+import { cleanNameSay } from "../../src/lab/arcade-rank.ts";
 
 const ok = { name: "QAQ", score: 3200, say: "양이 최고", sec: 300 };
 const reason = (game: string, b: unknown) => {
@@ -21,9 +22,23 @@ test("정상 점수는 받는다, 모르는 게임은 거른다", () => {
   assert.equal(reason("__proto__", ok), "game");
 });
 
-test("이니셜·한마디는 공통 규칙으로 거른다", () => {
-  assert.equal(reason("dreamherd", { ...ok, name: "qa" }), "name");
+test("이름·한마디는 공통 규칙으로 거른다", () => {
+  assert.equal(NAME_MAX, 9);
+  for (const name of ["코코 주인", "가".repeat(9), "qa", "QAQ"]) assert.equal(reason("dreamherd", { ...ok, name }), "ok", name);
+  for (const name of ["가".repeat(10), "", " "]) assert.equal(reason("dreamherd", { ...ok, name }), "name", name);
+  assert.equal(reason("dreamherd", { ...ok, name: "x.com" }), "name-link");
+  assert.equal(reason("dreamherd", { ...ok, name: "010-12345" }), "name-link");
+  assert.equal(reason("dreamherd", { ...ok, name: "씨 발" }), "name-bad");
+  assert.equal(reason("dreamherd", { ...ok, name: "<img>" }), "name-char");
   assert.equal(reason("dreamherd", { ...ok, say: "www.spam" }), "say-link");
+});
+
+test("화면 쪽 이름 다듬기: 띄어쓰기만 다듬고 9글자에서 자른다", () => {
+  assert.deepEqual(cleanNameSay("  코코   주인 ", " 안녕 "), { name: "코코 주인", say: "안녕" });
+  assert.equal(cleanNameSay("가나다라마바사아자차", "").name, "가나다라마바사아자");
+  assert.equal(cleanNameSay("abc", "").name, "abc"); // 대문자로 바꾸지 않는다
+  assert.equal(cleanNameSay("    ", "").name, "");
+  assert.equal(reason("coco", { ...ok, ...cleanNameSay("가나다라마바사아자차", "") }), "ok");
 });
 
 test("점수·시간: 정수·범위, 버틴 시간에 비해 너무 높으면 거른다", () => {

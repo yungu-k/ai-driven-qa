@@ -1,5 +1,5 @@
 // 「그냥 오락실」 게임들의 랭킹 규칙(점수 게임). 서버 src/pages/api/rank/[game].ts 와 단위 테스트가 같이 쓴다.
-// 게임을 하나 더하면 GAMES 에 한 줄: 저장 키 · 한 판 최대 길이 · 점수 상한식. 이니셜·한마디는 rank-common 이 거른다.
+// 게임을 하나 더하면 GAMES 에 한 줄: 저장 키 · 한 판 최대 길이 · 점수 상한식. 이름·한마디는 rank-common 이 거른다.
 import { checkNameSay } from "./rank-common.ts";
 
 export type ScoreEntry = { name: string; score: number; say: string; sec: number };

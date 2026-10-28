@@ -19,6 +19,8 @@ export function initCoco3d() {
   };
   let OUTFIT: "harness" | "tee" = /tee/.test(location.hash) ? "tee" : "harness";
   let setOutfit: (o: "harness" | "tee") => void = () => {};
+  const SPLASH_LIFE = 0.3;
+  const splashes: { x: number; y: number; r: number; t0: number }[] = []; // 침 묻은 공 튀김(그리기 몫 — 규칙은 g.events 의 splash)
 
   function build(st: Stage) {
     const { M, scene, pool, put, blob, RP, juice: JUICE } = st;
@@ -31,6 +33,7 @@ export function initCoco3d() {
     for (const k of ["kibble", "treat", "chew", "fruit"]) PK[k] = pool(M.pickupGeometry(k).geometry, k === "kibble" ? 260 : 60);
     for (const k of ["ball", "toy", "chew"]) PJ[k] = pool(M.projGeometry(k).geometry, 60);
     let poseNow = "sit", poseAt = 0, cocoFace = Math.PI / 2;
+    splashes.length = 0;
     return {
       ground,
       meshes: () => [...Object.values(EN), ...Object.values(PK), ...Object.values(PJ)],
@@ -59,6 +62,11 @@ export function initCoco3d() {
           if (kind === "aura") put(RP.aura, p.x, 0.3, p.y, t, s.R, 1, s.R);
         }
         for (const f of g.fx) if (f.k === "drop") { const k = f.live ? 1 - f.life / f.max : 1; put(RP.bark, f.x, 0.4, f.y, 0, f.r * (0.4 + k * 0.6), 1, f.r * (0.4 + k * 0.6)); }
+        // 침 묻은 공 튀김 고리 0.3초(시안 docs/lab-surv-coco-3d-mock.html). 시안은 화면 시간으로 줄지만 여기선 draw 가 받는 규칙 시간으로 — 멈춤·카드 고르는 동안엔 고리도 선다
+        for (let i = splashes.length - 1; i >= 0; i--) if (!(t >= splashes[i].t0 && t < splashes[i].t0 + SPLASH_LIFE)) splashes.splice(i, 1);
+        const wave0 = RP.wave.count;
+        for (const q of splashes) { const k = (t - q.t0) / SPLASH_LIFE, r = q.r * (0.35 + 0.65 * k); put(RP.wave, q.x, 0.45, q.y, 0, r, 1, r); }
+        W.__surv.inst = { splash: RP.wave.count - wave0 }; // 리그: 그려진 튀김 고리 수
         for (const w of g.coco.waves) { const r = w.R * (1 - (w.life / 0.4) * 0.6); put(RP.wave, w.x, 0.5, w.y, 0, r, 1, r); }
         for (const z of g.zones) put(z.warn > 0 ? RP.warn : RP.zone, z.x, 0.2, z.y, 0, z.r, 1, z.r);
         const trails = g.coco.dash ? [...g.trails, { pts: g.coco.dash.pts }] : g.trails;
@@ -95,12 +103,13 @@ export function initCoco3d() {
       if (c.type === "evo") { const w = Wp[c.key]; return { ico: "evo", name: w.evo.name, lv: "진화", desc: `${w.name} 최고 단계 + ${P[w.evo.with]} → 더 센 꼴로`, cls: "evo" }; }
       if (c.type === "weapon") { const w = Wp[c.key]; const tip = ({ ball: "가장 가까운 것에 삑삑이 공", wag: "둘레를 꼬리 바람으로 · 앉으면 두 배", bark: "화면 안 싫은 것 머리 위로 멍!", toy: "인형을 물고 휘둘러요", chew: "걷는 쪽으로 개껌을 굴려요" } as Record<string, string>)[c.key]; return { ico: c.key, name: w.name, lv: c.lv === 1 ? "NEW" : `LV ${c.lv}`, desc: tip + (w.evo ? ` · 진화 짝: ${P[w.evo.with]}` : "") }; }
       if (c.type === "passive") { const tip = ({ dmg: "모든 피해 +10 %", cd: "다시 쓰기까지 −8 %", area: "범위 +12 %", move: "걸음 +8 %", hp: "최대 체력 +20", magnet: "간식 끌어오기 +30 %" } as Record<string, string>)[c.key]; return { ico: c.key, name: P[c.key], lv: c.lv === 1 ? "NEW" : `LV ${c.lv}`, desc: tip }; }
-      if (c.type === "theme") { const t = TC[c.key]; const tip = ({ sit: "기운이 30 % 더 빨리 차요", scoot: "똥꼬 스키 거리 +20 % · 피해 +25 %", spin: "뱅글뱅글 바람이 더 크고 세요", calm: "앉아 있는 동안 체력이 차요", sneak: c.lv === 1 ? "스키로 지나간 길의 간식을 먹어요" : "스키 중에 잡으면 체력 +1" } as Record<string, string>)[c.key]; return { ico: c.key, name: t.name, lv: `${c.lv}/${t.max}`, desc: tip, tag: "습관", cls: "habit" }; }
+      if (c.type === "theme") { const t = TC[c.key]; const tip = ({ sit: "기운이 30 % 더 빨리 차요", scoot: "똥꼬 스키 거리 +20 % · 피해 +25 %", spin: "뱅글뱅글 바람이 더 크고 세요", calm: "앉아 있는 동안 체력이 차요", sneak: c.lv === 1 ? "스키로 지나간 길의 간식을 먹어요" : "스키 중에 잡으면 체력 +1", more: "삑삑이 공을 한 번에 하나 더 던져요", splash: "공에 맞아 쓰러지면 둘레에 침이 튀어요" } as Record<string, string>)[c.key]; return { ico: c.key, name: t.name, lv: `${c.lv}/${t.max}`, desc: tip, tag: "습관", cls: "habit" }; }
       return { ico: "heal", name: "개껌 하나", lv: "", desc: "체력 30 회복" };
     },
     onEvent(ev, g, fx) {
       const p = g.p, J = fx.juice;
       if (ev.e === "hurt") J.burst("fur", p.x, p.y - 8, 4, 30, 2.4, 0.5);
+      else if (ev.e === "splash") { splashes.push({ x: ev.x, y: ev.y, r: ev.r, t0: g.time }); J.burst("bubble", ev.x, ev.y - 3, 6, 40, 2.2, 0.4); } // 침 묻은 공: 튀김 고리 + 방울
       else if (ev.e === "scoot") { J.burst("dust", p.x, p.y, 8, 40, 3, 0.45); if (ev.gauge >= 100) J.freeze(0.05); fx.sfx.hit(); }
       else if (ev.e === "spin") { J.kick(2.4); J.burst("fur", p.x, p.y - 6, 10, 60, 2.6, 0.6); J.burst("sparkle", p.x, p.y - 8, 8, 50, 2.4, 0.5); fx.sfx.gold(); }
       else if (ev.e === "bellbark") { fx.say("딩동! 멍멍멍!"); fx.sfx.miss(); }

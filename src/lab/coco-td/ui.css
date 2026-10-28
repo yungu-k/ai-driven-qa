@@ -428,7 +428,7 @@ table.rank { width: 100%; border-collapse: separate; border-spacing: 0 2px; tabl
 .rank tr.me td:first-child { color: var(--k1) !important; background: var(--g5) !important; }
 .rank tr.me { animation: rowBlink .5s steps(1) 8; }
 @keyframes rowBlink { 50% { opacity: .35; } }
-.rank col.c1 { width: 32px; } .rank col.c2 { width: 48px; } .rank col.c3 { width: 48px; } .rank col.c5 { width: 64px; }
+.rank col.c1 { width: 32px; } .rank col.c2 { width: 76px; } /* 이름 9글자(10-28) — 넘치면 말줄임 */ .rank col.c3 { width: 48px; } .rank col.c5 { width: 64px; }
 .say { color: var(--s3); }
 .rank td.say { color: var(--s3); }
 
@@ -924,6 +924,10 @@ button.slot:not(:disabled):hover { background: linear-gradient(180deg, #fffaf2, 
 .field input { clip-path: none; border-radius: 12px; font: 500 14px/18px var(--px); color: var(--ink); background: #fff; box-shadow: inset 0 0 0 2px #ecd3a6; }
 .field input::placeholder { color: #b9a090; }
 .field input:focus { box-shadow: inset 0 0 0 2px #2fb5a8; }
+/* 이름 칸(10-28, 바퀴 3칸 대신): 16px 아래면 아이폰이 칸에 들어갈 때 화면을 키운다 */
+.field input.name { font: 700 18px/22px var(--px); text-align: center; }
+.name-hint { display: block; color: #b4402a; font-size: 12px; font-weight: 700; text-align: left; }
+.name-hint[hidden] { display: none; }
 
 /* 랭킹판 */
 .rank th { color: var(--ink3); font-weight: 700; box-shadow: inset 0 -2px 0 #ecd3a6; }

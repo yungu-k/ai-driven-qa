@@ -9,7 +9,7 @@ import "../survivors/coco3d-models.js";
 import "./td3d.js";
 import { isSoundOn, setSoundOn } from "@/lab/sound";
 import { SAVE_KEY, freshRun, afterMapWon, parseRun, hasProgress, clearedLaps, type Run } from "./save.ts";
-import { fetchTop, submit, cleanEntry, type RankRow } from "./rank.ts";
+import { fetchTop, submit, cleanEntry, NAME_MAX, type RankRow } from "./rank.ts";
 
 export function initCocoTd() {
   const D: any = E.DATA;
@@ -487,48 +487,23 @@ export function initCocoTd() {
   $("#menu").onclick = e => { if (e.target === $("#menu")) closeMenu(); };
   addEventListener("keydown", e => { if (e.key === "Escape" && $("#menu").classList.contains("on")) closeMenu(); });
 
-  const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  // 이름 칸: 예전엔 A–Z 바퀴 3칸(이니셜)이었다. Dean 10-28 「10글자 미만, 한글도, 이니셜일 필요는 없다」 → 서바이버와 같은 글 입력 칸
   function showRankEntry() {
-    const laps = clearedLaps(run), ini = ["A", "A", "A"]; let at = 0;
+    const laps = clearedLaps(run);
     openBox(`<h2 class="title bad">오늘은 여기까지</h2>
       <p class="hi">무사히 지낸 날 ${laps}일</p>
       <p class="sub">랭크에 이름을 남긴다</p>
-      <div class="initials" id="ini"></div>
+      <label class="field">이름(${NAME_MAX}자까지)<input id="name" class="name" maxlength="${NAME_MAX}" autocomplete="off" spellcheck="false" placeholder="예: 코코 주인"></label>
+      <small class="name-hint" id="nameHint" aria-live="polite" hidden></small>
       <label class="field">한마디(20자)<input id="say" maxlength="20" autocomplete="off" placeholder="예: 개껌이 다 했다"></label>
-      <input id="kbd" class="sr" maxlength="3" autocapitalize="characters" autocomplete="off" aria-label="이니셜 3글자 키보드로 넣기">
-      <div class="acts"><button class="btn ghost" id="typeBtn">⌨ 키보드</button><button class="btn" id="enter">등록</button></div>`);
-    const wrap = $("#ini");
-    function paint() {
-      wrap.textContent = "";
-      ini.forEach((ch, i) => {
-        const col = document.createElement("div"); col.className = "ini" + (i === at ? " on" : "");
-        const up = document.createElement("button"); up.textContent = "▲"; up.setAttribute("aria-label", `${i + 1}번째 글자 앞으로`);
-        const out = document.createElement("output"); out.textContent = ch; out.tabIndex = 0; out.setAttribute("aria-label", `${i + 1}번째 글자 ${ch}`);
-        const dn = document.createElement("button"); dn.textContent = "▼"; dn.setAttribute("aria-label", `${i + 1}번째 글자 뒤로`);
-        const turn = (d: number) => { at = i; ini[i] = CHARS[(CHARS.indexOf(ini[i]) + d + CHARS.length) % CHARS.length]; tone(660 + CHARS.indexOf(ini[i]) * 12, 30, { gain: 0.05 }); paint(); };
-        up.onclick = () => turn(-1); dn.onclick = () => turn(1);
-        out.onclick = () => { at = i; paint(); };
-        out.onkeydown = e => {
-          if (e.key === "ArrowUp") turn(-1);
-          else if (e.key === "ArrowDown") turn(1);
-          else if (e.key === "ArrowRight") { at = Math.min(2, at + 1); paint(); wrap.querySelectorAll("output")[at].focus(); }
-          else if (e.key === "ArrowLeft") { at = Math.max(0, at - 1); paint(); wrap.querySelectorAll("output")[at].focus(); }
-        };
-        let sy: number | null = null;
-        out.onpointerdown = e => { sy = e.clientY; out.setPointerCapture(e.pointerId); };
-        out.onpointermove = e => { if (sy == null) return; const d = e.clientY - sy; if (Math.abs(d) > 18) { turn(d > 0 ? 1 : -1); sy = e.clientY; } };
-        out.onpointerup = () => { sy = null; };
-        col.append(up, out, dn); wrap.append(col);
-      });
-    }
-    paint();
-    const kbd = $<HTMLInputElement>("#kbd");
-    $("#typeBtn").onclick = () => { kbd.value = ""; kbd.classList.remove("sr"); kbd.classList.add("kbd-on"); kbd.focus(); };
-    kbd.oninput = () => { const v = kbd.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 3); kbd.value = v; for (let i = 0; i < 3; i++) ini[i] = v[i] ?? "A"; at = Math.min(2, v.length); paint(); };
+      <div class="acts"><button class="btn" id="enter">등록</button></div>`);
+    const nameIn = $<HTMLInputElement>("#name"), hint = $("#nameHint");
+    nameIn.oninput = () => { hint.hidden = true; };
     const enter = $<HTMLButtonElement>("#enter");
     enter.onclick = async () => {
+      const { name, say, ok } = cleanEntry(nameIn.value, $<HTMLInputElement>("#say").value);
+      if (!ok) { hint.textContent = "이름을 넣어 주세요"; hint.hidden = false; nameIn.focus(); return; }
       enter.disabled = true;
-      const { name, say } = cleanEntry(ini.join(""), $<HTMLInputElement>("#say").value);
       const rows = await submit({ name, lap: laps, say, simSec: Math.round(run.simSec) });
       // 판은 여기서 끝난다 — 저장을 지우고 최고 기록만 남긴다
       run = freshRun(run.best); store.save(run);

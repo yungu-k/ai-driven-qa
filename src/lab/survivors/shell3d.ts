@@ -65,7 +65,9 @@ export function runSurvivor3D(S: Shell3D) {
   const seedArg = () => +(hash.match(/seed=(\d+)/) || [])[1] || ((Math.random() * 1e9) | 0);
   const $ = <E extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as E;
   const cv = $<HTMLCanvasElement>("cv"), ov = $<HTMLCanvasElement>("ov"), octx = ov.getContext("2d")!;
-  let DPR = 1;
+  let DPR = 1, SC = 1; // SC: 넓은 화면에서 무대를 키운 배수(폰은 1)
+  const WIDE_MIN = 480, UI_MAX = 1.5; // 덮개 상자는 SC 와 함께 크되 화면 기준 1.5 배에서 멈춘다(iPad Pro 세로 1.85 배면 제목이 55px 이었다)
+  const PX_CAP = +(hash.match(/pxcap=(\d+)/) || [])[1] * 1e5 || 2e6; // 넓은 화면 캔버스 픽셀 상한(기본 2.0 MP, #pxcap=27 = 2.7 MP 로 재기)
   let g: any = null, acc = 0, last = 0, sayT = 0, paused = false;
   W.__surv = { frames: [] as number[], get g() { return g; }, core: C }; // 리그가 엔진 함수(gainXp 등)를 부를 자리
 
@@ -76,6 +78,7 @@ export function runSurvivor3D(S: Shell3D) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(32, 1, 20, 1400);
+  W.__surv.cam = camera; // 리그: 보이는 바닥 범위(절두체)를 폰·태블릿에서 맞댄다
   // 1판 55°·폭 180 은 주인공이 화면 폭 1/9 의 덩어리로 보였다 → 50°·폭 150(원근이라 위쪽은 더 넓게 보인다)
   const CAM = { tilt: (50 * Math.PI) / 180, dist: 560, ahead: 18, width: 150 }; // ahead: 주인공을 화면 가운데보다 위에(엄지가 아래)
   const hemi = new THREE.HemisphereLight(0xfff4e3, S.hemiGround ?? 0x47a35a, 1.6);
@@ -161,11 +164,38 @@ export function runSurvivor3D(S: Shell3D) {
   function fit() {
     const cap = +(hash.match(/dprcap=(\d)/) || [])[1] || 2; // 렌더 DPR 상한 기본 2(규격 실측)
     DPR = Math.min(cap, window.devicePixelRatio || 1);
+    // 태블릿·넓은 화면(폭 > 480, Dean 10-28): 360 폭 기둥을 그대로 두면 iPad 폭의 44 % 만 썼다. 보이는 세상은 폰(360×740)과 같게 두고
+    // 무대(#app 360 × 논리 높이) 전체를 SC 배로 키운다 — 세상을 더 보여 주면 랭킹이 불공정해진다. 폰(≤ 480)은 SC = 1 로 이전과 같은 길.
+    const vw = innerWidth, vh = innerHeight, wide = vw > WIDE_MIN, app = $("app");
+    SC = wide ? Math.max(1, Math.min(vw / 360, vh / 740)) : 1; // 높이가 740 보다 짧은 창은 1(이전 그대로) — 무대가 360 보다 좁아지지 않게
+    document.documentElement.classList.toggle("surv-wide", wide);
+    if (wide) { app.style.setProperty("--s", String(SC)); app.style.setProperty("--k", String(Math.min(1, UI_MAX / SC))); app.style.height = `${vh / SC}px`; }
+    else { app.style.removeProperty("--s"); app.style.removeProperty("--k"); app.style.height = ""; }
+    bgOn(wide);
     const w = $("wrap").clientWidth || 360, h = $("wrap").clientHeight || 600;
-    renderer.setPixelRatio(DPR); renderer.setSize(w, h, false);
+    // 키운 무대의 캔버스는 화면 px 로 그린다(흐려지지 않게). 픽셀 수는 PX_CAP 로 묶는다 — iPad 820×1180 DPR 2 를 그대로 두면 폰(0.53 MP)의 5 배였다
+    const cap2 = (r: number) => (wide ? Math.min(r * SC, Math.sqrt(PX_CAP / (w * h))) : r);
+    renderer.setPixelRatio(cap2(DPR)); renderer.setSize(w, h, false);
     camera.aspect = w / h; camera.updateProjectionMatrix();
     CAM.dist = CAM.width / (2 * Math.tan((camera.fov * Math.PI) / 360) * camera.aspect); // 시야 폭이 규칙 단위로 일정하게(세로가 길면 더 멀리)
-    ov.width = Math.round(w * Math.min(2, window.devicePixelRatio || 1)); ov.height = Math.round(h * Math.min(2, window.devicePixelRatio || 1));
+    const or = cap2(Math.min(2, window.devicePixelRatio || 1));
+    ov.width = Math.round(w * or); ov.height = Math.round(h * or);
+  }
+  // 넓은 화면의 좌우 띠: 빈 남보라 대신 지금 장면을 덮개처럼 늘여 흐리게(같은 화면을 늘인 것이라 더 보이는 세상은 없다). 폰에서는 만들지도 않는다
+  let bg: HTMLCanvasElement | null = null, bgCtx: CanvasRenderingContext2D | null = null, bgN = 0;
+  function bgOn(on: boolean) {
+    if (on && !bg) {
+      bg = document.createElement("canvas"); bg.id = "bgcv"; bg.setAttribute("aria-hidden", "true");
+      $("app").before(bg); bgCtx = bg.getContext("2d");
+    }
+    if (!bg) return;
+    bg.style.display = on ? "" : "none";
+    if (on) { bg.width = 96; bg.height = Math.max(1, Math.round((96 * innerHeight) / innerWidth)); bgN = 0; }
+  }
+  function bgPaint() { // 그린 직후(같은 작업 안) — 드로잉 버퍼가 아직 살아 있다
+    if (!bgCtx || !bg || bg.style.display === "none" || bgN++ % 6) return;
+    const s = Math.max(bg.width / cv.width, bg.height / cv.height), sw = bg.width / s, sh = bg.height / s;
+    bgCtx.drawImage(cv, (cv.width - sw) / 2, (cv.height - sh) / 2, sw, sh, 0, 0, bg.width, bg.height);
   }
   fit();
   addEventListener("resize", () => fit());
@@ -177,15 +207,15 @@ export function runSurvivor3D(S: Shell3D) {
   wrap.addEventListener("pointerdown", e => {
     if (!g || g.state !== "play" || paused) return;
     wrap.setPointerCapture(e.pointerId);
-    const r = wrap.getBoundingClientRect();
-    stick.on = true; stick.ox = e.clientX - r.left; stick.oy = e.clientY - r.top; stick.x = stick.y = 0;
+    const r = wrap.getBoundingClientRect(); // 키운 무대(SC)에서 화면 px → 무대 px
+    stick.on = true; stick.ox = (e.clientX - r.left) / SC; stick.oy = (e.clientY - r.top) / SC; stick.x = stick.y = 0;
     const s = $("stick"); s.style.display = "block"; s.style.left = stick.ox + "px"; s.style.top = stick.oy + "px"; (s.firstChild as HTMLElement).style.transform = "";
     $("hint").style.display = "none";
   });
   wrap.addEventListener("pointermove", e => {
     if (!stick.on) return;
     const r = wrap.getBoundingClientRect();
-    let dx = e.clientX - r.left - stick.ox, dy = e.clientY - r.top - stick.oy;
+    let dx = (e.clientX - r.left) / SC - stick.ox, dy = (e.clientY - r.top) / SC - stick.oy;
     const d = Math.hypot(dx, dy);
     if (d > R_STICK) { dx *= R_STICK / d; dy *= R_STICK / d; }
     stick.x = dx / R_STICK; stick.y = dy / R_STICK;
@@ -225,7 +255,7 @@ export function runSurvivor3D(S: Shell3D) {
       const t = S.cardText(c, D), b = document.createElement("button");
       b.className = "card " + (t.cls || "");
       const ico = document.createElement("span"); ico.className = "ico"; ico.setAttribute("aria-hidden", "true");
-      const src = t.ico && ART && ART.iconURL ? ART.iconURL(t.ico, Math.round(42 * DPR)) : "";
+      const src = t.ico && ART && ART.iconURL ? ART.iconURL(t.ico, Math.round(42 * DPR * Math.min(SC, UI_MAX))) : "";
       if (src) { const img = document.createElement("img"); img.src = src; img.width = 42; img.height = 42; img.alt = ""; ico.append(img); }
       const name = document.createElement("b"); name.textContent = t.name;
       const lv = document.createElement("span"); lv.className = "lv"; lv.textContent = t.lv;
@@ -319,14 +349,14 @@ export function runSurvivor3D(S: Shell3D) {
     if (won) sfx.result(); else sfx.miss();
     ($("enter") as HTMLButtonElement).onclick = async () => {
       const { name, say: line } = cleanNameSay(($("ini") as HTMLInputElement).value, ($("sayIn") as HTMLInputElement).value);
-      if (name.length !== 3) { iniHint("영문·숫자 3글자를 넣어 주세요"); ($("ini") as HTMLInputElement).focus(); return; }
+      if (!name) { iniHint("이름을 넣어 주세요"); ($("ini") as HTMLInputElement).focus(); return; }
       ($("enter") as HTMLButtonElement).disabled = true;
       const got = await submitScore(S.game, { name, score, say: line, sec: Math.round(g.time * 10) / 10 });
       showBoard(got ?? (await fetchTop(S.game)) ?? [], got ? { name, score, say: line } : null, !got);
     };
   }
-  // 이니셜 칸: 한글 자판으로 치면 「듀코코」처럼 들어가 보이는데 등록은 조용히 안 됐다(Dean 제보 10-28).
-  // 조합이 끝날 때마다 영문·숫자만 남기고, 걸러낸 게 있으면 바로 알린다.
+  // 이름 칸(Dean 10-28): 이니셜 3글자 → 이름 9글자까지(한글 가능). 거르지 않고, 비었을 때만 알린다.
+  // 서버가 이름을 거절해도(400) submitScore 는 실패와 같은 null 이라 가르지 못한다 → 랭킹판의 「지금은 등록이 안 돼요」로 간다.
   function iniHint(t: string) {
     const ini = $("ini") as HTMLInputElement;
     let h = document.getElementById("iniHint");
@@ -337,13 +367,7 @@ export function runSurvivor3D(S: Shell3D) {
     const ini = $("ini") as HTMLInputElement;
     if (ini.dataset.guard) return;
     ini.dataset.guard = "1";
-    const fix = () => {
-      const v = ini.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 3);
-      if (v !== ini.value) { const dropped = /[^A-Za-z0-9]/.test(ini.value); ini.value = v; if (dropped) iniHint("영문·숫자만 돼요 (한/영 전환)"); }
-      else if (v) iniHint("");
-    };
-    ini.addEventListener("input", e => { if (!(e as InputEvent).isComposing) fix(); });
-    ini.addEventListener("compositionend", fix);
+    ini.addEventListener("input", () => { if (ini.value.trim()) iniHint(""); });
   }
   function showBoard(rows: ScoreRow[], me: { name: string; score: number; say: string } | null, failed: boolean) {
     $("entry").hidden = true;
@@ -390,6 +414,7 @@ export function runSurvivor3D(S: Shell3D) {
       W.__surv.ghostFrames = (W.__surv.ghostFrames || 0) + (n > 0 ? 1 : 0); // 리그: 가림이 실제로 일어났나
     }
     renderer.render(scene, camera);
+    bgPaint();
     W.__surv.gpu = { calls: renderer.info.render.calls, tris: renderer.info.render.triangles }; // 휴대폰 GPU 부담은 CPU 늦추기로 못 잰다 — 호출·삼각형으로 맞댄다
     // 겹 캔버스(2D): 게임 덧그림·입자·피해 숫자 — 3D 장면에 섞지 않고 화면 좌표로
     octx.setTransform(1, 0, 0, 1, 0, 0);

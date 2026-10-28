@@ -17,9 +17,18 @@ test("정상 기록은 받는다", () => {
   assert.equal(reason({ ...ok, lap: 0, simSec: 0, say: "" }), "ok"); // v1.0 도 못 깼어도 이름은 남긴다
 });
 
-test("이니셜은 대문자·숫자 3글자", () => {
-  for (const name of ["qaq", "QA", "QAQQ", "Q-Q", "", "가나다"]) assert.equal(reason({ ...ok, name }), "name", name);
-  assert.equal(reason({ ...ok, name: "SEX" }), "name-bad");
+test("이름: 1~9글자(한글·영문·숫자·띄어쓰기), 예전 3글자 이니셜도 그대로", () => {
+  for (const name of ["코코 주인", "가".repeat(9), "Dean", "qa7", "QAQ", "A", "코코짱 99", "😀".repeat(9)]) assert.equal(reason({ ...ok, name }), "ok", name);
+  for (const name of ["가".repeat(10), "", "   ", "abcdefghij"]) assert.equal(reason({ ...ok, name }), "name", name);
+  assert.equal(reason({ ...ok, name: "  코코   주인  " }), "ok"); // 앞뒤·겹친 띄어쓰기는 다듬고 센다
+  assert.equal(reason({ ...ok, name: "가나다라마바사 아" }), "ok"); // 띄어쓰기도 한 글자, 9
+});
+
+test("이름에도 링크·전화번호·욕설·꺾쇠·제어 문자는 안 된다", () => {
+  for (const name of ["a.com", "www.x", "@someone", "010123456"]) assert.equal(reason({ ...ok, name }), "name-link", name);
+  for (const name of ["시발", "ㅅ ㅂ", "F.u.c.k", "개새끼야", "SEX", "s e x", "fck"]) assert.equal(reason({ ...ok, name }), "name-bad", name);
+  for (const name of ["<b>", "a>b", "a\u0007b"]) assert.equal(reason({ ...ok, name }), "name-char", JSON.stringify(name));
+  assert.equal(reason({ ...ok, name: 7 }), "name");
 });
 
 test("한마디: 20자 넘으면·링크·욕설·꺾쇠는 거른다", () => {
@@ -50,9 +59,14 @@ test("날짜는 한국 시간", () => {
 });
 
 test("화면 쪽 다듬기는 서버 규칙과 맞물린다", () => {
-  const c = cleanEntry("q-a7", "  한마디   두   칸  ");
-  assert.deepEqual(c, { name: "QA7", say: "한마디 두 칸", ok: true });
+  const c = cleanEntry("  코코   주인 ", "  한마디   두   칸  ");
+  assert.deepEqual(c, { name: "코코 주인", say: "한마디 두 칸", ok: true });
   assert.equal(reason({ ...ok, name: c.name, say: c.say }), "ok");
+  const long = cleanEntry("가나다라마바사아자차", ""); // 10글자 → 9에서 자른다
+  assert.equal(long.name, "가나다라마바사아자");
+  assert.equal(reason({ ...ok, name: long.name }), "ok");
+  assert.equal(cleanEntry("   ", "").ok, false); // 빈 이름은 화면에서 막는다
+  assert.equal(cleanEntry("q-a7", "").name, "q-a7"); // 더 이상 대문자로 바꾸거나 기호를 지우지 않는다
 });
 
 test("저장: 맵을 깰 때마다 다음 맵, 보스 맵이면 바퀴가 오른다", () => {

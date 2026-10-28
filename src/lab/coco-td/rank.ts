@@ -2,16 +2,16 @@
 // 서버가 없거나 실패해도 게임은 멈추지 않는다: GET 실패 = 빈 판, POST 실패 = 「지금은 등록이 안 된다」.
 
 export const RANK_URL = "/api/defense-rank";
-export const NAME_RE = /^[A-Z0-9]{3}$/;
+export const NAME_MAX = 9; // 이름은 9글자까지(코드 포인트). 서버 규칙은 rank-common 의 NAME_MAX
 export const SAY_MAX = 20;
 
 export type RankRow = { name: string; lap: number; say: string; date: string };
 
 /** 화면에서 받은 값을 서버 규칙과 같은 꼴로 다듬는다(서버도 같은 검사를 다시 한다) */
 export function cleanEntry(name: string, say: string) {
-  const n = name.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 3);
+  const n = [...name.replace(/\s+/g, " ").trim()].slice(0, NAME_MAX).join("").trim();
   const s = [...say.replace(/\s+/g, " ").trim()].slice(0, SAY_MAX).join("");
-  return { name: n, say: s, ok: NAME_RE.test(n) };
+  return { name: n, say: s, ok: n.length > 0 };
 }
 
 function isRow(r: unknown): r is RankRow {

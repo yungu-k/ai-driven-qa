@@ -167,6 +167,9 @@ const THEME_CARDS = {
   spin: { name: "뱅글뱅글", max: 3, wt: 1.0, R: 10, dmg: 20 }, // 바람 고리 반경·피해 +/단계
   calm: { name: "얌전히", max: 2, wt: 0.9, regen: 0.8 }, // 앉아 있는 동안 초당 회복 +0.8/단계
   sneak: { name: "몰래 먹기", max: 2, wt: 0.9, R: 30, heal: 1 }, // 1: 스키 길 30 안 간식을 먹는다 · 2: 하나에 1 회복
+  // 2판(Dean 10-28 「스키 빼면 너무 약하다 — 기본 공격을 키울 수단」): 삑삑이 공 갈래 둘. 장난감에 집착하는 습관에서
+  more: { name: "장난감 욕심", max: 2, wt: 1.1, n: 1 }, // 공 +1 개/단계(진화 판에도)
+  splash: { name: "침 묻은 공", max: 3, wt: 1.1, R: [16, 22, 28], mul: [0.5, 0.7, 0.9] }, // 공에 맞아 쓰러지면 그 자리 둘레 R 에 공 피해 × mul(튄 피해로는 다시 안 튄다)
 };
 const DROPS = { heal: 0.015, magnet: 0.003, healAmt: 25, bossDust: 30 };
 
@@ -268,7 +271,16 @@ function onSpawn(g: CocoGame, e: CocoEnemy): void {
   if (def.ring) e.ringT = def.ring.every * (0.5 + g.r() * 0.5);
   if (e.boss) { e.sumT = 0; e.puddleT = def.puddle ? def.puddle.every : 0; e.ringT2 = def.ringEvery || 0; }
 }
-function onKill(g: CocoGame, e: CocoEnemy): void {
+function onKill(g: CocoGame, e: CocoEnemy, src: string): void {
+  const sl = lv(g, "splash");
+  if (sl && src === "ball") {
+    const w = g.weapons.find((q) => q.key === "ball");
+    if (w) {
+      const TC = THEME_CARDS.splash, R = TC.R[sl - 1] * (1 + (g.passives.area || 0) * C.PASSIVE_AXES.area), dmg = C.wstat(g, w).dmg * TC.mul[sl - 1];
+      C.near(g, e.x, e.y, R + 20, (o) => { if (o !== e && !o.dead && (o.x - e.x) ** 2 + (o.y - e.y) ** 2 <= (R + o.r) ** 2) C.damage(g, o, dmg, "ballsplash", { kb: 20, fx: e.x, fy: e.y }); });
+      g.events.push({ e: "splash", x: e.x, y: e.y, r: R }); // 그리기: 침 방울 튀김 고리
+    }
+  }
   const sp = ENEMIES[e.kind].split;
   if (sp) for (let i = 0; i < sp.n; i++) C.spawnAt(g, sp.kind, e.x + (i ? 3 : -3), e.y);
   if (e.boss) g.pickups.push({ kind: "heal", x: e.x + 8, y: e.y }); // 고기(회복) 하나 더
@@ -357,6 +369,7 @@ function afterStep(g: CocoGame, dt: number): void {
 
 function weaponMod(g: CocoGame, w: Weapon, s: WeaponStat): void {
   if (w.key === "wag" && g.coco.still) s.dps *= 2; // 앉아서 흔드는 꼬리가 진짜 꼬리 바람
+  if (w.key === "ball" && lv(g, "more")) s.n += lv(g, "more") * THEME_CARDS.more.n; // 장난감 욕심
 }
 
 // 랭크 점수: 버틴 시간이 주, 큰 스키(기운 가득)가 부.

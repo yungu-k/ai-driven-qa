@@ -467,6 +467,21 @@
         inner: (x) => { x.lineCap = "round"; x.strokeStyle = rgba(TEAL[2], 0.9); x.lineWidth = 0.7; x.beginPath(); x.moveTo(-1.6, 4.6); x.lineTo(7.0, 4.6); x.stroke(); disc(x, 2.7, 6.0, 0.8, rgba(S[1], 0.85)); } });
       c.lineWidth = 0.5; c.strokeStyle = TEAL[2]; c.lineCap = "round"; c.beginPath(); c.moveTo(-3.2, 2.5); c.lineTo(8.6, 2.5); c.stroke();
     },
+    // 2판(Dean 10-28): 삑삑이 공 갈래 — 장난감 욕심(공 둘 + 더하기) · 침 묻은 공(공 + 튀는 침 방울)
+    more(c) {
+      for (const [x, y] of [[-4.2, 3.2], [4.4, -3.4]]) { c.save(); c.translate(x, y); c.scale(0.66, 0.66); DRAW.ball(c); c.restore(); }
+      c.lineCap = "round"; c.strokeStyle = TEAL[0]; c.lineWidth = 1.6;
+      c.beginPath(); c.moveTo(4.6, 5.2); c.lineTo(4.6, 9.6); c.moveTo(2.4, 7.4); c.lineTo(6.8, 7.4); c.stroke();
+    },
+    splash(c) {
+      c.save(); c.scale(0.64, 0.64); DRAW.ball(c); c.restore();
+      // 튀는 침 방울: 공 둘레 여섯 방향, 바깥으로 갈수록 작게
+      for (let i = 0; i < 6; i++) {
+        const a = -Math.PI / 2 + (i / 6) * Math.PI * 2 + 0.3;
+        disc(c, Math.cos(a) * 7.2, Math.sin(a) * 7.2, 1.2, TEAL[2]);
+        disc(c, Math.cos(a) * 9.0, Math.sin(a) * 9.0, 0.7, TEAL[1]);
+      }
+    },
     // 기타
     evo(c) {
       goldGlow(c, 0, 0.4, 9.6, 0.75);
