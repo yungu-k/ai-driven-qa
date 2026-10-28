@@ -67,8 +67,9 @@ p { margin: 6px 0; font-size: 14px; line-height: 1.55; color: var(--ink2); }
 .hi { font-size: 13px; font-weight: 800; color: var(--teal2); }
 .box a.back { display: inline-block; margin-top: 12px; color: var(--teal2); font-size: 13px; font-weight: 700; text-decoration: none; }
 .field { display: grid; gap: 4px; text-align: left; margin: 8px 0; font-size: 12px; font-weight: 700; color: var(--ink2); }
-.field input { height: 46px; padding: 0 12px; border: 0; border-radius: 12px; background: #fff; color: var(--ink); font: 600 16px inherit; font-family: inherit; box-shadow: inset 0 0 0 2px #ecd3a6; }
+.field input { width: 100%; min-width: 0; box-sizing: border-box; height: 46px; padding: 0 12px; border: 0; border-radius: 12px; background: #fff; color: var(--ink); font: 600 16px inherit; font-family: inherit; box-shadow: inset 0 0 0 2px #ecd3a6; }
 .field input.ini { font-size: 22px; font-weight: 900; letter-spacing: 8px; text-transform: uppercase; text-align: center; }
+.ini-hint { color: #b4402a; font-size: 12px; font-weight: 700; }
 .field input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--teal); }
 .rank { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 12.5px; margin: 8px 0; }
 .rank th, .rank td { height: 26px; padding: 0 4px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

@@ -313,16 +313,37 @@ export function runSurvivor3D(S: Shell3D) {
     $("res").innerHTML = [...r.rows, ["점수", score] as [string, number]].map(([a, b]) => `<span>${esc(String(a))}</span><span>${esc(String(b))}</span>`).join("");
     $("entry").hidden = false; ($("enter") as HTMLButtonElement).disabled = false;
     ($("ini") as HTMLInputElement).value = ""; ($("sayIn") as HTMLInputElement).value = "";
+    iniGuard(); iniHint("");
     $("board").hidden = true;
     $("end").classList.add("on");
     if (won) sfx.result(); else sfx.miss();
     ($("enter") as HTMLButtonElement).onclick = async () => {
       const { name, say: line } = cleanNameSay(($("ini") as HTMLInputElement).value, ($("sayIn") as HTMLInputElement).value);
-      if (name.length !== 3) { ($("ini") as HTMLInputElement).focus(); return; }
+      if (name.length !== 3) { iniHint("영문·숫자 3글자를 넣어 주세요"); ($("ini") as HTMLInputElement).focus(); return; }
       ($("enter") as HTMLButtonElement).disabled = true;
       const got = await submitScore(S.game, { name, score, say: line, sec: Math.round(g.time * 10) / 10 });
       showBoard(got ?? (await fetchTop(S.game)) ?? [], got ? { name, score, say: line } : null, !got);
     };
+  }
+  // 이니셜 칸: 한글 자판으로 치면 「듀코코」처럼 들어가 보이는데 등록은 조용히 안 됐다(Dean 제보 10-28).
+  // 조합이 끝날 때마다 영문·숫자만 남기고, 걸러낸 게 있으면 바로 알린다.
+  function iniHint(t: string) {
+    const ini = $("ini") as HTMLInputElement;
+    let h = document.getElementById("iniHint");
+    if (!h) { h = document.createElement("small"); h.id = "iniHint"; h.className = "ini-hint"; h.setAttribute("aria-live", "polite"); ini.insertAdjacentElement("afterend", h); }
+    h.textContent = t; h.hidden = !t;
+  }
+  function iniGuard() {
+    const ini = $("ini") as HTMLInputElement;
+    if (ini.dataset.guard) return;
+    ini.dataset.guard = "1";
+    const fix = () => {
+      const v = ini.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 3);
+      if (v !== ini.value) { const dropped = /[^A-Za-z0-9]/.test(ini.value); ini.value = v; if (dropped) iniHint("영문·숫자만 돼요 (한/영 전환)"); }
+      else if (v) iniHint("");
+    };
+    ini.addEventListener("input", e => { if (!(e as InputEvent).isComposing) fix(); });
+    ini.addEventListener("compositionend", fix);
   }
   function showBoard(rows: ScoreRow[], me: { name: string; score: number; say: string } | null, failed: boolean) {
     $("entry").hidden = true;
