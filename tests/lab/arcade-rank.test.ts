@@ -14,6 +14,7 @@ const reason = (game: string, b: unknown) => {
 test("정상 점수는 받는다, 모르는 게임은 거른다", () => {
   assert.equal(reason("sheep", ok), "ok");
   assert.equal(reason("sheep", { ...ok, score: 0, sec: 0, say: "" }), "ok");
+  assert.equal(reason("coco", ok), "ok");
   assert.equal(reason("nope", ok), "game");
   assert.equal(reason("__proto__", ok), "game");
 });
@@ -30,6 +31,11 @@ test("점수·시간: 정수·범위, 버틴 시간에 비해 너무 높으면 �
   assert.equal(reason("sheep", { ...ok, score: GAMES.sheep.maxScore(ok.sec) + 1 }), "too-high");
   // 아침까지 버티고 이긴 판(600초, 이김 5000 + 양 30마리)은 상한 안
   assert.equal(reason("sheep", { ...ok, sec: 600, score: 600 * 10 + 2000 + 40 * 25 + 200 * 15 + 5000 + 30 * 200 }), "ok");
+});
+
+test("코코: 저녁밥까지 버틴 판은 상한 안, 짧은 판의 큰 점수는 거른다", () => {
+  assert.equal(reason("coco", { ...ok, sec: 600, score: 6000 + 1500 + 200 * 30 + 5000 + 150 * 20 }), "ok");
+  assert.equal(reason("coco", { ...ok, sec: 30, score: 20000 }), "too-high");
 });
 
 test("정렬: 점수가 먼저, 같으면 먼저 온 사람", () => {

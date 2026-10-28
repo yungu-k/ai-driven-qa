@@ -1,4 +1,4 @@
-/* 새벽 양치기 겉모양 — 디자인 세션 시안 docs/lab-surv-sheep-mock.html 의 <style> 을 옮긴 것(글꼴 @font-face 는 @/lab/lab-fonts.css 가 싣는다).
+/* 그냥 오락실 서바이버 공통 겉모양 — 디자인 세션 시안 docs/lab-surv-sheep-mock.html 의 <style> 을 옮긴 것(코코 시안도 같은 꼴)(글꼴 @font-face 는 @/lab/lab-fonts.css 가 싣는다).
    끝의 「구현 덧붙임」 블록은 시안에 없던 멈춤 메뉴·랭크 등록·실험실 틀 맞춤(tw). */
 :root {
   --ink0: #07060f; --ink1: #0e0c1c; --ink2: #17142b; --ink3: #231e3d; --ink4: #322b52; --ink5: #463d6b; --ink6: #5f5687;
@@ -14,6 +14,7 @@ body { display: flex; justify-content: center; overflow: hidden; touch-action: n
 .bar > i { position: absolute; inset: 1px auto 1px 1px; background: var(--rd4); width: 0; }
 #xpBar > i { background: var(--cy4); }
 #dawnBar > i { background: linear-gradient(90deg, var(--vi3), var(--pk4), var(--go5)); }
+.coco #dawnBar > i { background: linear-gradient(90deg, var(--gr4), var(--go5), var(--pk4), var(--vi3)); } /* 코코: 낮 → 저녁 */
 .num { font-family: "LabPixelMono", monospace; font-size: 12px; }
 .chip { display: inline-flex; gap: 4px; align-items: center; padding: 2px 6px; background: var(--ink3); box-shadow: inset 0 1px 0 var(--ink5); }
 #sub { display: grid; grid-template-columns: 1fr auto; gap: 6px; padding: 0 10px 6px; align-items: center; }
@@ -39,7 +40,8 @@ p { margin: 6px 0; font-size: 13px; line-height: 1.55; color: var(--sl4); }
 .card small { grid-column: 1 / -1; color: var(--sl4); font-size: 12px; line-height: 1.4; }
 .card .lv { color: var(--go5); font-family: "LabPixelMono", monospace; font-size: 12px; }
 .card.evo { box-shadow: inset 0 0 0 2px var(--go5); }
-.card.sheep { box-shadow: inset 0 1px 0 var(--ink6), inset 0 0 0 1px var(--cy3); }
+.card.sheep, .card.habit { box-shadow: inset 0 1px 0 var(--ink6), inset 0 0 0 1px var(--cy3); }
+#gaugeChip.full { color: var(--go5); }
 .card .tag { color: var(--cy4); font-size: 11px; }
 .res { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; text-align: left; font-size: 13px; margin: 8px 0; }
 .res span:nth-child(even) { font-family: "LabPixelMono", monospace; color: var(--go5); text-align: right; }

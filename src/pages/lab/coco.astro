@@ -1,0 +1,79 @@
+---
+// 그냥 오락실 — 코코의 하루. Dean 집 갈색 푸들 코코가 공원에서 싫어하는 것들을 물리치고 저녁밥(고기!)까지 버틴다(서바이버류).
+// 규격 docs/lab-surv-coco-spec.md · 뼈대 src/lab/survivors/core.ts · 소재 coco.ts · 화면 coco-game.ts(공통 껍데기 shell.ts) · 그림 coco-art.js
+// 화면을 꽉 채우는 게임이라 실험실 위 막대 없이(bare) 그린다. 돌아가기·소리·그만두기는 Ⅱ 메뉴.
+import LabLayout from "@/lab/LabLayout.astro";
+import "@/lab/survivors/shell.css";
+---
+
+<LabLayout title="코코의 하루" description="갈색 푸들 코코와 저녁밥까지 버티기" bare>
+  <div id="app" class="coco">
+    <header id="hud">
+      <span class="chip" title="아이"><span class="num" id="hpNum">100</span></span>
+      <div class="bar" id="hpBar" aria-label="체력"><i></i></div>
+      <span class="chip" id="gaugeChip" title="기운(멈춰 있으면 찬다)">기운 <span class="num" id="gaugeNum">0</span></span>
+      <button class="hbtn" id="menuBtn" aria-label="멈춤 메뉴" title="멈춤">II</button>
+    </header>
+    <div id="sub">
+      <div class="bar" id="dawnBar" aria-label="저녁밥까지"><i></i></div>
+      <span class="num" id="clock">10:00</span>
+      <div class="bar" id="xpBar" aria-label="경험치"><i></i></div>
+      <span class="num" id="lvNum">LV 1</span>
+    </div>
+    <div id="wrap">
+      <canvas id="cv" width="180" height="300" aria-label="공원. 화면 아무 데나 눌러 끌면 걷고, 손을 떼면 앉는다"></canvas>
+      <div id="say"></div>
+      <div id="stick"><i></i></div>
+      <div id="hint">끌어서 걷기 · 손 떼면 앉아 기운 모으기</div>
+    </div>
+
+    <div class="over on" id="start">
+      <div class="box">
+        <p>갈색 푸들 코코의</p>
+        <h1>코코의 하루</h1>
+        <p class="hi" id="hi" hidden></p>
+        <p>손을 떼면 코코가 앉아 <b>기운</b>을 모은다.<br />다시 움직이는 순간 <b>똥꼬 스키</b>로 미끄러진다.<br />기운이 가득이면 뱅글뱅글 바람까지.</p>
+        <p>너무 오래 앉아 있으면 다른 강아지가 온다.<br />저녁밥(고기!)까지 버티면 이긴다.</p>
+        <button class="btn" id="go">시작</button>
+        <button class="btn ghost" id="outfit" hidden>옷: 하네스</button>
+        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
+      </div>
+    </div>
+    <div class="over" id="lvl">
+      <div class="box">
+        <h2 id="lvTitle">LV 2</h2>
+        <div class="cards" id="cards"></div>
+        <button class="btn ghost" id="reroll">다시 뽑기 (<span id="rr">2</span>)</button>
+      </div>
+    </div>
+    <div class="over" id="menu">
+      <div class="box">
+        <h2>잠깐 쉬기</h2>
+        <button class="btn" id="mResume">계속</button>
+        <button class="btn ghost" id="mSnd">소리 켬</button>
+        <button class="btn ghost" id="mQuit">그만두기 → 점수 남기기</button>
+        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
+      </div>
+    </div>
+    <div class="over" id="end">
+      <div class="box">
+        <h2 id="endTitle">저녁밥 시간</h2>
+        <p id="endSub"></p>
+        <div class="res" id="res"></div>
+        <div id="entry">
+          <label class="field">이니셜 3글자(영문·숫자)<input id="ini" class="ini" maxlength="3" autocapitalize="characters" autocomplete="off" spellcheck="false" /></label>
+          <label class="field">한마디(20자)<input id="sayIn" maxlength="20" autocomplete="off" placeholder="예: 고기 최고" /></label>
+          <button class="btn" id="enter">이름 남기기</button>
+        </div>
+        <div id="board" hidden></div>
+        <button class="btn ghost" id="again">다시</button>
+        <a class="back" href="/lab/" data-astro-reload>◀ 실험실</a>
+      </div>
+    </div>
+  </div>
+</LabLayout>
+
+<script>
+  import { initCoco } from "@/lab/survivors/coco-game";
+  initCoco();
+</script>
