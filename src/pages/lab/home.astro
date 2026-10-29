@@ -1,0 +1,70 @@
+---
+// 그냥 오락실 — 코코의 집으로. 애견카페에서 놀다 밖으로 나와 버린 코코가 동네를 달려 집으로 돌아가는 2.5D 점프 액션.
+// 의뢰서 docs/lab-home-brief.md · 규격 docs/lab-home-spec.md · 규칙 src/lab/home/engine.ts · 맵 zone1.ts · 그림 home3d.js · 화면 home-game.ts
+// 디자인 시안 docs/lab-home-mock.html 의 몸을 그대로 옮기고, 돌아가기·소리·지도 단추·랭킹(구역을 한 번에 끝까지 간 판)만 더했다.
+// 🔴 코코는 Dean 집 강아지다. 모델은 참고 사진의 생김새만 따랐고, 사진·사람·집 안은 어디에도 없다.
+import LabLayout from "@/lab/LabLayout.astro";
+import "@/lab/home/home.css";
+---
+
+<LabLayout title="코코의 집으로" description="길 잃은 갈색 푸들 코코가 동네를 달려 집으로" bare paint="#2c2f3a">
+  <div id="app">
+    <div id="view">
+      <canvas id="cv"></canvas>
+      <div id="hud">
+        <div class="pill" id="hearts" aria-label="하트"></div>
+        <div class="pill" aria-label="뼈다귀">🦴 <span id="bones">0/3</span></div>
+        <div class="sp"></div>
+        <div class="pill boss" aria-label="대왕 체력">👑 <span class="hp"><i id="bosshp"></i></span></div>
+        <div class="pill" aria-label="간식 점수">🍪 <span id="score">0</span></div>
+        <div class="pill" aria-label="시간"><span id="time">0.0</span>초</div>
+        <button class="pill hbtn" id="menuBtn" aria-label="동네 지도로" title="동네 지도로">🗺</button>
+      </div>
+      <div id="sign"></div>
+      <div id="toast"></div>
+      <div id="dbg"></div>
+      <div class="fade" id="fade"></div>
+      <div class="ov" id="ov-title">
+        <div class="card">
+          <h1>코코의 집으로</h1>
+          <p>애견카페에서 놀다 밖으로 나와 버린 코코.<br />동네를 달려 집으로 돌아가요!</p>
+          <p class="hi" id="hi" hidden></p>
+          <div class="stages" id="stages"></div>
+          <p style="font-size:12px">◀ ▶ 달리기 · 점프(길게 = 높이) · 기술(땅 = 똥꼬 스키, 공중 = 뱅글뱅글)<br />키보드: ← → · Space · X</p>
+          <div class="tools"><a href="/lab/" data-astro-reload>◀ 실험실</a><button id="snd" aria-pressed="true">소리 켬</button></div>
+        </div>
+      </div>
+      <div class="ov" id="ov-story" hidden>
+        <div class="card">
+          <h2 id="story-h"></h2>
+          <p class="story" id="story-p"></p>
+          <button class="btn" id="story-go">출발!</button>
+        </div>
+      </div>
+      <div class="ov" id="ov-end" hidden>
+        <div class="card">
+          <h2 id="end-h">도착!</h2>
+          <p id="end-p"></p>
+          <div class="stats" id="end-s"></div>
+          <div class="entry" id="entry" hidden>
+            <label>이름(9자까지)<input id="ini" maxlength="9" autocomplete="off" spellcheck="false" placeholder="예: 코코 주인" /></label>
+            <label>한마디(20자)<input id="sayIn" maxlength="20" autocomplete="off" placeholder="예: 집이다!" /></label>
+            <button class="btn" id="enter">이름 남기기</button>
+          </div>
+          <div id="board" hidden></div>
+          <div class="row2"><button class="btn sub" id="end-map">동네 지도</button><button class="btn" id="end-next">다음</button></div>
+        </div>
+      </div>
+    </div>
+    <div id="pad">
+      <div class="ctl" id="mv" aria-label="좌우로 달리기"><i id="mvL">◀</i><i id="mvR">▶</i></div>
+      <button class="ctl rb" id="bs" aria-label="기술"><span><b>🌀</b>기술</span></button>
+      <button class="ctl rb" id="bj" aria-label="점프"><span><b>⤒</b>점프</span></button>
+    </div>
+  </div>
+</LabLayout>
+
+<script>
+  import { initHome } from "@/lab/home/home-game";
+  initHome();
+</script>

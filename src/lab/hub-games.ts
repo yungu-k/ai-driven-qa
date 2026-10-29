@@ -84,6 +84,15 @@ export const GAMES: HubGame[] = [
     ph: ["#ffe29a", "#ffd166", "#7a4a10"],
     rank: "pocha",
   },
+  {
+    slug: "home",
+    title: "코코의 집으로",
+    blurb: "애견카페에서 놀다 밖으로 나와 버린 코코. 칫솔·목욕 거품·로봇 청소기 대왕을 넘어 동네를 달려 집으로 돌아가요. 하트는 셋!",
+    guide: "◀ ▶ 달리기 · 점프(길게 = 높이) · 기술(땅 = 똥꼬 스키, 공중 = 뱅글뱅글)",
+    wip: "집 냄새 맡는 중",
+    ph: ["#ffe0b8", "#f2b98a", "#8e4526"],
+    rank: "home",
+  },
   // ── 내기 모음(group "party") — 랭킹 없음(rank·lapRank 를 달지 않는다, 전적은 기기 localStorage). 옮기는 법 docs/lab-party-port-recipe.md ──
   {
     slug: "pushluck",

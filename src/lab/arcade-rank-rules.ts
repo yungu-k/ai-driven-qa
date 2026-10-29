@@ -25,6 +25,10 @@ export const GAMES: Record<string, Game> = {
   // 포장마차 사수: 버틴 초×10 + 처치 + 다 먹고 간 손님×40 + (이기면 5000 + 남은 체력×10 + 가게 체력×20). 규격 docs/lab-surv-pocha-spec.md · 점수식 docs/lab-surv-pocha.js score
   // 손님은 가장 잦을 때도 3초에 한 명 와서(규칙 GUEST.every 의 끝값) 다 먹고 간 수는 버틴 초/3 + 2 를 넘지 못한다. 가게 체력은 400 이 끝(고쳐도 최대를 안 넘는다)
   pocha: { key: "surv:pocha:rank", maxSec: 605, maxScore: sec => Math.ceil(sec * (10 + 12) + 40 * (sec / 3 + 2) + 5000 + 400 * 10 + 400 * 20) },
+  // 코코의 집으로 구역 1: 1-1 부터 보스까지 한 번에 간 판의 점수 합(규격 docs/lab-home-spec.md 11절). 판 시계 합이 sec.
+  // 놓인 것 다(간식·뼈다귀·하트·처음 있는 적·대왕 3번) = 2520(tests/lab/home.test.ts 가 맵 자료로 다시 센다). 그 밖에 생기는 적은
+  // 굴러오는 상자(생성기 둘, 2.2초에 하나 꼴)·먼지 뭉치(대왕이 한 바퀴에 하나)뿐이라 초당 30 점이면 넉넉하다. 한 시간 넘게 걸린 판은 받지 않는다
+  home: { key: "home:z1:rank", maxSec: 3600, maxScore: sec => Math.ceil(2520 + 30 * sec) },
 };
 
 export type ScoreCheck = { ok: true; entry: ScoreEntry } | { ok: false; reason: string };
