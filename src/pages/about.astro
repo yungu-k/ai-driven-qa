@@ -12,6 +12,7 @@ import { useTranslations } from "@/i18n";
 
 // About 콘텐츠의 단일 출처는 이 파일이다.
 // src/content/pages/about.md 는 메타(title·description)만 제공한다.
+// 2026-10-29 Dean: 이력서 판(강점·원칙·업무 설명·인쇄 PDF)을 걷고 「내 소개 · 블로그 목적 · 경력 타임라인」만 남긴다.
 const about = await getEntry("pages", "about");
 const CAREER_LABEL = `경력 ${careerLabel()}`;
 // 이스터에그 도발 한 줄은 푸터와 같은 문자열(i18n footer.easterEgg) — 한 곳에서 고친다
@@ -21,12 +22,11 @@ if (!about) {
 }
 
 const INTRO = [
-  `${CAREER_LABEL} QA 엔지니어입니다. 교육(해커스) → 핀테크(LINE Pay 대만) → 게임 플랫폼(넷마블) → 현재는 스타트업까지, 도메인이 바뀔 때마다 그 도메인의 품질 기준과 QA 프로세스를 새로 정의해 왔습니다.`,
-  `지금은 글로벌 대형 카지노를 고객으로 하는 B2B 스타트업에서 현금·칩 거래 키오스크 제품의 QA Lead를 맡고 있습니다. 1인 QA로 릴리스 트레인·QA 게이트·장애 대응 체계를 제로베이스에서 설계·운영했고, 지금은 그 체계를 팀으로 넓히는 중입니다. 지난 1년은 QA 업무 전반을 AI 협업 워크플로우로 전환하는 데 집중했습니다. 반복 작업은 AI에게 위임하고 사람은 판단에 집중하는 구조를 만드는 일입니다. 이 블로그는 그 여정의 기록입니다.`,
+  `${CAREER_LABEL} QA 엔지니어입니다. 교육, 핀테크, 게임 플랫폼을 거쳐 지금은 스타트업에서 QA를 맡고 있습니다.`,
+  `요즘은 QA 일을 AI와 나눠 하는 방법을 찾고 있습니다. 반복 작업은 스크립트와 AI에게 맡기고, 사람은 결정에 집중하는 방식입니다.`,
 ];
 
-// 「이 블로그의 시작」 — 오너 원문(2026-10-14)을 다듬은 것. **화면 전용**(`no-print`):
-// 블로그의 목소리지 이력서의 자격이 아니다 — 인용 배너(`about-quote`)와 같은 이유(§5).
+// 「이 블로그의 시작」 — 오너 원문(2026-10-14)을 다듬은 것
 const BLOG_ORIGIN = {
   title: "이 블로그의 시작",
   body: [
@@ -38,58 +38,6 @@ const BLOG_ORIGIN = {
 const CONTACTS = [
   { label: "GitHub", href: "https://github.com/yungu-k" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/yungu-k/" },
-];
-
-const CHIPS = ["도메인 4개 전환", "QA Lead", "글로벌 고객 대응"];
-
-// §4 이력서 PDF 의 연락 줄. **종이에서는 글자로 읽히고, 화면에서는 눌려야 한다.**
-// 받는 쪽이 PDF 를 여는 자리는 대개 화면(메일 첨부·ATS 뷰어)인데, 보이는 글자만 있고
-// `href` 가 없으면 **주소를 손으로 옮겨 적어야 한다.** ⇒ 한 줄에 둘 다 — 보이는 글자는
-// 도메인+경로(`https://`·`www.`·쿼리는 노이즈), `href` 는 실제 주소.
-const linkText = (u: string) =>
-  u.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
-const RESUME_LINKS = [...CONTACTS.map(c => c.href), config.site.url].map(href => ({
-  href,
-  text: linkText(href),
-}));
-
-
-const STRENGTHS = [
-  {
-    title: "프로세스를 만드는 QA",
-    desc: "조직의 SDLC에 맞는 QA 프로세스를 수립·개선하고, 릴리스 체계와 배포 승인 게이트를 직접 설계합니다",
-  },
-  {
-    title: "AI 업무 자동화(AX)",
-    desc: "개별 도구가 아니라 일하는 방식의 전환. 규칙을 문서화하고, AI가 규격대로 산출하고, 사람이 검증·승인하는 구조를 QA 직무 전체에 적용했습니다",
-  },
-  {
-    title: "도메인 전환력",
-    desc: "교육 → 핀테크(결제) → 게임 플랫폼(블록체인 포함) → 규제 산업의 금전 거래 시스템까지, 도메인마다 품질 기준을 재정의",
-  },
-  {
-    title: "경계를 넘는 커뮤니케이션",
-    desc: "사업·기획·개발·운영 부서, 외주·해외 파트너와의 협업",
-  },
-];
-
-const PRINCIPLES = [
-  {
-    title: "규칙은 코드가 아니라 문서에 먼저",
-    desc: "사람도 읽고, AI도 참조하고, 신규 입사자도 이해한다",
-  },
-  {
-    title: "실패는 규칙으로 옮긴다",
-    desc: "같은 실수를 두 번 하지 않으려면 기억이 아니라 문서가 필요하다",
-  },
-  {
-    title: "한계를 밝히면 신뢰가 올라간다",
-    desc: "무엇을 보장하고 무엇을 보장하지 않는지를 함께 쓴다. 숫자만큼 중요한 건 그 숫자가 증명하지 않는 것의 목록이다",
-  },
-  {
-    title: "자동화는 채택되어야 의미가 있다",
-    desc: "도구를 만드는 것과 동료가 쓰는 것은 다른 문제다",
-  },
 ];
 ---
 
@@ -103,16 +51,9 @@ const PRINCIPLES = [
   <Breadcrumb />
 
   <main id="main-content" class="app-layout pb-12">
-    <!-- A1. 프로필 헤더
-         ⚠ `r-*` 클래스는 **인쇄 전용 손잡이**다(화면 스타일 0). 인쇄 CSS 가 Tailwind
-         유틸리티(`text-sm`·`p-5`)를 겨냥하면 **누가 유틸리티를 바꾸는 날 조용히 되돌아간다**
-         (규격 §5-1). 구조에 이름을 붙여 두고 그 이름으로 인쇄를 그린다. -->
-    <section class="r-head pt-6 pb-8">
-      <div class="r-head-row flex flex-wrap items-center gap-5">
-        <!-- 사진은 화면과 종이가 다르다 (오너 결정 2026-10-12) — 화면은 블로그의 정체성
-             (뒷모습 풍경), 종이는 **이력서 사진**이다. 같은 자리에 둘을 겹쳐 두고 매체로 가른다.
-             ⚠ 인쇄용은 `loading="eager"` — `lazy` 로 두면 화면에서 `display:none` 이라
-             **안 받아 오고, 인쇄 시점엔 늦는다**(빈 자리로 찍힌다). -->
+    <!-- 프로필 머리 -->
+    <section class="pt-6 pb-8">
+      <div class="flex flex-wrap items-center gap-5">
         <img
           src="/images/profile.jpg"
           alt="공윤구 프로필 사진 — 스위스 체르마트, 마테호른이 보이는 호숫가에 앉아 있는 뒷모습"
@@ -120,86 +61,36 @@ const PRINCIPLES = [
           height="320"
           loading="eager"
           decoding="async"
-          class="no-print h-20 w-20 shrink-0 rounded-full border border-accent/30 object-cover"
+          class="h-20 w-20 shrink-0 rounded-full border border-accent/30 object-cover"
         />
-        <img
-          src="/images/resume-photo.jpg"
-          alt="공윤구 이력서 사진"
-          width="600"
-          height="600"
-          loading="eager"
-          decoding="async"
-          class="print-only h-20 w-20 shrink-0 border border-border object-cover"
-        />
-        <div class="r-head-text min-w-0">
-          <h1 class="r-name text-3xl font-extrabold tracking-tight">공윤구</h1>
-          <p class="r-tagline mt-1 text-sm text-muted-foreground">
+        <div class="min-w-0">
+          <h1 class="text-3xl font-extrabold tracking-tight">공윤구</h1>
+          <p class="mt-1 text-sm text-muted-foreground">
             {CAREER_LABEL} QA 엔지니어 · QA 프로세스 설계와 AI 업무 자동화(AX)
           </p>
-          <div class="r-meta mt-3 flex flex-wrap items-center gap-2">
+          <div class="mt-3 flex flex-wrap items-center gap-2">
             {
               CONTACTS.map(({ label, href }) => (
                 <a
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="r-contact rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-accent/60 hover:text-accent"
+                  class="rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-accent/60 hover:text-accent"
                 >
                   {label} ↗
                 </a>
               ))
             }
-            {
-              CHIPS.map(chip => (
-                <span class="r-chip rounded-full border border-border bg-background/60 px-2.5 py-1 text-[11px] text-muted-foreground">
-                  {chip}
-                </span>
-              ))
-            }
           </div>
-          <!-- §6 버튼 — 한 줄로 기대를 맞춘다. A 경로의 유일한 마찰은
-               「대상 프린터」에서 「PDF로 저장」을 골라야 한다는 것이고, 그건 표시로 줄인다.
-               ⚠ 「A4 2장」을 적는 이유: **모르고 누르면 3장이 나와도 모른다.**
-               숨김(오너 2026-10-23) — 지우지 않고 `hidden` 만. 되살릴 땐 `hidden` → `flex`.
-               인쇄 CSS·스크립트는 그대로라 Ctrl+P 로는 여전히 이력서 판이 나온다. -->
-          <div class="no-print mt-3 hidden flex-wrap items-center gap-2">
-            <button
-              type="button"
-              id="resume-pdf"
-              class="rounded-lg border border-accent/60 px-3 py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-accent/10"
-            >
-              이력서 PDF 받기
-            </button>
-            <span class="text-[11px] text-muted-foreground">
-              인쇄 창에서 「PDF로 저장」을 고르세요 · A4 2장
-            </span>
-          </div>
-          <!-- §4 종이에서 링크는 죽는다 ⇒ **보이는 글자로 적는다**(도메인+경로까지만).
-               화면에서 PDF 를 여는 쪽은 그 글자를 **누를 수 있어야 한다** ⇒ `<a>` 로 둔다.
-               QR 은 안 쓴다(무엇으로 가는지 사람이 못 읽는다). -->
-          <p class="r-links print-only mt-2 text-[11px] leading-relaxed">
-            {
-              RESUME_LINKS.map(({ href, text }, i) => (
-                <Fragment>
-                  {i > 0 && <span class="r-links-sep"> · </span>}
-                  <a href={href} target="_blank" rel="noopener noreferrer">
-                    {text}
-                  </a>
-                </Fragment>
-              ))
-            }
-          </p>
         </div>
       </div>
-      <div class="r-intro mt-6 space-y-3 max-w-3xl text-[15px] leading-relaxed">
-        {INTRO.map(p => <p set:html={p} />)}
+      <div class="mt-6 space-y-3 max-w-3xl text-[15px] leading-relaxed">
+        {INTRO.map(p => <p>{p}</p>)}
       </div>
     </section>
 
-    <!-- A1-b. 이 블로그의 시작 — 화면 전용. `about-quote` 와 같은 이유로 종이엔 안 싣는다
-         (블로그의 목소리지 이력서의 자격이 아니다). `r-*` 손잡이를 안 붙이는 이유도 그것 —
-         인쇄 CSS 가 겨냥할 구조가 아니다. -->
-    <section class="no-print pb-8">
+    <!-- 이 블로그의 시작 -->
+    <section class="pb-8">
       <h2 class="text-sm font-semibold tracking-widest text-muted-foreground uppercase">
         {BLOG_ORIGIN.title}
       </h2>
@@ -217,113 +108,47 @@ const PRINCIPLES = [
       </div>
     </section>
 
-    <!-- A2. 경력 타임라인 -->
-    <section class="r-section pb-8">
-      <h2 class="r-h2 text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+    <!-- 경력 타임라인 — 회사·기간·직무만 -->
+    <section class="pb-8">
+      <h2 class="text-sm font-semibold tracking-widest text-muted-foreground uppercase">
         Career
       </h2>
-      <div class="mt-4 space-y-4">
+      <ol class="mt-4 max-w-3xl border-l-2 border-accent/40">
         {
-          CAREER.map(({ company, roles, site }) => (
-            <div class="r-company-card rounded-xl border border-border bg-muted/40 p-5">
-              <p class="r-company text-base font-bold text-foreground">
+          CAREER.map(({ company, roles, isBreak }) => (
+            <li class="relative pb-5 pl-5 last:pb-0">
+              <span
+                aria-hidden="true"
+                class:list={[
+                  "absolute top-[7px] -left-[7px] h-3 w-3 rounded-full border-2",
+                  isBreak ? "border-border bg-background" : "border-accent bg-background",
+                ]}
+              />
+              <p class:list={["font-bold", isBreak ? "text-muted-foreground" : "text-foreground"]}>
                 {company}
-                {site && (
-                  <Fragment>
-                    <span class="text-muted-foreground"> · </span>
-                    <a
-                      href={site.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="r-site text-sm font-normal text-accent hover:underline"
-                    >
-                      {site.label}
-                    </a>
-                  </Fragment>
-                )}
               </p>
-              <div class="mt-3 space-y-5">
+              <ul class="mt-1 space-y-0.5">
                 {roles.map(role => (
-                  <div class="r-role border-l-2 border-accent/40 pl-4">
-                    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-                      <p class="r-role-title font-semibold text-foreground">{role.title}</p>
-                      <p class="r-period text-xs whitespace-nowrap text-muted-foreground">
-                        {role.period}
-                      </p>
-                    </div>
-                    {role.context && (
-                      <p
-                        class="r-context mt-1.5 text-sm leading-relaxed text-muted-foreground"
-                        set:html={role.context}
-                      />
-                    )}
-                    {role.bullets.length > 0 && (
-                      <ul class="about-bullets r-bullets mt-2 space-y-1.5 text-sm leading-relaxed">
-                        {role.bullets.map(b => (
-                          <li class="flex gap-2">
-                            <span aria-hidden="true" class="mt-[2px] text-accent">
-                              •
-                            </span>
-                            <span set:html={b} />
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
+                  <li class="flex flex-wrap items-baseline justify-between gap-x-4 text-sm">
+                    <span class="text-foreground">{role.title}</span>
+                    <span class="text-xs whitespace-nowrap text-muted-foreground tabular-nums">
+                      {role.period}
+                    </span>
+                  </li>
                 ))}
-              </div>
-            </div>
-          ))
-        }
-      </div>
-    </section>
-
-    <!-- A3. 강점 / 원칙 카드 그리드 -->
-    <section class="r-section pb-8">
-      <h2 class="r-h2 text-sm font-semibold tracking-widest text-muted-foreground uppercase">
-        강점
-      </h2>
-      <ul class="r-grid mt-4 grid gap-3 sm:grid-cols-2">
-        {
-          STRENGTHS.map(({ title, desc }) => (
-            <li class="r-card rounded-xl border border-border bg-muted/40 p-4">
-              <p class="r-card-t font-bold text-foreground">{title}</p>
-              <p class="r-card-d mt-1 text-sm leading-relaxed text-muted-foreground">
-                {desc}
-              </p>
+              </ul>
             </li>
           ))
         }
-      </ul>
+      </ol>
     </section>
 
-    <section class="r-section pb-8">
-      <h2 class="r-h2 text-sm font-semibold tracking-widest text-muted-foreground uppercase">
-        일하는 원칙
-      </h2>
-      <ul class="r-grid mt-4 grid gap-3 sm:grid-cols-2">
-        {
-          PRINCIPLES.map(({ title, desc }) => (
-            <li class="r-card rounded-xl border border-border bg-muted/40 p-4">
-              <p class="r-card-t font-bold text-foreground">{title}</p>
-              <p class="r-card-d mt-1 text-sm leading-relaxed text-muted-foreground">
-                {desc}
-              </p>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
-
-    <!-- A4. 마무리 인용 배너
-         ⚠ `about-quote` 는 **인쇄 CSS 가 숨기는 이름**이다(§5: 인용 배너는 블로그의 목소리지
-         이력서의 자격이 아니다). 클래스가 빠지면 **CSS 는 그대로인데 배너가 종이에 실린다** —
-         실제로 그 상태였고, R2 는 헤더·푸터·버튼만 봐서 조용히 통과했다. 지우지 말 것. -->
-    <section class="about-quote pb-4">
+    <!-- 마무리 인용 배너 — 홈 「일을 나누는 방식」·대표 글 제목과 같은 세 갈래(2026-10-16 개편) -->
+    <section class="pb-4">
       <div
         class="rounded-r-xl border-l-4 border-accent bg-accent/5 px-6 py-5 text-lg font-bold tracking-tight"
       >
-        {/* 홈 「일을 나누는 방식」·대표 글 제목과 같은 세 갈래(2026-10-16 개편). 좁은 화면에서 구절 중간이 안 끊기게 구절마다 묶는다 */}
+        {/* 좁은 화면에서 구절 중간이 안 끊기게 구절마다 묶는다 */}
         <span class="inline-block">반복은 <span class="text-accent">스크립트</span>,</span>
         <span class="inline-block">판단은 <span class="text-accent">AI</span>,</span>
         <span class="inline-block">결정은 <span class="text-accent">사람</span>.</span>
@@ -333,141 +158,3 @@ const PRINCIPLES = [
 
   <Footer />
 </Layout>
-
-<script>
-  // §5-2 `window.print()` 로 저장하면 브라우저가 **`document.title` 을 파일명**으로 쓴다.
-  // 지금은 「About | …」 이라 `About.pdf` 가 된다. 🔴 **문서 이름은 내용의 일부다** —
-  // 받는 사람 폴더에 그 이름으로 남는다. ⇒ 인쇄 직전에 바꾸고 끝나면 되돌린다.
-  const RESUME_TITLE = "공윤구-QA엔지니어-이력서";
-  document.getElementById("resume-pdf")?.addEventListener("click", () => {
-    const prev = document.title;
-    document.title = RESUME_TITLE;
-    const restore = () => { document.title = prev; };
-    // `afterprint` 가 안 오는 브라우저가 있어 타이머로도 되돌린다 — 제목이 바뀐 채
-    // 남으면 **그 다음 저장·공유가 전부 그 이름**이 된다
-    window.addEventListener("afterprint", restore, { once: true });
-    setTimeout(restore, 3000);
-    window.print();
-  });
-</script>
-
-<style is:global>
-  /* ── 이력서 인쇄 v2 (docs/resume-pdf-layout-v2.md) ──────────────────
-     판 바뀜(2026-10-12, 오너): v1 은 **「받는 쪽은 대개 인쇄한다」**를 전제로 0색이었다.
-     그 전제를 안 쟀다 — 지금 이력서 PDF 가 읽히는 자리는 **메일 첨부·ATS 뷰어·화면**이다.
-     ⇒ **색을 쓴다. 단 색이 정보를 나르지는 않는다**(흑백 출력·ATS·색각에서 잃는 것 0).
-
-     🔴 **면(배경)에 기대지 않는다.** 브라우저 인쇄는 「배경 그래픽」이 기본 꺼짐이라
-     틴트 카드는 **받는 쪽 화면에서 통째로 사라진다.** 색은 **글자와 선**에만 싣는다.
-
-     🔴 **유틸리티가 아니라 구조(`r-*`)를 겨냥한다.** v1 은 `.text-sm`·`[class*=p-4]` 를
-     직접 눌러서, 누가 유틸리티를 바꾸면 인쇄가 조용히 되돌아갔다(§5-1). */
-  .print-only { display: none; }
-  @media print {
-    @page { size: A4; margin: 14mm 15mm; }
-    /* 팔레트는 블로그 도해 규격(docs/diagram-spec.md §4)에서 가져온다 — 실측 대비:
-       먹 16.3:1 · 보조 5.1:1 · 강조 6.0:1 · 장식선 1.2:1(의미 있는 선에 금지) */
-    :root {
-      --r-ink: #1c1c21; --r-ink-2: #62656e; --r-accent: #4f46e5; --r-rule: #e4e4e9;
-    }
-    .print-only { display: block !important; }
-    /* §5 빼는 것 — 전부 화면 장치다. 인용 배너는 **블로그의 목소리지 이력서의 자격이 아니다** */
-    header, footer, #skip-to-content, .no-print, #back-to-top,
-    astro-breadcrumb, nav, .about-quote { display: none !important; }
-    html, body { background: #fff !important; }
-
-    /* ── 바탕: 면 0 · 모서리 0 · 글자는 먹 ───────────────────────── */
-    main, main *, main *::before, main *::after { background: transparent !important; }
-    main [class*="rounded"] { border-radius: 0 !important; }
-    main, main * { color: var(--r-ink) !important; }
-    main { font-size: 12.5px !important; line-height: 1.6 !important; }
-    main [class*="text-muted-foreground"] { color: var(--r-ink-2) !important; }
-    /* 본문 속 글 링크는 **조용히** — 먹 글자에 장식선 밑줄. 누를 수 있다는 표시는 남기고
-       강조색은 연락 줄(§4)에만 쓴다. 색이 많아지면 「이력서」가 아니라 「웹페이지」가 된다 */
-    main a { color: var(--r-ink) !important; text-decoration: underline !important;
-             text-decoration-color: var(--r-rule) !important; text-underline-offset: 2px !important; }
-
-    /* ── A1 머리 ──────────────────────────────────────────────── */
-    .r-head { padding: 0 0 2px !important; }
-    .r-head-row { gap: 14px !important; align-items: center !important; }
-    .r-head img { max-width: 80px !important; width: 80px !important; height: 80px !important;
-                  border: 1px solid var(--r-rule) !important; }
-    .r-name { font-size: 25px !important; font-weight: 800 !important;
-              letter-spacing: -0.02em !important; line-height: 1.15 !important; }
-    .r-tagline { margin-top: 4px !important; font-size: 12.5px !important; }
-    /* 칩 줄(연락 버튼 + 자격 요약 칩)은 **종이에 안 싣는다**(오너 결정 2026-10-12).
-       연락처는 §4 의 URL 줄이 받고, 칩의 내용(「도메인 4개 전환」·「QA Lead」·「글로벌 고객
-       대응」)은 **바로 아래 소개 문단과 경력이 이미 말한다** — 같은 말을 두 번 하는 자리다. */
-    .r-meta { display: none !important; }
-    .r-links { margin-top: 7px !important; font-size: 11px !important; }
-    .r-links a { color: var(--r-accent) !important;
-                 text-decoration-color: var(--r-accent) !important; }
-    .r-links-sep { color: var(--r-rule) !important; }
-    .r-intro { margin-top: 13px !important; max-width: none !important;
-               font-size: 12.5px !important; line-height: 1.65 !important; }
-    .r-intro > * + * { margin-top: 6px !important; }
-
-    /* ── 섹션 제목: v1 의 위계 역전을 고친다 ──────────────────────
-       v1 은 섹션 제목이 **페이지에서 가장 작고 흐렸다**(12px/#333, 역할 제목은 16px 먹).
-       화면에선 카드 면이 받쳐 줬지만 종이엔 면이 없다. ⇒ **규칙선 + 강조 단**으로 세운다.
-       한글에 `tracking-widest`(1.2px)는 자간만 벌어진다 — 0.08em 으로 줄인다. */
-    .r-section { padding: 0 !important; margin-top: 19px !important; }
-    .r-h2 { font-size: 11px !important; font-weight: 700 !important;
-            letter-spacing: 0.08em !important; color: var(--r-ink-2) !important;
-            padding-bottom: 4px !important; margin-bottom: 9px !important;
-            border-bottom: 1px solid var(--r-rule) !important; position: relative !important; }
-    /* 🔴 강조 단을 `background` 로 그리면 **인쇄에서 사라진다**(배경 그래픽 기본 꺼짐).
-       **테두리로 그린다** — 테두리는 그 설정과 무관하게 찍힌다. */
-    .r-h2::after { content: ""; position: absolute; left: 0; bottom: -1.5px;
-                   width: 24px; border-bottom: 1.5px solid var(--r-accent) !important; }
-
-    /* ── A2 경력: 상자를 벗기고 **여백과 선**으로 가른다 ─────────── */
-    .r-section > div { margin-top: 0 !important; }
-    .r-company-card { border: 0 !important; padding: 0 !important; }
-    /* ⚠ 회사 사이를 **선으로** 가르면 쪽이 넘어갈 때 그 선이 **2쪽 맨 위에 외톨이로 뜬다**
-       (실측). 선은 섹션 제목에만 두고 회사는 **여백과 글자 크기**로 가른다. */
-    .r-company-card + .r-company-card { margin-top: 15px !important; }
-    .r-company { font-size: 15px !important; font-weight: 700 !important;
-                 letter-spacing: -0.01em !important; }
-    .r-site { font-size: 11.5px !important; color: var(--r-accent) !important;
-              text-decoration-color: var(--r-accent) !important; }
-    .r-company-card > div { margin-top: 5px !important; }
-    .r-role { border-left: 0 !important; padding-left: 11px !important; }
-    .r-role + .r-role { margin-top: 11px !important; }
-    .r-role-title { font-size: 13px !important; font-weight: 700 !important; }
-    .r-period { font-size: 11.5px !important; color: var(--r-ink-2) !important;
-                font-variant-numeric: tabular-nums !important; }
-    .r-context { margin-top: 4px !important; font-size: 12px !important;
-                 color: var(--r-ink-2) !important; }
-    .r-bullets { margin-top: 6px !important; font-size: 12.5px !important; }
-    .r-bullets > li + li { margin-top: 4px !important; }
-    .r-bullets li { gap: 5px !important; }
-    /* 불릿 마커만 강조색 — **모든 불릿이 같은 색**이라 정보를 나르지 않는다(흑백에서 회색 점) */
-    .r-bullets li > span:first-child { color: var(--r-accent) !important;
-                                       font-weight: 400 !important; margin-top: 0 !important; }
-
-    /* ── A3 강점·원칙: 카드 상자 → 2열 글 ───────────────────────── */
-    .r-grid { margin-top: 0 !important; gap: 12px 24px !important;
-              grid-template-columns: 1fr 1fr !important; }
-    .r-card { border: 0 !important; padding: 0 !important; }
-    .r-card-t { font-size: 12.5px !important; font-weight: 700 !important; }
-    .r-card-d { margin-top: 3px !important; font-size: 12px !important;
-                color: var(--r-ink-2) !important; }
-
-    /* 🔴 **한 역할이 쪽을 넘어 잘리면 경력이 잘린 것처럼 읽힌다.** */
-    .r-company-card, .r-role, .r-card, li { break-inside: avoid; page-break-inside: avoid; }
-    .r-h2 { break-after: avoid; page-break-after: avoid; }
-  }
-</style>
-
-<style>
-  .about-bullets :global(a) {
-    color: var(--foreground);
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    text-decoration-color: var(--border);
-  }
-  .about-bullets :global(a:hover) {
-    color: var(--accent);
-  }
-</style>
