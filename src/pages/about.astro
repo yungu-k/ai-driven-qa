@@ -35,6 +35,15 @@ const BLOG_ORIGIN = {
   ],
 };
 
+// 「이 블로그의 방향」 — 오너 원문(2026-11-09)을 존댓말로만 다듬은 것(§9-1: 내용·말의 세기 그대로)
+const BLOG_STANCE = {
+  title: "이 블로그의 방향",
+  body: [
+    "AI 시대에 개발 생산성은 따라잡기 어려울 만큼 올라갔습니다. 그 생산성을 조금이나마 따라가려고 QA에도 AI 워크플로를 도입했습니다. 그래도 최종 품질을 위해서는 E2E 시나리오, 엣지 케이스, 사용성 같은 검증은 여전히 사람의 손을 거쳐야 한다고 느낍니다.",
+    "이 블로그는 AI-Native를 지향합니다. 다만 기존의 모든 활동을 AI로 대체하는 것이 목표는 아니라는 점을 밝혀 둡니다.",
+  ],
+};
+
 const CONTACTS = [
   { label: "GitHub", href: "https://github.com/yungu-k" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/yungu-k/" },
@@ -105,6 +114,16 @@ const CONTACTS = [
               .flatMap((el, i) => (i ? [" ", el] : [el]))
           }
         </p>
+      </div>
+    </section>
+
+    <!-- 이 블로그의 방향 — AI-Native 지향, 전부 대체가 목표는 아님(2026-11-09 Dean) -->
+    <section class="pb-8">
+      <h2 class="text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+        {BLOG_STANCE.title}
+      </h2>
+      <div class="mt-4 space-y-3 max-w-3xl text-[15px] leading-relaxed">
+        {BLOG_STANCE.body.map(p => <p>{p}</p>)}
       </div>
     </section>
 
