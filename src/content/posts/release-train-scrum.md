@@ -1,13 +1,13 @@
 ---
 author: 공윤구
 pubDatetime: 2026-07-23T00:30:00.000Z
-title: 릴리스 열차로 고객 일정에서 배포를 떼어내다
+title: Release 열차로 고객 일정에서 배포를 떼어내다
 slug: release-train-scrum
 featured: false
 draft: false
 tags:
   - qa-process
-description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3주 주기 내부 릴리스 체계와 품질 게이트를 설계해 앉힌 기록.
+description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3주 주기 내부 Release 체계와 품질 게이트를 설계해 앉힌 기록.
 ---
 
 > 고객 요구와 무관하게 내부적으로 안정된 열차를 굴리고, 고객에게는 검증된 버전을 골라 배포한다 — QA가 테스트를 넘어 배포 체계를 설계한 기록이다.
@@ -21,7 +21,7 @@ description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3
 - 한 번에 다량을 배포하니 회귀 범위가 커지고, 장애가 나면 원인 격리가 어려웠다
 - 오래 묵은 검증분은 배포 시점에 재검증 부담으로 되돌아왔다
 
-이렇게 묵힌 변경분이 릴리스 대상 티켓 53건까지 쌓여, 어느 보드에도 제대로 모여 있지 않았다.
+이렇게 묵힌 변경분이 Release 대상 티켓 53건까지 쌓여, 어느 보드에도 제대로 모여 있지 않았다.
 
 ## 방향 — 무엇을 분리했나
 
@@ -42,11 +42,11 @@ description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3
 
 ## 설계 — "왜"가 있는 결정들
 
-**스프린트 길이는 고정한다** (매번 2주냐 3주냐 고르지 않는다). 일정한 리듬이 있어야 속도를 측정할 수 있고, 캘린더가 예측 가능해지고, QA 기간을 산정할 수 있다. 리듬이 모든 계산의 전제다.
+**Sprint 길이는 고정한다** (매번 2주냐 3주냐 고르지 않는다). 일정한 리듬이 있어야 속도를 측정할 수 있고, 캘린더가 예측 가능해지고, QA 기간을 산정할 수 있다. 리듬이 모든 계산의 전제다.
 
 작업일 배분은 이렇게 잡았다:
 
-| 스프린트 | 총 작업일 | 개발 | QA |
+| Sprint | 총 작업일 | 개발 | QA |
 | --- | --- | --- | --- |
 | 2주 | 10일 | 6일 | 4일 (신규·변경 3 + Regression(회귀) 1) |
 | 3주 | 15일 | 9일 | 6일 (신규·변경 4 + Regression 2) |
@@ -56,11 +56,11 @@ description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3
   [data-theme="dark"] .rtviz { --c-dev: #6366f1; --c-new: #0d9488; --c-reg: #d97706; }
 </style>
 
-<figure class="rtviz not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="스프린트 타임라인. 2주 스프린트는 총 10일 중 개발 6일, QA 4일이며 QA는 신규·변경 3일 뒤 Regression 1일 순서. 3주 스프린트는 총 15일 중 개발 9일, QA 6일이며 신규·변경 4일 뒤 Regression 2일. 개발과 QA의 경계가 Code Freeze 지점이다">
-  <figcaption class="text-xs font-semibold text-muted-foreground">스프린트 타임라인: 폭 = 실제 작업일 비율 · Regression은 항상 마지막</figcaption>
+<figure class="rtviz not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="Sprint 타임라인. 2주 Sprint는 총 10일 중 개발 6일, QA 4일이며 QA는 신규·변경 3일 뒤 Regression 1일 순서. 3주 Sprint는 총 15일 중 개발 9일, QA 6일이며 신규·변경 4일 뒤 Regression 2일. 개발과 QA의 경계가 Code Freeze 지점이다">
+  <figcaption class="text-xs font-semibold text-muted-foreground">Sprint 타임라인: 폭 = 실제 작업일 비율 · Regression은 항상 마지막</figcaption>
   <div class="mt-4 space-y-5 text-xs">
     <div>
-      <p class="mb-1 text-muted-foreground">2주 스프린트 (10일)</p>
+      <p class="mb-1 text-muted-foreground">2주 Sprint (10일)</p>
       <div class="relative flex h-[22px] gap-[2px]">
         <div class="flex items-center justify-center rounded-l-[4px] text-white" style="width:60%; background:var(--c-dev)">6일</div>
         <div class="flex items-center justify-center text-white" style="width:30%; background:var(--c-new)">3일</div>
@@ -70,7 +70,7 @@ description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3
       <p class="mt-1.5 text-muted-foreground" style="margin-left:60%">↑ Code Freeze = QA 착수일</p>
     </div>
     <div>
-      <p class="mb-1 text-muted-foreground">3주 스프린트 (15일)</p>
+      <p class="mb-1 text-muted-foreground">3주 Sprint (15일)</p>
       <div class="relative flex h-[22px] gap-[2px]">
         <div class="flex items-center justify-center rounded-l-[4px] text-white" style="width:60%; background:var(--c-dev)">9일</div>
         <div class="flex items-center justify-center text-white" style="width:26.667%; background:var(--c-new)">4일</div>
@@ -88,16 +88,16 @@ description: 비정기 배포로 일정이 고객에 끌려다니던 팀에, 2~3
 
 - **Code Freeze(신규 기능 머지 중단) = QA 착수일.** 이후엔 버그 수정만 받는다.
 - **QA는 신규/변경 테스트를 먼저, Regression 테스트는 마지막에.** 모든 수정이 들어온 상태에서 마지막 Regression을 돌려야 통합 영향도가 확인되기 때문이다.
-- **범위 잠금(Scope Lock)**: 스프린트 시작 후 범위 추가 금지. 고객 긴급 건은 다음 스프린트나 급행(Hotfix) 트랙으로 보낸다.
+- **범위 잠금(Scope Lock)**: Sprint 시작 후 범위 추가 금지. 고객 긴급 건은 다음 Sprint나 급행(Hotfix) 트랙으로 보낸다.
 
 그리고 이 설계의 성격을 규정하는 두 원칙:
 
-1. **품질 게이트를 못 통과한 변경분은 그 스프린트 범위에서 빼고(de-scope), 열차는 정시에 출발한다.** 열차를 세워서 기다리는 순간 비정기 배포로 되돌아간다.
+1. **품질 게이트를 못 통과한 변경분은 그 Sprint 범위에서 빼고(de-scope), 열차는 정시에 출발한다.** 열차를 세워서 기다리는 순간 비정기 배포로 되돌아간다.
 2. **고객 배포의 승인 주체는 QA다.** QA 승인 없이는 배포할 수 없다. 게이트가 이름뿐이면 프로세스 전체가 이름뿐이 된다.
 
 ## 버전을 둘로 나눈 이유
 
-바로 부딪힌 문제는 버전이었다. 모듈(웹, 서비스 등)마다 버전이 제각각이라, "이번 릴리스는 몇 버전인가"를 하나로 말할 수 없었다.
+바로 부딪힌 문제는 버전이었다. 모듈(웹, 서비스 등)마다 버전이 제각각이라, "이번 Release는 몇 버전인가"를 하나로 말할 수 없었다.
 
 해법은 버전을 두 층으로 나누는 것이다. **열차 번호는 상자 겉에 붙는 이름표**(배포 단위)고, 매니페스트(구성 목록)는 상자 안 물건 목록이다. 그 열차에 어느 모듈이 어느 버전으로 실렸는지를 적는다.
 
@@ -139,7 +139,7 @@ Train 14  =  이름표 (배포 단위)
 
 ## 설계는 문서, 실행은 도구
 
-여기까지가 무엇을 분리하고 왜 그렇게 나눴는지를 다룬 열차 체계의 설계다. 하지만 설계는 문서일 뿐이고, 실제로 굴러가려면 도구(Jira) 위에 앉아야 한다. 그 과정에서 릴리스 대상 티켓 53건을 새 규칙으로 옮기며 "에픽이 뭔가", "완료가 뭔가" 같은 기본 개념부터 다시 잡아야 했다. 통계가 거짓말을 하고 있었고, 티켓이 보드에서 실종됐다. 그 정착기는 후속 글로 뺐다.
+여기까지가 무엇을 분리하고 왜 그렇게 나눴는지를 다룬 열차 체계의 설계다. 하지만 설계는 문서일 뿐이고, 실제로 굴러가려면 도구(Jira) 위에 앉아야 한다. 그 과정에서 Release 대상 티켓 53건을 새 규칙으로 옮기며 "에픽이 뭔가", "완료가 뭔가" 같은 기본 개념부터 다시 잡아야 했다. 통계가 거짓말을 하고 있었고, 티켓이 보드에서 실종됐다. 그 정착기는 후속 글로 뺐다.
 
 ## 남은 것
 
@@ -149,4 +149,4 @@ Train 14  =  이름표 (배포 단위)
 
 ---
 
-→ 후속: [릴리스 열차를 Jira에 앉히다](/posts/release-train-jira/): 에픽·스프린트·버전·QA를 바로잡은 정착기
+→ 후속: [Release 열차를 Jira에 앉히다](/posts/release-train-jira/): 에픽·Sprint·버전·QA를 바로잡은 정착기

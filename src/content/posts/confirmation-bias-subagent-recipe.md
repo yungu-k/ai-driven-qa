@@ -22,12 +22,12 @@ description: AI도 자기가 만든 결과가 맞다고 믿어 버린다(확증�
 
 1. **검증 대상을 고른다**: 정답(소스)이 있고, 틀리면 비싼 산출물. 테스트 설계·소스 역기획처럼.
 2. **격리된 에이전트를 띄운다**: 저자의 맥락은 빼고, 결과물 + 원본 소스만 건넨다. "이렇게 만들었다"는 절대 안 준다.
-3. **계약을 준다**: 아래 브리핑 템플릿(근거 줄 없으면 결함, 완료조건은 "누락 0").
-4. **큰 작업이면 구역을 갈라 병렬로 던진다**: 담당 구역이 안 겹치게.
+3. **계약을 준다**: 아래 브리핑 템플릿. 근거 줄 없으면 결함, 완료조건은 "누락 0".
+4. **큰 작업이면 구역을 나눠 병렬로 던진다**: 담당 구역이 안 겹치게.
 5. **돌아온 지적을 그대로 믿지 않는다**: 메인이 원문을 재대조한 뒤 채택한다.
 
 <figure class="not-prose my-6 rounded-xl border border-border bg-muted/40 p-4" role="img" aria-label="병렬 팬아웃 도식. 메인 세션이 큰 작업을 겹치지 않는 구역으로 쪼개, 결과물과 원본 소스만 담아 여러 독립 감사자에게 동시에 던진다. 각 감사자는 담당 구역만 소스와 1대1로 대조해 반증을 돌려주고, 메인이 원문을 재대조한 뒤 채택한다.">
-  <figcaption class="text-xs font-semibold text-muted-foreground">병렬 팬아웃: 구역을 갈라 던지고, 반증을 메인이 재대조 후 채택</figcaption>
+  <figcaption class="text-xs font-semibold text-muted-foreground">병렬 팬아웃: 구역을 나눠 던지고, 반증을 메인이 재대조 후 채택</figcaption>
   <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs">
     <span class="rounded-lg border-2 border-accent bg-accent/10 px-3 py-2 font-semibold text-accent">메인 세션<span class="block text-[10px] font-normal text-muted-foreground">구역 분할 + 결과물·소스만</span></span>
     <span aria-hidden="true" class="text-muted-foreground">→ 팬아웃 →</span>
@@ -66,7 +66,7 @@ AI는 done-state가 없으면 그럴듯한 데서 멈춘다(satisfice). "확인�
 
 ### ③ 병렬로 펼치되 범위를 겹치지 않게 자른다
 
-큰 작업은 섹션 단위로 쪼개 독립 감사자에게 동시에 던진다. 각자 소스 정독 → 근거 줄 대조 → 스크린샷으로 육안 확인 → 보고. 범위가 겹치면 서로의 산출물을 건드리니, 감사자마다 담당 구역을 분리한다. (우리는 9~10개 섹션을 동시에 돌렸다.)
+큰 작업은 섹션 단위로 쪼개 독립 감사자에게 동시에 던진다. 각자 소스 정독 → 근거 줄 대조 → 스크린샷으로 육안 확인 → 보고. 범위가 겹치면 서로의 산출물을 건드리니, 감사자마다 담당 구역을 분리한다. 우리는 9~10개 섹션을 동시에 돌렸다.
 
 ### ④ "검증자의 주장도 주장"이다
 

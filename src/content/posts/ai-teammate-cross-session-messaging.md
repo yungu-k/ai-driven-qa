@@ -138,6 +138,6 @@ WSL2 Ubuntu에 옮기고 터미널 둘을 열었다. `claude -n planner`, `claud
 
 그래도 절반은 끝났다. 이 글은 두 세션이 일곱 번 오가며 만들었고, 그 사이 내가 내용을 옮겨 나른 적은 없다. 첫 왕복에서 걸린 사실 오류 3건도 내가 아니라 옆 세션이 찾았다.
 
-다음은 진짜 일감이다. 밀려 있는 **PDF 이슈 리포트 개선**을 기획자·개발자·QA 세션에 통째로 넘긴다. 그때 잴 건 하나다. 한 건을 끝내는 동안 사람이 몇 번 중계했나.
+다음은 진짜 일감이다. 밀려 있는 **PDF 이슈 Report 개선**을 기획자·개발자·QA 세션에 통째로 넘긴다. 그때 잴 건 하나다. 한 건을 끝내는 동안 사람이 몇 번 중계했나.
 
 [^1]: [Claude Code CHANGELOG](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md) — 2.1.224 "Added cross-session `SendMessage`: Claude sessions message each other on any machine", 2.1.232 "Type `@` in prompt to mention Claude session by name".

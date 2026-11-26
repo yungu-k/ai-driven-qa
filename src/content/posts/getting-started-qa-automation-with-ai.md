@@ -22,7 +22,7 @@ description: 이 블로그의 자동화들을 직접 시도해보고 싶은 분�
 
 ## 1단계 — MCP로 도구 연결
 
-MCP(Model Context Protocol)는 AI Agent가 외부 도구를 표준 방식으로 다루게 해주는 프로토콜이다. 내 여정에서 핵심이 된 연결 두 가지:
+MCP는 AI Agent가 외부 도구를 표준 방식으로 다루게 해주는 프로토콜이다. 정식 이름은 Model Context Protocol이다. 내 여정에서 핵심이 된 연결 두 가지:
 
 ```bash
 # Jira/Confluence (mcp-atlassian)
@@ -116,9 +116,9 @@ description: Jira 상태 변화를 TC 시트에 동기화
 
 ## 자주 밟는 함정
 
-- **API 한계를 우회하려고 시간 낭비**: 스프레드시트 드롭다운 칩 색상처럼 API로 안 되는 건 빨리 '수동 영역'으로 분리 (TC 설계 자동화에서 실제로 겪은 사고)
-- **결과 캐싱**: 버전·상태값은 매번 실시간 조회 규칙 명시 ([Bug Report 자동화](/posts/bug-report-automation)의 버전 캐싱 삽질 참고)
-- **페이지네이션 누락**: 이슈 트래커 검색이 기본 페이지 한도(Jira는 50건)를 넘으면 어긋나기 시작한다 ([QA Report 자동화](/posts/qa-report-automation)에서 50건 잘림으로 겪음)
+- **API 한계를 우회하려고 시간 낭비**: 스프레드시트 드롭다운 칩 색상처럼 API로 안 되는 건 빨리 '수동 영역'으로 분리. TC 설계 자동화에서 실제로 겪은 사고다.
+- **결과 캐싱**: 버전·상태값은 매번 실시간 조회 규칙 명시. [Bug Report 자동화](/posts/bug-report-automation)의 버전 캐싱 삽질 참고.
+- **페이지네이션 누락**: 이슈 트래커 검색이 기본 페이지 한도(Jira는 50건)를 넘으면 어긋나기 시작한다. [QA Report 자동화](/posts/qa-report-automation)에서 50건 잘림으로 겪었다.
 - **fail = 버그 단정**: 자동화 실패가 곧 개발 버그는 아니다. 티켓 전 스펙 대조 단계를 규칙으로 ([AI QA 엔지니어 팀원](/posts/ai-qa-engineer-teammate)의 헌법 1조)
 
 ## 마치며
@@ -129,4 +129,4 @@ description: Jira 상태 변화를 TC 시트에 동기화
 
 > 투자 대비 효과가 가장 큰 곳은 '프롬프트'가 아니라 '규격 문서'였다.
 
-이 가이드에서 말한 규격 문서들(TC 설계, QA 리포트, 검증 가이드)은 [qa-spec-kit](https://github.com/yungu-k/qa-spec-kit)에 공개해 두었다. 회사와 고객사 정보만 지운 실제 문서라, 빈 문서에서 시작하는 대신 이걸 가져가 자기 팀에 맞게 고쳐 써도 된다.
+이 가이드에서 말한 규격 문서들(TC 설계, QA Report, 검증 가이드)은 [qa-spec-kit](https://github.com/yungu-k/qa-spec-kit)에 공개해 두었다. 회사와 고객사 정보만 지운 실제 문서라, 빈 문서에서 시작하는 대신 이걸 가져가 자기 팀에 맞게 고쳐 써도 된다.
