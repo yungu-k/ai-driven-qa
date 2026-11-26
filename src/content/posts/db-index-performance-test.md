@@ -3,7 +3,7 @@ author: 공윤구
 pubDatetime: 2026-07-03T02:00:00.000Z
 title: 1,300만 행에서 장애를 재현했다
 slug: db-index-performance-test
-featured: true
+featured: false
 draft: false
 tags:
   - operations

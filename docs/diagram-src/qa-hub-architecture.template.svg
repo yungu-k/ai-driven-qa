@@ -1,0 +1,233 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 736 920" role="img" aria-labelledby="t">
+  <title id="t">QA Hub 구조. 팀원 브라우저가 사내 서버 한 대에 각자 Jira 토큰으로 로그인한다. 서버가 Jira·저장소·시트·Figma 에서 입력을 모아 작업 폴더에 두면, 점선 안의 AI 는 그 폴더만 읽고 결과 JSON 하나를 낸다. 서버가 그 결과를 검사하고, 사람이 확인 화면에서 누른 뒤에만 서버가 시트와 Jira 에 쓴다.</title>
+  <g font-family="Pretendard Variable, Pretendard, Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR, sans-serif">
+
+    <!-- ── 팀원 브라우저 (서버 밖, 위) ── -->
+    <g>
+      <text x="462" y="24" font-size="15" font-weight="700" fill="%%TXT%%" text-anchor="end">팀원 PC 브라우저 여러 대</text>
+      <text x="462" y="43" font-size="13" fill="%%SEC%%" text-anchor="end">각자 Jira API 토큰으로 로그인</text>
+      <g fill="%%S2%%" stroke="%%SEC%%" stroke-width="1.5">
+        <rect x="470" y="4" width="40" height="26" rx="4"/>
+        <rect x="478" y="11" width="40" height="26" rx="4"/>
+        <rect x="486" y="18" width="40" height="26" rx="4"/>
+      </g>
+      <g stroke="%%SEC%%" stroke-width="1.5">
+        <line x1="470" y1="11" x2="478" y2="11"/>
+        <line x1="478" y1="18" x2="486" y2="18"/>
+        <line x1="486" y1="25" x2="526" y2="25"/>
+      </g>
+    </g>
+
+    <!-- ── 사내 서버 한 대 ── -->
+    <rect x="14" y="58" width="520" height="854" rx="12" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <text x="30" y="86" font-size="15" font-weight="700" fill="%%TXT%%">QA Hub</text>
+    <text x="100" y="86" font-size="13" fill="%%SEC%%">사내 서버 한 대 · FastAPI · HTMX · SQLite</text>
+    <!-- 브라우저 -> [1] (서버 상자 위에 그린다) -->
+    <line x1="506" y1="44" x2="506" y2="92" stroke="%%SEC%%" stroke-width="2"/>
+    <path d="M506 100 l-5 -9 h10 z" fill="%%SEC%%"/>
+
+
+    <!-- [1] 화면 입력 -->
+    <rect x="30" y="100" width="488" height="86" rx="8" fill="%%S2%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <circle cx="52" cy="124" r="11" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <text x="52" y="128.5" font-size="12" font-weight="700" fill="%%TXT%%" text-anchor="middle">1</text>
+    <text x="74" y="129" font-size="15" font-weight="700" fill="%%TXT%%">화면 입력</text>
+    <text x="158" y="129" font-size="13" fill="%%SEC%%">티켓 키 · JQL, TC 행, 로그 파일</text>
+    <rect x="462" y="115" width="44" height="18" rx="9" fill="%%S1%%" stroke="%%TXT%%" stroke-width="1"/>
+    <text x="484" y="128" font-size="12" font-weight="600" fill="%%TXT%%" text-anchor="middle">사람</text>
+    <g fill="%%S1%%" stroke="%%SEC%%" stroke-width="1">
+      <rect x="74" y="142" width="60" height="18" rx="9"/>
+      <rect x="140" y="142" width="68" height="18" rx="9"/>
+      <rect x="214" y="142" width="70" height="18" rx="9"/>
+      <rect x="290" y="142" width="78" height="18" rx="9"/>
+      <rect x="374" y="142" width="76" height="18" rx="9"/>
+    </g>
+    <g font-size="12" font-weight="600" fill="%%TXT%%" text-anchor="middle">
+      <text x="104" y="155">TC 작성</text>
+      <text x="174" y="155">Bug 등록</text>
+      <text x="249" y="155">로그 분석</text>
+      <text x="329" y="155">QA Report</text>
+      <text x="412" y="155">Close 확인</text>
+    </g>
+    <text x="74" y="178" font-size="12" fill="%%SEC%%">Close 확인은 AI 를 거치지 않는다</text>
+
+    <!-- [1] -> [2] -->
+    <line x1="52" y1="186" x2="52" y2="200" stroke="%%SEC%%" stroke-width="2"/>
+    <path d="M52 208 l-5 -9 h10 z" fill="%%SEC%%"/>
+
+    <!-- [2] 입력을 모아 작업 폴더에 -->
+    <rect x="30" y="208" width="488" height="100" rx="8" fill="%%S2%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <circle cx="52" cy="232" r="11" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <text x="52" y="236.5" font-size="12" font-weight="700" fill="%%TXT%%" text-anchor="middle">2</text>
+    <text x="74" y="237" font-size="15" font-weight="700" fill="%%TXT%%">입력을 모아 작업 폴더에 둔다</text>
+    <rect x="462" y="223" width="44" height="18" rx="9" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1"/>
+    <text x="484" y="236" font-size="12" font-weight="600" fill="%%SEC%%" text-anchor="middle">서버</text>
+    <text x="74" y="259" font-size="13" fill="%%SEC%%">Jira 티켓·첨부 · 저장소 사본에서 찾은 소스 · 시트 행</text>
+    <text x="74" y="278" font-size="13" fill="%%SEC%%">Figma 화면(노드 정보·이미지, 링크가 있을 때)</text>
+    <text x="74" y="297" font-size="13" fill="%%SEC%%">사람 이름과 비밀 값은 가린다</text>
+
+    <!-- [2] -> 작업 폴더 (대기열을 거쳐 한 번에 1건) -->
+    <line x1="124" y1="308" x2="124" y2="358" stroke="%%SEC%%" stroke-width="2"/>
+    <path d="M124 366 l-5 -9 h10 z" fill="%%SEC%%"/>
+    <rect x="136" y="317" width="128" height="18" rx="9" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1"/>
+    <text x="200" y="330" font-size="12" font-weight="600" fill="%%SEC%%" text-anchor="middle">대기열 · 한 번에 1건</text>
+
+    <!-- [3] AI 가 닿는 곳 — 이 그림의 주인공. 강조색은 이 점선 안에만 쓴다 -->
+    <rect x="30" y="344" width="488" height="120" rx="12" fill="none" stroke="%%ACC%%" stroke-width="2" stroke-dasharray="4 3"/>
+    <rect class="knockout" x="412" y="336" width="96" height="16" fill="%%S1%%"/>
+    <text x="460" y="348" font-size="12" font-weight="600" fill="%%ACC%%" text-anchor="middle">AI 가 닿는 곳</text>
+    <circle cx="52" cy="394" r="11" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <text x="52" y="398.5" font-size="12" font-weight="700" fill="%%TXT%%" text-anchor="middle">3</text>
+
+    <rect x="74" y="366" width="100" height="56" rx="8" fill="%%S2%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <text x="89" y="390" font-size="15" font-weight="700" fill="%%TXT%%">작업 폴더</text>
+    <text x="89" y="410" font-size="13" fill="%%SEC%%">AI 는 읽기만</text>
+
+    <rect x="196" y="366" width="180" height="56" rx="8" fill="%%ACCTINT%%" stroke="%%ACC%%" stroke-width="2"/>
+    <text x="212" y="390" font-size="15" font-weight="700" fill="%%TXT%%">claude -p</text>
+    <rect x="332" y="377" width="32" height="18" rx="9" fill="%%ACC%%"/>
+    <text x="348" y="390" font-size="12" font-weight="600" fill="%%S1%%" text-anchor="middle">AI</text>
+    <text x="212" y="410" font-size="13" fill="%%SEC%%">Read · Grep · Glob 만</text>
+
+    <rect x="398" y="366" width="108" height="56" rx="8" fill="%%S2%%" stroke="%%ACC%%" stroke-width="1.5"/>
+    <text x="412" y="390" font-size="15" font-weight="700" fill="%%TXT%%">결과 JSON</text>
+    <text x="412" y="410" font-size="13" fill="%%SEC%%">하나만 낸다</text>
+
+    <g stroke="%%SEC%%" stroke-width="2">
+      <line x1="174" y1="394" x2="188" y2="394"/>
+      <line x1="376" y1="394" x2="390" y2="394"/>
+    </g>
+    <g fill="%%SEC%%">
+      <path d="M196 394 l-9 -5 v10 z"/>
+      <path d="M398 394 l-9 -5 v10 z"/>
+    </g>
+
+    <!-- 없는 것 (엑스는 path) -->
+    <g stroke="%%SEC%%" stroke-width="2" stroke-linecap="round">
+      <path d="M75 439 l8 8 M83 439 l-8 8"/>
+      <path d="M281 439 l8 8 M289 439 l-8 8"/>
+    </g>
+    <text x="92" y="448" font-size="13" fill="%%SEC%%">작업 폴더 밖은 못 읽는다</text>
+    <text x="298" y="448" font-size="13" fill="%%SEC%%">쓰는 도구가 없다</text>
+
+    <!-- 결과 JSON -> [4] : 점선을 넘어 나가는 것은 이 하나 -->
+    <line x1="452" y1="422" x2="452" y2="488" stroke="%%SEC%%" stroke-width="2"/>
+    <path d="M452 496 l-5 -9 h10 z" fill="%%SEC%%"/>
+
+    <!-- [4] 서버 검사 -->
+    <rect x="30" y="496" width="488" height="64" rx="8" fill="%%S2%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <circle cx="52" cy="520" r="11" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <text x="52" y="524.5" font-size="12" font-weight="700" fill="%%TXT%%" text-anchor="middle">4</text>
+    <text x="74" y="525" font-size="15" font-weight="700" fill="%%TXT%%">서버가 검사한다</text>
+    <g fill="%%S1%%" stroke="%%SEC%%" stroke-width="1">
+      <rect x="208" y="512" width="78" height="18" rx="9"/>
+      <rect x="292" y="512" width="78" height="18" rx="9"/>
+      <rect x="376" y="512" width="70" height="18" rx="9"/>
+    </g>
+    <g font-size="12" font-weight="600" fill="%%TXT%%" text-anchor="middle">
+      <text x="247" y="525">꼴 · 스키마</text>
+      <text x="331" y="525">값 · 플래그</text>
+      <text x="411" y="525">근거 대조</text>
+    </g>
+    <rect x="462" y="511" width="44" height="18" rx="9" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1"/>
+    <text x="484" y="524" font-size="12" font-weight="600" fill="%%SEC%%" text-anchor="middle">서버</text>
+    <text x="74" y="548" font-size="13" fill="%%SEC%%">근거 대조: AI 가 실제로 찾았나, 근거 줄을 다시 읽어 본다</text>
+
+    <!-- [4] -> [5] -->
+    <line x1="52" y1="560" x2="52" y2="572" stroke="%%SEC%%" stroke-width="2"/>
+    <path d="M52 580 l-5 -9 h10 z" fill="%%SEC%%"/>
+
+    <!-- [5] 사람 확인 -->
+    <rect x="30" y="580" width="488" height="48" rx="8" fill="%%S2%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <circle cx="52" cy="604" r="11" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <text x="52" y="608.5" font-size="12" font-weight="700" fill="%%TXT%%" text-anchor="middle">5</text>
+    <text x="74" y="609" font-size="15" font-weight="700" fill="%%TXT%%">사람이 확인한다</text>
+    <text x="208" y="609" font-size="13" fill="%%SEC%%">막는 것만 결정하고 초안을 고친다</text>
+    <rect x="462" y="595" width="44" height="18" rx="9" fill="%%S1%%" stroke="%%TXT%%" stroke-width="1"/>
+    <text x="484" y="608" font-size="12" font-weight="600" fill="%%TXT%%" text-anchor="middle">사람</text>
+
+    <!-- [5] -> [6] : 누른 뒤에만 -->
+    <line x1="52" y1="628" x2="52" y2="656" stroke="%%SEC%%" stroke-width="2"/>
+    <path d="M52 664 l-5 -9 h10 z" fill="%%SEC%%"/>
+    <rect x="66" y="637" width="124" height="18" rx="9" fill="%%S1%%" stroke="%%TXT%%" stroke-width="1"/>
+    <text x="128" y="650" font-size="12" font-weight="600" fill="%%TXT%%" text-anchor="middle">사람이 누른 뒤에만</text>
+
+    <!-- [6] 서버가 쓴다 -->
+    <rect x="30" y="664" width="488" height="104" rx="8" fill="%%S2%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <circle cx="52" cy="688" r="11" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <text x="52" y="692.5" font-size="12" font-weight="700" fill="%%TXT%%" text-anchor="middle">6</text>
+    <text x="74" y="693" font-size="15" font-weight="700" fill="%%TXT%%">서버가 쓴다</text>
+    <rect x="462" y="679" width="44" height="18" rx="9" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1"/>
+    <text x="484" y="692" font-size="12" font-weight="600" fill="%%SEC%%" text-anchor="middle">서버</text>
+    <g font-size="13" font-weight="700" fill="%%TXT%%">
+      <text x="74" y="718">시트</text>
+      <text x="74" y="738">Jira</text>
+      <text x="74" y="758">Report</text>
+    </g>
+    <g font-size="13" fill="%%SEC%%">
+      <text x="128" y="718">지정 탭 끝에 행 끼우기 · 다시 읽어 대조 · 파일 단위 잠금</text>
+      <text x="128" y="738">누른 사람 토큰으로 Bug · 코멘트</text>
+      <text x="128" y="758">PDF · HTML</text>
+    </g>
+
+    <!-- ── 곁가지: 자동화 결과 ── -->
+    <line x1="30" y1="788" x2="518" y2="788" stroke="%%SEC%%" stroke-width="1" opacity="0.45"/>
+    <text x="30" y="810" font-size="12" font-weight="600" fill="%%SEC%%">곁가지 · AI 를 거치지 않는다</text>
+    <rect x="30" y="820" width="488" height="76" rx="8" fill="%%S2%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <text x="46" y="844" font-size="15" font-weight="700" fill="%%TXT%%">자동화 결과</text>
+    <rect x="462" y="835" width="44" height="18" rx="9" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1"/>
+    <text x="484" y="848" font-size="12" font-weight="600" fill="%%SEC%%" text-anchor="middle">서버</text>
+    <text x="46" y="866" font-size="13" fill="%%SEC%%">Jenkins Regression Test 결과를 받아 저장한다</text>
+    <text x="46" y="885" font-size="13" fill="%%SEC%%">팀 메신저로 알린다</text>
+
+    <!-- ── 바깥 서비스 (서버 밖, 오른쪽) ── -->
+    <rect x="566" y="208" width="158" height="560" rx="12" fill="%%S1%%" stroke="%%SEC%%" stroke-width="1.5"/>
+    <text x="582" y="232" font-size="13" fill="%%SEC%%">바깥 서비스</text>
+    <g fill="%%S2%%" stroke="%%SEC%%" stroke-width="1.5">
+      <rect x="578" y="244" width="134" height="56" rx="8"/>
+      <rect x="578" y="396" width="134" height="56" rx="8"/>
+      <rect x="578" y="548" width="134" height="56" rx="8"/>
+      <rect x="578" y="700" width="134" height="56" rx="8"/>
+    </g>
+    <g font-size="15" font-weight="700" fill="%%TXT%%">
+      <text x="592" y="268">Jira</text>
+      <text x="592" y="420">저장소</text>
+      <text x="592" y="572">Figma</text>
+      <text x="592" y="724">Google Sheets</text>
+    </g>
+    <g font-size="13" fill="%%SEC%%">
+      <text x="592" y="288">읽기 · 쓰기</text>
+      <text x="592" y="440">GitLab · 읽기만</text>
+      <text x="592" y="592">읽기만</text>
+      <text x="592" y="744">읽기 · 쓰기</text>
+    </g>
+
+    <!-- 읽기: 바깥 -> [2] -->
+    <line x1="566" y1="248" x2="527" y2="248" stroke="%%SEC%%" stroke-width="2"/>
+    <path d="M518 248 l9 -5 v10 z" fill="%%SEC%%"/>
+    <text x="550" y="240" font-size="12" font-weight="600" fill="%%SEC%%" text-anchor="middle">읽기</text>
+
+    <!-- AI -> 바깥: 길 없음 (점선 = 부재, 엑스) -->
+    <line x1="518" y1="404" x2="566" y2="404" stroke="%%SEC%%" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <path d="M537 399 l10 10 M547 399 l-10 10" stroke="%%SEC%%" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- 쓰기: [6] -> 바깥 -->
+    <line x1="518" y1="728" x2="557" y2="728" stroke="%%SEC%%" stroke-width="2"/>
+    <path d="M566 728 l-9 -5 v10 z" fill="%%SEC%%"/>
+    <text x="550" y="720" font-size="12" font-weight="600" fill="%%SEC%%" text-anchor="middle">쓰기</text>
+
+    <!-- 곁가지 바깥: Jenkins -> 자동화 결과 -> 팀 메신저 -->
+    <g fill="%%S2%%" stroke="%%SEC%%" stroke-width="1.5">
+      <rect x="566" y="820" width="158" height="32" rx="8"/>
+      <rect x="566" y="864" width="158" height="32" rx="8"/>
+    </g>
+    <text x="582" y="841" font-size="13" font-weight="700" fill="%%TXT%%">Jenkins</text>
+    <text x="640" y="841" font-size="13" fill="%%SEC%%">Regression</text>
+    <text x="582" y="885" font-size="13" font-weight="700" fill="%%TXT%%">팀 메신저</text>
+    <text x="652" y="885" font-size="13" fill="%%SEC%%">알림</text>
+    <line x1="566" y1="836" x2="527" y2="836" stroke="%%SEC%%" stroke-width="2"/>
+    <path d="M518 836 l9 -5 v10 z" fill="%%SEC%%"/>
+    <line x1="518" y1="880" x2="557" y2="880" stroke="%%SEC%%" stroke-width="2"/>
+    <path d="M566 880 l-9 -5 v10 z" fill="%%SEC%%"/>
+  </g>
+</svg>
