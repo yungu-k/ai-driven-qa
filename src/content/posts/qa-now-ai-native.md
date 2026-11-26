@@ -26,7 +26,7 @@ AI-Native를 목표로 삼고 달려온 지 반년이 넘었다. 그동안 실�
 | Test Case 설계 | 사람이 설계 | AI가 기획서를 보고 쓴다. 기준은 내가 설계해 둔 마크다운(md) 파일 | [디자인 시안에서 TC 600개까지](/posts/tc-design-automation/) |
 | 개발 완료 시점 | Mock 데이터나 Mock 서버를 미리 준비하고 Sanity Test | AI가 코드 변경분(diff)을 보고 Test Case를 다시 검토. 자동화 테스트 스크립트도 이때 작성 | [티켓 산문 대신 코드 diff를 읽는다](/posts/diff-driven-tc/) |
 | Test Case 수행 | 사람이 수행 | E2E 시나리오 테스트와 일부 엣지 케이스를 빼면 자동화 테스트가 맡는다 | |
-| 버그 리포팅 | 사람이 리포팅 | AI가 코드를 분석해 추정 원인과 함께 Jira에 등록 | |
+| Bug Reporting | 사람이 Reporting | AI가 코드를 분석해 추정 원인과 함께 Jira에 등록 | |
 | Status Report | 사람이 써서 유관 부서에 공유 | AI가 쓴다 | |
 | Regression Test | 모든 버그가 고쳐진 뒤 사람이 수행 | 자동화 테스트가 대신한다 | |
 | Sign-off | 사람이 진행하고 QA Report도 사람이 쓴다 | 사람이 진행하고 Report는 AI가 쓴다 | [데이터에서 PDF까지, 사람은 서명만 한다](/posts/qa-report-automation/) |
@@ -40,7 +40,7 @@ AI-Native를 목표로 삼고 달려온 지 반년이 넘었다. 그동안 실�
 
 둘째는 개발이 끝난 직후다. 예전에는 이 시점에 Mock을 준비하고 Sanity Test를 했다. 지금은 AI가 코드 변경분을 보고 Test Case를 다시 검토하고, 자동화 테스트 스크립트도 이때 같이 작성된다. 3년 전에는 서비스가 안정된 뒤에야 자동화 테스트를 구축했다. 지금은 그 시점이 개발이 끝나는 순간으로 당겨졌다.
 
-셋째는 버그 리포팅이다. 테스트하다 버그가 나오면 AI가 코드를 분석해서 추정 원인과 함께 Jira에 등록한다.
+셋째는 Bug Reporting이다. 테스트하다 버그가 나오면 AI가 코드를 분석해서 추정 원인과 함께 Jira에 등록한다.
 
 ## 아직 내가 하는 것
 
