@@ -22,7 +22,7 @@ import config from "./astro-paper.config";
 
 export default defineConfig({
   site: config.site.url,
-  // 사이트는 그대로 정적이다. prerender = false 인 길(실험실 랭킹 src/pages/api/defense-rank.ts)만 Vercel 함수가 된다
+  // 사이트는 정적이다. prerender = false 인 길만 Vercel 함수가 된다(11-27 실험실 랭킹 API 를 지워 지금은 없다)
   adapter: vercel(),
   integrations: [
     mdx(),

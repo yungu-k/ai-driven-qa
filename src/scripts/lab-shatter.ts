@@ -9,12 +9,12 @@
 //          합성 단계에서 도는 흔들림뿐이라 안 보인다. 4.3 s 에 두면 금 2단계가 그동안 멈췄다
 //   3.0 s  꺾인 방사형 금이 1.25 s 동안 툭툭 45% 까지(흰 멍·거미줄·굵은 안쪽 금은 첫 0.2 s)
 //   4.3 s  금 끝까지 + 고리 금·잔금 0.65 s
-//   5.0 s  깨짐(취소 불가) → 낙하 + 뒤에 하늘과 부팅 카드(0.12 s 부터 튀어 오름) → 마지막 조각이 나가면 /lab/
-//          뒷면은 실험실 첫 화면 규격 docs/lab-hub-spec.md 5절(하늘 + 부팅 카드, 카드 마크업은 src/lab/boot-card.ts)
+//   5.0 s  깨짐(취소 불가) → 낙하 + 뒤에 밤하늘 → 마지막 조각이 나가면 /lab/
+//          뒷면은 /lab/ 첫 페인트와 같은 밤하늘(값은 src/lab/lab-tokens.css). 거기서 불꽃놀이 쇼가 이어진다
+//          (2026-11-27 Dean: 게임 → 도트 아트 갤러리, 파란 하늘 → 밤하늘, 부팅 카드 없앰. docs/lab-pixel-brief.md)
 // 손을 떼거나 12px 넘게 움직이면 5초 전 어느 단계에서든 취소.
 
 import { sfx, unlock } from "@/lab/sound";
-import { bootCardHtml } from "@/lab/boot-card";
 
 const HOLD_MS = 5000;
 const PREFETCH_AT = 1500;
@@ -23,9 +23,6 @@ const PREBUILD_AT = 1800;
 const CRACK2_AT = 4300;
 const LAB_URL = "/lab/";
 const FX = "lab-fx"; // 이 모듈이 body 에 붙이는 모든 것 — 정리할 때 이 클래스로 찾는다
-
-/** 부팅 카드가 튀어 오르는 시각(깨짐 = 0, ms) — 규격 5절 */
-const BOOT_CARD_AT = 120;
 
 type Pt = [number, number];
 type Geo = {
@@ -546,35 +543,16 @@ function shatter(built: Built, cx: number, cy: number, W: number, H: number): nu
   return last;
 }
 
-// 하늘 뒷면 + 부팅 카드(조각보다 아래 — 깨진 틈으로 보인다). /lab/ 의 BootScreen 이 같은 카드를 「다 찬」 상태로
-// 첫 페인트하므로 이동이 안 보인다. 카드는 BOOT_CARD_AT 에 아래에서 튀어 오르고(0.32 s), 막대는 이동 순간(nav)까지 찬다
+// 밤하늘 뒷면(조각보다 아래 — 깨진 틈으로 보인다). /lab/ 가 같은 밤하늘로 첫 페인트하므로 이동이 안 보인다
 function showBehind(): HTMLDivElement {
   const behind = document.createElement("div");
   behind.className = `${FX} lab-behind`;
   behind.setAttribute("aria-hidden", "true");
-  behind.innerHTML = bootCardHtml();
   document.body.appendChild(behind);
   return behind;
 }
-function animateBootCard(behind: HTMLDivElement, nav: number) {
-  const card = behind.querySelector(".lab-boot-card");
-  const meter = behind.querySelector(".lab-boot-meter i");
-  card?.animate(
-    [
-      { opacity: 0, transform: "translateY(20px) scale(.94)" },
-      { opacity: 1, transform: "none" },
-    ],
-    { duration: 320, delay: BOOT_CARD_AT, easing: "cubic-bezier(.3,1.5,.5,1)", fill: "both" }
-  );
-  meter?.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], {
-    duration: Math.max(nav - BOOT_CARD_AT, 1),
-    delay: BOOT_CARD_AT,
-    easing: "cubic-bezier(.2,.7,.3,1)",
-    fill: "both",
-  });
-}
 
-/** boot: "1" = 부팅 카드 장면으로 이어 받기, "fade" = 줄인 동작(덮개 뒤 투명도로만 나타남) */
+/** boot: "1" = 와장창으로 왔다(첫 화면이 불꽃놀이 쇼를 연다), "fade" = 줄인 동작(덮개 뒤 투명도로만 나타남) */
 function goLab(boot: "1" | "fade") {
   try {
     sessionStorage.setItem("lab-boot", boot);
@@ -622,7 +600,7 @@ function fire(h: Hold) {
   restoreHref(h);
 
   if (h.reduce) {
-    // C: 파편 없이 250 ms 덮개 페이드 후 이동. 부팅 카드도 없다. 덮개 색 = 실험실 하늘(--lab-sky-1)
+    // C: 파편 없이 250 ms 덮개 페이드 후 이동. 부팅 카드도 없다. 덮개 색 = 실험실 밤하늘(--lab-night-base)
     const veil = document.createElement("div");
     veil.className = `${FX} lab-veil`;
     veil.setAttribute("aria-hidden", "true");
@@ -636,12 +614,11 @@ function fire(h: Hold) {
   h.svg = null;
   const built = h.built ?? buildShards(h.geo ?? makeCells(h.cx, h.cy, shardGrid()));
   h.built = null;
-  const behind = showBehind();
+  showBehind();
   // 깨지는 소리(B5 대안, Dean 10-27). 실험실 소리를 끈 사람에겐 안 난다
   sfx.glass();
   const last = shatter(built, h.cx, h.cy, W, H);
   const nav = Math.max(last, 1300) + 100;
-  animateBootCard(behind, nav);
   h.timers.push(window.setTimeout(() => goLab("1"), nav));
 }
 

@@ -1,0 +1,159 @@
+---
+// 도트 아트 작품 페이지 틀(/lab/<slug>/) — design 규격 docs/lab-pixel-spec.md 5절.
+//  - 작품은 화면을 꽉 채우는 host(#lab-art, position:fixed inset:0)에 그 페이지의 <script> 가 mount 한다(계약: docs/lab-pixel-brief.md).
+//  - 왼쪽 위 「← 전시실」 알약: 2.5초 동안 입력이 없으면 28% 로 옅어지고 움직이면 돌아온다. Esc 도 전시실.
+//  - 왼쪽 아래 명판 한 줄(번호 · 이름 · 기법·연도): 4초 뒤 사라지고 다시 안 나온다.
+//  - tapClose: 아무 데나 누르면 전시실(불꽃놀이 원본 동작). 스노우볼처럼 누르기가 작품 조작이면 끈다.
+//  - 전시실로 돌아가면 쇼 없이 다 켠 상태(intro.ts 가 읽는 lab.intro.seen 을 여기서 단다).
+import LabLayout from "@/lab/LabLayout.astro";
+import { artOf, metaOf, numberOf } from "@/lab/pixel/arts";
+
+type Props = { slug: string; tapClose?: boolean };
+const { slug, tapClose = false } = Astro.props;
+const a = artOf(slug);
+---
+
+<LabLayout title={a.title} description={a.caption} paint={a.paint}>
+  <div class="lab-art-host" id="lab-art" aria-hidden="true"></div>
+  <a class="lab-art-back" href="/lab/" data-astro-reload
+    ><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10 3 5 8l5 5"></path></svg>전시실</a
+  >
+  <p class="lab-art-label">{numberOf(slug)}<b>{a.title}</b>{metaOf(a)}</p>
+  <h1 class="lab-sr">{a.title} — {a.caption}</h1>
+  <span hidden data-lab-art-opts data-tap-close={tapClose ? "1" : "0"}></span>
+</LabLayout>
+
+<script>
+  const BACK = "/lab/";
+  let leaving = false;
+  // 원본처럼 0.5초 어두워진 뒤 전시실로 — 전시실 첫 페인트도 밤하늘이라 이음새가 안 보인다
+  function leave() {
+    if (leaving) return;
+    leaving = true;
+    document.documentElement.classList.add("lab-leaving");
+    window.setTimeout(() => {
+      window.location.href = BACK;
+    }, 520);
+  }
+  function init() {
+    const root = document.documentElement;
+    const opts = document.querySelector<HTMLElement>("[data-lab-art-opts]");
+    if (!opts || opts.dataset.ready) return;
+    opts.dataset.ready = "1";
+    try {
+      sessionStorage.setItem("lab.intro.seen", "1");
+    } catch {
+      /* 저장소가 막힌 브라우저 — 전시실에서 쇼가 다시 돈다 */
+    }
+    let idleT = 0;
+    const wake = () => {
+      root.classList.remove("lab-idle");
+      window.clearTimeout(idleT);
+      idleT = window.setTimeout(() => root.classList.add("lab-idle"), 2500);
+    };
+    for (const e of ["pointermove", "pointerdown", "keydown", "focusin"]) window.addEventListener(e, wake, { passive: true });
+    wake();
+    window.setTimeout(() => root.classList.add("lab-label-off"), 4000);
+    window.addEventListener("keydown", e => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      leave();
+    });
+    const host = document.getElementById("lab-art");
+    if (opts.dataset.tapClose === "1" && host) {
+      host.style.cursor = "pointer";
+      host.addEventListener("pointerdown", e => {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        e.preventDefault();
+        leave();
+      });
+      host.addEventListener("contextmenu", e => e.preventDefault());
+    }
+  }
+  document.addEventListener("astro:page-load", init);
+  // 뒤로 가기 캐시(bfcache)에서 돌아오면 어두운 채 남아 있다 — 다시 밝힌다
+  window.addEventListener("pageshow", e => {
+    if (!e.persisted) return;
+    leaving = false;
+    document.documentElement.classList.remove("lab-leaving");
+  });
+</script>
+
+<style is:global>
+  .lab-art-host {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.5s ease;
+  }
+  html.lab-leaving .lab-art-host,
+  html.lab-leaving .lab-art-back,
+  html.lab-leaving .lab-art-label {
+    opacity: 0;
+  }
+  .lab-art-back {
+    position: fixed;
+    z-index: 3;
+    left: 16px;
+    top: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 15px 9px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(12, 12, 16, 0.55);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: #ece8e0;
+    font-size: 13px;
+    text-decoration: none;
+    transition: opacity 0.6s ease;
+  }
+  .lab-art-back svg {
+    width: 16px;
+    height: 16px;
+  }
+  .lab-art-back:focus-visible {
+    outline: 2px solid #ece8e0;
+    outline-offset: 3px;
+  }
+  .lab-art-label {
+    position: fixed;
+    z-index: 3;
+    left: 20px;
+    bottom: 18px;
+    margin: 0;
+    font-size: 12.5px;
+    color: rgba(236, 232, 224, 0.64);
+    transition: opacity 1s ease;
+    pointer-events: none;
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.9),
+      0 0 8px rgba(0, 0, 0, 0.7); /* 작품(불빛 많은 도시) 위라 그림자로 받친다 */
+  }
+  .lab-art-label b {
+    color: #ece8e0;
+    font-weight: 600;
+    margin: 0 8px 0 10px;
+  }
+  html.lab-idle .lab-art-back {
+    opacity: 0.28;
+  }
+  html.lab-label-off .lab-art-label {
+    opacity: 0;
+  }
+  .lab-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>

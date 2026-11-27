@@ -11,7 +11,7 @@ import LinkButton from "./LinkButton.astro";
 import { stripBase, stripLocale } from "@/utils/withBase";
 import { useTranslations } from "@/i18n";
 import config from "@/config";
-// 와장창 뒷면(하늘 + 부팅 카드)의 토큰·카드 모양 — 실험실 BootScreen 과 같은 파일(규격 docs/lab-hub-spec.md 5절)
+// 와장창 뒷면(밤하늘)의 토큰 — 실험실 첫 화면과 같은 파일(docs/lab-pixel-brief.md)
 import "@/lab/lab-tokens.css";
 
 const { site, features } = config;
@@ -323,16 +323,16 @@ const isActive = (path: string) => {
     contain: strict;
     will-change: transform;
   }
-  /* 뒷면: 실험실 하늘 + 부팅 카드(배치·하늘·카드 모양은 src/lab/lab-tokens.css). 조각 무대보다 아래 */
+  /* 뒷면: 실험실 밤하늘(배치·하늘은 src/lab/lab-tokens.css). 조각 무대보다 아래 */
   .lab-behind {
     z-index: 2147482998;
   }
-  /* 줄인 동작 덮개: 실험실 하늘 맨 위 색(--lab-sky-1) — /lab/ 첫 페인트와 같은 색 */
+  /* 줄인 동작 덮개: 실험실 밤하늘 맨 위 색(--lab-night-base) — /lab/ 첫 페인트와 같은 색 */
   .lab-veil {
     position: fixed;
     inset: 0;
     z-index: 2147483000;
-    background: var(--lab-sky-1);
+    background: var(--lab-night-base);
   }
   @media (prefers-reduced-motion: reduce) {
     #site-logo.egg-charging {

@@ -1,275 +1,77 @@
 ---
-// 실험실(/lab) 페이지 틀 — 「게임 모음 앱」 결(파스텔 하늘·크림 카드·Pretendard). 규격: docs/lab-hub-spec.md
-// 블로그와 섞이지 않게 하는 장치를 여기 한곳에 모은다(겉모양을 바꿔도 이 셋은 그대로 — 규격 8절):
+// 실험실(/lab) 페이지 틀 — 도트 아트 갤러리(2026-11-27 Dean: 게임 → 도트 아트, 「현대적이고 세련된 미술관」). docs/lab-pixel-brief.md
+// 블로그와 섞이지 않게 하는 장치를 여기 한곳에 모은다(겉모양을 바꿔도 이 셋은 그대로):
 //  - noindex: 검색엔진에 안 나온다(이스터에그로만 들어온다)
 //  - data-pagefind-ignore="all": 블로그 검색 색인에서 뺀다
-//  - 블로그 헤더·푸터·테마 없음. 블로그가 라이트든 다크든 실험실은 고정 낮 테마(규격 6절 [결정])
+//  - 블로그 헤더·푸터·테마 없음. 블로그가 라이트든 다크든 실험실은 고정 밤 테마
 // 사이트맵 제외는 astro.config.ts 의 sitemap filter 가 맡는다.
 import Layout from "@/layouts/Layout.astro";
-import BootScreen from "@/lab/BootScreen.astro";
-import "@/lab/lab-fonts.css";
 import "@/lab/lab-tokens.css";
 
 type Props = {
   title: string;
   description?: string;
-  /** 실험실 첫 화면이면 true — 뒤로 가기가 블로그로 가고, 부팅 화면을 받는다 */
+  /** 갤러리(첫 화면)면 true — 탭 제목에 「| 실험실」을 안 붙인다 */
   isIndex?: boolean;
-  /** 화면을 꽉 채우는 게임이면 true — 위 막대·폭 제한 없이 게임이 스스로 그린다(돌아가기·소리는 게임 안 메뉴) */
-  bare?: boolean;
-  /**
-   * bare 게임의 첫 페인트 바탕색(그 게임 CSS 의 html 바탕과 같은 값). 주면 그 색만 깔고 게임 CSS 가 제 바탕을 그린다.
-   * 안 주면 옛 판 그대로 #0a0a14 를 강제한다(규격 6절 🔴: bare 는 허브 하늘과 따로).
-   */
+  /** 첫 페인트 바탕색. 안 주면 밤하늘(와장창 뒷면과 같은 그림 → 이동이 안 보인다) */
   paint?: string;
 };
 
-const { title, description, isIndex = false, bare = false, paint } = Astro.props;
+const { title, description, isIndex = false, paint } = Astro.props;
 
-// 첫 페인트 — 흰 바탕이 한 프레임이라도 나오면 깨짐 → 실험실 이음새가 보인다.
-// 허브: 하늘(--lab-sky-1). 와장창 뒷면(.lab-behind)과 같은 그림이라 이동이 안 보인다.
-const firstPaint = !bare
-  ? // 값은 lab-tokens.css 의 --lab-sky-1/2/3(블로그 Layout 의 body bg-background 위에 덮는다)
-    `html{background:#bfe6ff;color-scheme:light}body{background:#fff4e3 linear-gradient(180deg,#bfe6ff 0px,#dff1ff 280px,#fff4e3 680px,#fff4e3 100%) no-repeat}`
-  : paint
-    ? `html{background:${paint};color-scheme:dark}`
-    : `html,body{background:#0a0a14 !important;color-scheme:dark}`;
+// 첫 페인트 — 흰 바탕이 한 프레임이라도 나오면 이음새가 보인다. 값은 lab-tokens.css 의 --lab-night 와 같은 글자(design 규격 1절).
+// body 는 블로그 Layout 이 bg-background 를 단다 — 이 인라인 규칙은 층(@layer) 밖이라 Tailwind 유틸리티를 이긴다.
+const NIGHT = "linear-gradient(180deg,#030510 0%,#040613 20%,#060718 40%,#08081c 55%,#0a0a22 71.1%,#120d28 80%,#1a102f 90%,#241436 100%)";
+const firstPaint = paint
+  ? `html{background:${paint};color-scheme:dark}body{background:transparent}`
+  : `html{background:#030510 ${NIGHT} no-repeat fixed;color-scheme:dark}body{background:transparent}`;
 ---
 
 <Layout title={isIndex ? title : `${title} | 실험실`} description={description}>
   <meta slot="head" name="robots" content="noindex, nofollow" />
   <style slot="head" is:inline set:html={firstPaint} />
-  {isIndex && <BootScreen />}
-  {!bare && (
-    <div class="lab-sky-deco" aria-hidden="true">
-      <i></i><i></i><i></i>
-    </div>
-  )}
-  <div class:list={["lab-root", { "lab-root-bare": bare, "lab-root-hub": !bare }]} data-pagefind-ignore="all">
-    {!bare && (
-      <nav class="lab-bar lab-popin" style="--i:0" aria-label="실험실 막대">
-        {isIndex ? (
-          <a href="/" class="lab-pill lab-back">
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>블로그로
-          </a>
-        ) : (
-          <a href="/lab/" class="lab-pill lab-back" data-astro-reload>
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>실험실
-          </a>
-        )}
-        <button type="button" class="lab-pill lab-sound" data-lab-sound aria-pressed="true">
-          <span class="lab-sound-dot" aria-hidden="true"></span><span data-lab-sound-label>소리 켬</span>
-        </button>
-      </nav>
-    )}
-    <main id="main-content" class="lab-main">
-      <slot />
-    </main>
+  <div class="lab-root" data-pagefind-ignore="all">
+    <slot />
   </div>
 </Layout>
 
 <script>
-  // 실험실 전체 소리 켬/끔(기본 켜짐). 값은 src/lab/sound.ts 가 읽는다
-  import { isSoundOn, setSoundOn, sfx, unlock } from "@/lab/sound";
+  // 깨지는 소리 켬/끔(와장창 소리 하나뿐 — design 규격 4절). 값은 src/lab/sound.ts 가 localStorage "lab.sound" 로 읽는다.
+  // 단추는 [data-lab-sound] 가 있는 페이지(전시실)만. 아이콘의 .on/.off 두 획을 바꿔 그린다
+  import { isSoundOn, setSoundOn, unlock } from "@/lab/sound";
 
   function initSoundToggle() {
     const btn = document.querySelector<HTMLButtonElement>("[data-lab-sound]");
     if (!btn || btn.dataset.ready) return;
     btn.dataset.ready = "1";
-    const label = btn.querySelector("[data-lab-sound-label]");
     const render = () => {
       const on = isSoundOn();
-      if (label) label.textContent = on ? "소리 켬" : "소리 끔";
       btn.setAttribute("aria-pressed", String(on));
+      btn.title = on ? "깨지는 소리 끄기" : "깨지는 소리 켜기";
+      btn.querySelector<SVGElement>(".on")?.style.setProperty("display", on ? "" : "none");
+      btn.querySelector<SVGElement>(".off")?.style.setProperty("display", on ? "none" : "");
     };
     render();
     btn.addEventListener("click", () => {
       setSoundOn(!isSoundOn());
       render();
       unlock();
-      sfx.tap();
     });
-    // 첫 조작에서 소리를 깨운다(브라우저는 누르기 전 소리를 막는다)
-    document.addEventListener("pointerdown", unlock, { once: true, capture: true });
-    document.addEventListener("keydown", unlock, { once: true, capture: true });
   }
 
   document.addEventListener("astro:page-load", initSoundToggle);
 </script>
 
 <style is:global>
-  /* 토큰(--lab-*)은 src/lab/lab-tokens.css — 와장창 뒷면과 같이 쓴다 */
-
-  /* ── 허브(bare 아님): 하늘 바탕·Pretendard. 한글은 낱말 단위로 줄바꿈 ── */
-  html:has(.lab-root-hub) body {
+  html:has(.lab-root) body {
     -webkit-tap-highlight-color: transparent;
     overflow-x: hidden;
   }
+  /* 글꼴은 블로그 글꼴(--font-app, body 에 이미 붙어 있다) — 픽셀 글꼴은 안 쓴다(design 규격 6절) */
   .lab-root {
-    width: 100%;
-    margin: 0 auto;
-  }
-  .lab-root-hub {
-    position: relative;
-    z-index: 1;
-    max-width: 1080px;
-    padding: 0 16px 40px;
-    color: var(--lab-ink);
-    font-family: var(--lab-font);
-    font-size: 15px;
-    line-height: 1.55;
-    letter-spacing: 0;
+    color: #ece8e0;
+    -webkit-font-smoothing: antialiased;
     word-break: keep-all;
     overflow-wrap: anywhere;
-  }
-  .lab-root-hub button {
-    font-family: inherit;
-  }
-  .lab-root-hub a {
-    color: inherit;
-  }
-  .lab-root-hub :focus-visible {
-    outline: 3px solid var(--lab-teal-ink);
-    outline-offset: 3px;
-  }
-  @media (min-width: 600px) {
-    .lab-root-hub {
-      padding: 0 20px 48px;
-    }
-  }
-
-  /* 구름(장식) — 화면 밖으로 나가지 않게 겉 상자가 자른다 */
-  .lab-sky-deco {
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 520px;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .lab-sky-deco i {
-    position: absolute;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0));
-  }
-  .lab-sky-deco i:nth-child(1) {
-    width: 260px;
-    height: 110px;
-    left: -60px;
-    top: 70px;
-  }
-  .lab-sky-deco i:nth-child(2) {
-    width: 220px;
-    height: 90px;
-    right: -50px;
-    top: 150px;
-  }
-  .lab-sky-deco i:nth-child(3) {
-    width: 340px;
-    height: 120px;
-    left: 38%;
-    top: 10px;
-    opacity: 0.7;
-  }
-
-  /* ── 위 막대: 「‹ 블로그로」 + 소리 알약(높이 44) ── */
-  .lab-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 12px 0 4px;
-  }
-  .lab-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    padding: 0 16px 0 12px;
-    border: 0;
-    border-radius: 999px;
-    background: rgba(255, 250, 242, 0.88);
-    color: var(--lab-ink);
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    box-shadow:
-      0 1px 0 rgba(236, 211, 166, 0.9),
-      0 3px 10px var(--lab-shadow);
-    cursor: pointer;
-    transition: transform 0.08s;
-  }
-  .lab-pill svg {
-    width: 20px;
-    height: 20px;
-    flex: none;
-  }
-  .lab-pill:active {
-    transform: scale(0.96);
-  }
-  .lab-sound[aria-pressed="false"] {
-    color: var(--lab-ink-2);
-    background: rgba(246, 227, 196, 0.9);
-  }
-  .lab-sound-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #47a35a;
-    box-shadow: 0 0 0 3px rgba(71, 163, 90, 0.2);
-  }
-  .lab-sound[aria-pressed="false"] .lab-sound-dot {
-    background: #a8742a;
-    box-shadow: none;
-  }
-
-  /* ── 들어옴: 위 막대 → 문구 → 카드가 차례로 튀어 오른다(규격 5절). 순서는 style="--i:n" ──
-     html.lab-enter 는 BootScreen 이 단다(직접 왔으면 바로, 부팅을 거쳤으면 카드가 사라질 때) */
-  html.lab-enter .lab-popin {
-    animation: lab-popin 0.34s var(--lab-pop) backwards;
-    animation-delay: calc(var(--i, 0) * var(--lab-pop-step, 40ms));
-  }
-  html.lab-enter.lab-enter-boot {
-    --lab-pop-step: 45ms;
-  }
-  html.lab-enter.lab-enter-boot .lab-sky-deco {
-    animation: lab-fadein 0.5s ease-out backwards;
-  }
-  @keyframes lab-popin {
-    from {
-      opacity: 0;
-      transform: translateY(16px) scale(0.97);
-    }
-  }
-  @keyframes lab-fadein {
-    from {
-      opacity: 0;
-    }
-  }
-
-  /* 줄인 동작: 튀어 오름·눌림 크기 없음(같은 선택자로 끈다) */
-  @media (prefers-reduced-motion: reduce) {
-    html.lab-enter .lab-popin,
-    html.lab-enter.lab-enter-boot .lab-sky-deco {
-      animation: none;
-    }
-    .lab-pill:active {
-      transform: none;
-    }
-  }
-
-  /* ── bare 게임: 옛 판 글자 결을 그대로 둔다(게임 CSS 가 이 위에서 제 겉모양을 덮는다).
-     코코 타워 디펜스(ui.css)가 아직 LabPixel 을 쓴다(도깨비 퇴치는 10-28 3D 전환으로 shell.css 와 함께 빠짐) — 규격 7절 ── */
-  .lab-root-bare {
-    max-width: none;
-    padding: 0;
-    color: #f2f0ff;
-    font-family: LabPixel, "Pretendard Variable", Pretendard, sans-serif;
-    font-size: 12px;
-    line-height: 20px;
-    -webkit-font-smoothing: none;
-  }
-  .lab-root-bare button {
-    font-family: inherit;
   }
 </style>

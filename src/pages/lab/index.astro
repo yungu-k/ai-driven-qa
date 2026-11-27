@@ -1,536 +1,353 @@
 ---
-// 실험실 첫 화면(허브) — 「게임 모음 앱의 첫 화면」. 규격 docs/lab-hub-spec.md · 시안 docs/lab-hub-mock.html
-// 목록은 src/lab/hub-games.ts. 카드 = 키 아트 썸네일 + 제목·시작 + 한 줄 소개 + 조작 한 줄 + 모두의 랭킹 1위(10-28 Dean: 「어떻게 만들었나」는 뺌).
-// 키 아트(public/lab/keyart/<slug>.webp)는 빌드가 파일 있는지 보고 <img> 를 넣는다 — 없는 파일을 요청해 404 를 내지 않는다.
-import fs from "node:fs";
-import path from "node:path";
+// 실험실 첫 화면 — 밤하늘 불꽃놀이 쇼(약 20초) → 도트 아트 전시실(2026-11-27 Dean: 게임 → 도트 아트, 「현대적이고 세련된 미술관」).
+// 흐름: docs/lab-pixel-brief.md · 모양·시간표: design 규격 docs/lab-pixel-spec.md 2–4절, 시안 docs/lab-pixel-gallery-mock.html.
+// 쇼·건너뛰기·다시 왔을 때는 src/lab/pixel/intro.ts(html 에 lab-show / lab-lit / lab-fast / lab-still), 작품 목록은 src/lab/pixel/arts.ts.
 import LabLayout from "@/lab/LabLayout.astro";
-import { PLAYABLE, ROWS, SOON } from "@/lab/hub-games";
-
-const KEYART_DIR = path.join(process.cwd(), "public", "lab", "keyart");
-const hasKeyart = (slug: string) => fs.existsSync(path.join(KEYART_DIR, `${slug}.webp`));
-// 줄(ROWS: 오락실 → 내기 모음) 순서대로 번호를 이어 매긴다 — 튀어 오름 차례(--i)·느린 읽기(lazy)가 화면 순서를 따른다
-let seq = 0;
-const rows = ROWS.map(r => ({ ...r, cards: r.games.map(g => { const i = seq++; return { ...g, i, keyart: hasKeyart(g.slug) ? `/lab/keyart/${g.slug}.webp` : null, lazy: i >= 3 }; }) }));
-const total = seq;
-const countText = `게임 ${PLAYABLE.length}` + (SOON.length ? ` · 준비 중 ${SOON.length}` : "");
+import { ARTS, metaOf, numberOf, thumbOf } from "@/lab/pixel/arts";
 ---
 
-<LabLayout title="실험실" description="AI 와 같이 만들어 본 작은 게임들" isIndex>
-  <header class="lab-hero lab-popin" style="--i:1">
-    <p class="lab-kicker">여기까지 찾아오셨네요</p>
-    <h1 class="lab-h1">실험실</h1>
-    <p class="lab-lede">AI 와 같이 만들어 본 작은 게임들. 테크블로그는 잠깐 잊고 놀다 가세요.</p>
-    <span class="lab-count">{countText}</span>
-  </header>
+<LabLayout title="실험실" description="도트 아트 전시실" isIndex>
+  <div class="lab-sky" id="lab-sky" aria-hidden="true"></div>
+  <div class="lab-wall" aria-hidden="true"></div>
 
-  {
-    rows.map(row => (
-      <section class:list={["lab-row", `lab-row-${row.id}`]} data-lab-row={row.id} aria-labelledby={row.title ? `lab-row-${row.id}` : undefined}>
-        {row.title && (
-          <div class="lab-row-head lab-popin" style={`--i:${row.cards[0].i + 2}`}>
-            <h2 class="lab-row-title" id={`lab-row-${row.id}`}>{row.title}</h2>
-            {row.lede && <p class="lab-row-lede">{row.lede}</p>}
-          </div>
-        )}
-  <ul class="lab-grid">
-    {
-      row.cards.map(g => { const i = g.i;
-        const thumb = (
-          <div class="lab-thumb" style={`--ph-1:${g.ph[0]};--ph-2:${g.ph[1]};--ph-ink:${g.ph[2]}`}>
-            {g.keyart ? (
-              <img src={g.keyart} width="960" height="600" alt="" decoding="async" loading={g.lazy ? "lazy" : undefined} />
-            ) : (
-              <div class="lab-ph" aria-hidden="true">
-                <svg class="lab-ph-cone" viewBox="0 0 64 64">
-                  <path d="M26 8h12l14 44H12Z" fill="#ff9a4d" />
-                  <path d="M23.5 20h17l2.6 8H20.9ZM19 34h26l2.6 8H16.4Z" fill="#fffaf2" />
-                  <rect x="6" y="50" width="52" height="7" rx="3.5" fill="#e0763a" />
-                </svg>
-                <b>{g.wip}</b>
-                <small>그림 공사 중</small>
-                <i class="lab-ph-tape"></i>
-              </div>
-            )}
-            {g.soon && <span class="lab-badge">준비 중</span>}
-            {g.players && (
-              <span class="lab-players">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.4" fill="currentColor" /><path d="M2.5 20c0-3.8 2.9-6 6.5-6s6.5 2.2 6.5 6z" fill="currentColor" /><circle cx="16.5" cy="9" r="2.8" fill="currentColor" opacity=".55" /><path d="M14.6 14.4c3.7-.6 7 1.4 7 5.6h-4.8" fill="currentColor" opacity=".55" /></svg>{g.players}
+  <nav class="lab-bar" aria-label="실험실">
+    <a href="/" data-astro-reload
+      ><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10 3 5 8l5 5"></path></svg>블로그</a
+    >
+    <button type="button" data-lab-sound aria-pressed="true" title="깨지는 소리 끄기"
+      ><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"
+        ><path d="M2.5 6h2.5L8.5 3v10L5 10H2.5z" fill="currentColor" stroke="none"></path><path class="on" d="M10.5 5.5a3.5 3.5 0 0 1 0 5M12.5 3.5a6.3 6.3 0 0 1 0 9"></path><path class="off" d="m10.5 6 4 4m0-4-4 4" style="display:none"></path></svg
+      ><span class="lab-sr">깨지는 소리</span></button
+    >
+  </nav>
+
+  <main id="main-content" class="lab-hall">
+    <div class="lab-hall-in">
+    <header class="lab-hall-head">
+      <p class="lab-eyebrow">실험실</p>
+      <h1>도트 아트</h1>
+    </header>
+    <ul class="lab-works">
+      {
+        ARTS.map((a, i) => (
+          <li class="lab-work" style={`--i:${Math.min(i, 8)}`}>
+            <a href={`/lab/${a.slug}/`} data-astro-reload>
+              <span class="lab-spot" aria-hidden="true" />
+              <span class="lab-frame">
+                <img src={thumbOf(a.slug)} alt={`${a.title} — ${a.caption}`} width="640" height="480" loading={i < 4 ? "eager" : "lazy"} decoding="async" />
               </span>
-            )}
-          </div>
-        );
-        return g.soon ? (
-          <li class="lab-card lab-popin is-soon" style={`--i:${i + 2}`} aria-disabled="true">
-            <div class="lab-card-link">
-              {thumb}
-              <div class="lab-card-body">
-                <div class="lab-title-row">
-                  <h2 class="lab-card-title">{g.title}</h2>
-                  <span class="lab-soon">곧 열려요</span>
-                </div>
-                <p class="lab-blurb">{g.blurb}</p>
-              </div>
-            </div>
-          </li>
-        ) : (
-          <li class="lab-card lab-popin" style={`--i:${i + 2}`}>
-            <a class="lab-card-link" href={`/lab/${g.slug}/`} data-astro-reload data-lab-play>
-              {thumb}
-              <div class="lab-card-body">
-                <div class="lab-title-row">
-                  <h2 class="lab-card-title">{g.title}</h2>
-                  <span class="lab-play">
-                    <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M4 2.5v9l7.5-4.5Z" fill="currentColor" /></svg>시작
-                  </span>
-                </div>
-                <p class="lab-blurb">{g.blurb}</p>
-                {g.guide && <p class="lab-guide"><span class="lab-guide-tag">조작</span>{g.guide}</p>}
-                {(g.rank || g.lapRank) && (
-                  <span class="lab-rank" data-rank-hi={g.rank} data-lap-hi={g.lapRank ? "" : undefined} hidden>
-                    <span class="lab-medal" aria-hidden="true">1</span>
-                    <span style="flex:none">모두의 랭킹 1위</span>
-                    <span class="lab-rank-who"></span>
-                    <span class="lab-rank-pts"></span>
-                  </span>
-                )}
-              </div>
+              <span class="lab-label">
+                <span class="lab-no">{numberOf(a.slug)}</span>
+                <span class="lab-name">{a.title}</span>
+                <span class="lab-meta">{metaOf(a)}</span>
+              </span>
             </a>
           </li>
-        );
-      })
-    }
-  </ul>
-      </section>
-    ))
-  }
-  <p class="lab-foot lab-popin" style={`--i:${total + 2}`}>랭킹은 모두가 함께 봐요 · 이름을 남겨 올라가요</p>
+        ))
+      }
+    </ul>
+    </div>
+  </main>
 </LabLayout>
 
 <script>
-  // 카드 누름: 0.96 눌림(CSS)과 같은 순간에 짧은 「톡」. 이동을 늦추지 않는다
-  import { sfx, unlock } from "@/lab/sound";
+  import { startLabIntro } from "@/lab/pixel/intro";
 
-  function initPlay() {
-    document.querySelectorAll<HTMLAnchorElement>("[data-lab-play]").forEach(a => {
-      if (a.dataset.ready) return;
-      a.dataset.ready = "1";
-      const tap = () => {
-        unlock();
-        sfx.tap();
-      };
-      a.addEventListener("pointerdown", e => {
-        if (e.button === 0) tap();
-      });
-      a.addEventListener("keydown", e => {
-        if (e.key === "Enter") tap();
-      });
-    });
+  let intro: ReturnType<typeof startLabIntro> | null = null;
+  function init() {
+    const host = document.getElementById("lab-sky");
+    if (!host || intro) return;
+    intro = startLabIntro(host);
   }
-  document.addEventListener("astro:page-load", initPlay);
-
-  // 모두의 랭킹 1위 한 줄. 서버가 없거나 기록이 없으면 줄을 숨긴 채 둔다(장식이라 조용히 넘어간다)
-  function showTop(el: HTMLElement, name: string, value: string) {
-    const who = el.querySelector(".lab-rank-who");
-    const pts = el.querySelector(".lab-rank-pts");
-    if (!who || !pts) return;
-    who.textContent = name;
-    pts.textContent = value;
-    el.hidden = false;
-  }
-
-  // 이름은 1~9글자(10-28, 예전 3글자 이니셜도 그대로 보인다). 화면엔 textContent 로만 넣는다
-  const okName = (n: unknown): n is string => typeof n === "string" && n.trim() !== "" && [...n].length <= 9;
-
-  // 점수 게임: /api/rank/<게임> 의 1위
-  function rankHi() {
-    document.querySelectorAll<HTMLElement>("[data-rank-hi]").forEach(async el => {
-      try {
-        const res = await fetch(`/api/rank/${el.dataset.rankHi}`);
-        if (!res.ok) return;
-        const top = ((await res.json()) as { rows?: { name: string; score: number }[] }).rows?.[0];
-        if (!top || !okName(top.name) || !Number.isInteger(top.score)) return;
-        showTop(el, top.name, `${top.score.toLocaleString("ko-KR")}점`);
-      } catch {
-        /* 장식 */
-      }
-    });
-  }
-  document.addEventListener("astro:page-load", rankHi);
-
-  // 코코 타워 디펜스: 날(바퀴) 기록 랭킹(/api/defense-rank)의 1위
-  async function lapHi() {
-    const el = document.querySelector<HTMLElement>("[data-lap-hi]");
-    if (!el) return;
-    try {
-      const res = await fetch("/api/defense-rank");
-      if (!res.ok) return;
-      const top = ((await res.json()) as { rows?: { name: string; lap: number }[] }).rows?.[0];
-      if (!top || !okName(top.name) || !Number.isInteger(top.lap)) return;
-      showTop(el, top.name, `${top.lap}일`);
-    } catch {
-      /* 장식 */
-    }
-  }
-  document.addEventListener("astro:page-load", lapHi);
+  document.addEventListener("astro:page-load", init);
+  // ClientRouter 로 다른 페이지가 끼워지면 캔버스·rAF 를 남기지 않는다(실험실 링크는 다 data-astro-reload 라 대개 안 온다)
+  document.addEventListener("astro:before-swap", () => {
+    intro?.stop();
+    intro = null;
+    document.documentElement.classList.remove("lab-show", "lab-lit", "lab-fast", "lab-still");
+  });
 </script>
 
 <style is:global>
-  /* ── 첫 화면 문구 ── */
-  .lab-hero {
-    text-align: center;
-    padding: 28px 8px 24px;
+  /* 값·시간표는 design 시안 :root 블록 그대로(docs/lab-pixel-spec.md 2·3절). 토큰은 .lab-root 에만 단다 */
+  .lab-root {
+    --hall-wall-top: rgba(13, 13, 17, 0.8);
+    --hall-wall-mid: rgba(13, 13, 17, 0.91);
+    --hall-floor: #08080a;
+    --hall-light: 255, 238, 210; /* 조명 색(따뜻한 흰빛) — rgba(var(--hall-light), a) */
+    --hall-ink: #ece8e0; /* 명판 글자 — 벽 위 15.9:1 */
+    --hall-ink-2: rgba(236, 232, 224, 0.64); /* 둘째 줄 6.85:1 */
+    --hall-ink-3: rgba(236, 232, 224, 0.52); /* 번호·머리글(11px) 4.85:1 */
+    /* 등장 시간표(ms) — 쇼 끝(onIntroEnd)이 0 */
+    --t-wall: 1200ms;
+    --t-head: 500ms;
+    --t-first: 700ms;
+    --t-step: 160ms;
+    --t-bar: 1500ms;
   }
-  .lab-kicker {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--lab-teal-ink);
-    letter-spacing: 0.02em;
-  }
-  .lab-h1 {
-    margin: 2px 0 6px;
-    font-size: 40px;
-    line-height: 1.15;
-    font-weight: 900;
-    letter-spacing: -0.03em;
-    color: var(--lab-title);
-  }
-  .lab-lede {
-    margin: 0 auto;
-    max-width: 30em;
-    text-wrap: balance;
-    font-size: 15px;
-    color: var(--lab-ink-2);
-  }
-  .lab-count {
-    display: inline-flex;
-    gap: 6px;
-    margin-top: 14px;
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: rgba(255, 250, 242, 0.75);
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--lab-ink-2);
-    font-variant-numeric: tabular-nums;
+  /* 건너뛰기(쇼 중 누름·Esc): 같은 순서, 시간만 0.4배 */
+  html.lab-fast .lab-root {
+    --t-wall: 480ms;
+    --t-head: 200ms;
+    --t-first: 280ms;
+    --t-step: 64ms;
+    --t-bar: 600ms;
   }
 
-  /* ── 카드 격자: 1 → 600 px 2 → 960 px 3 줄 ── */
-  .lab-grid {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 16px;
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 600px) {
-    .lab-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 960px) {
-    .lab-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px;
-    }
-    .lab-hero {
-      padding: 44px 8px 36px;
-    }
-    .lab-h1 {
-      font-size: 52px;
-    }
-    .lab-lede {
-      font-size: 17px;
-    }
-  }
-  .lab-card {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    background: var(--lab-card);
-    border-radius: var(--lab-r-card);
-    box-shadow:
-      0 2px 0 var(--lab-line),
-      0 8px 24px var(--lab-shadow);
-    transition:
-      transform 0.08s,
-      box-shadow 0.2s;
-  }
-  .lab-card:has(a.lab-card-link:active) {
-    transform: scale(0.96);
-  }
-  @media (hover: hover) {
-    .lab-card:has(a.lab-card-link:hover) {
-      box-shadow:
-        0 2px 0 var(--lab-line),
-        0 14px 32px var(--lab-shadow-2);
-    }
-  }
-  .lab-card-link {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    padding: 8px 8px 0;
-    text-decoration: none;
-    color: inherit;
-    border-radius: var(--lab-r-card);
-  }
-  .lab-root-hub .lab-card-link:focus-visible {
-    outline-offset: -3px;
-  }
-  .lab-thumb {
-    position: relative;
-    aspect-ratio: 16 / 10;
-    border-radius: var(--lab-r-thumb);
-    overflow: hidden;
-    background: var(--lab-thumb);
-  }
-  .lab-thumb img {
-    position: absolute;
+  /* 불꽃 작품 자리(작품 모듈 host) — position:fixed inset:0 이라는 계약 */
+  .lab-sky {
+    position: fixed;
     inset: 0;
+    z-index: 0;
+  }
+
+  /* ── 전시실 ── 벽은 위가 조금 덜 막혀 불꽃이 높은 창 너머처럼 비친다 */
+  .lab-wall {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(180deg, var(--hall-wall-top) 0%, var(--hall-wall-mid) 58%, rgba(10, 10, 13, 0.97) 80%, var(--hall-floor) 100%);
+  }
+  /* 스크롤은 문서가 아니라 고정 상자 안에서 한다(dev 11-27): 폰에서 문서를 스크롤하면 주소창이 접히며 화면 높이가 바뀌고,
+     불꽃 장면은 그때 도시를 새로 뽑는다(원본 동작) — 뒤 스카이라인이 갈려 보인다. 고정 상자면 주소창이 그대로다 */
+  html:has(.lab-hall) body {
+    overflow: hidden;
+  }
+  .lab-hall {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overflow-x: clip; /* 조명 번짐이 가로 스크롤을 만들지 않게 */
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    visibility: hidden;
+    color: var(--hall-ink);
+  }
+  .lab-hall-in {
+    min-height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 104px 24px 128px;
+  }
+  .lab-hall-head {
+    text-align: center;
+    margin: 0 0 72px;
+    opacity: 0;
+  }
+  .lab-hall-head .lab-eyebrow {
+    margin: 0 0 12px;
+    font-size: 11px;
+    letter-spacing: 0.34em;
+    color: var(--hall-ink-3);
+  }
+  .lab-hall-head h1 {
+    margin: 0;
+    font-size: clamp(24px, 3.1vw, 34px);
+    font-weight: 500;
+    letter-spacing: -0.012em;
+  }
+  .lab-works {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+    max-width: 1240px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 340px));
+    justify-content: center;
+    gap: 96px 80px;
+  }
+  .lab-work {
+    position: relative;
+    --d: calc(var(--t-first) + var(--i) * var(--t-step));
+  }
+  .lab-work a {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    outline: none;
+  }
+  /* span 들은 block — 인라인이면 aspect-ratio 가 안 먹고 액자 테두리가 조각난다(design 시안 첫 판) */
+  .lab-work .lab-spot,
+  .lab-work .lab-frame,
+  .lab-work .lab-label,
+  .lab-work .lab-name,
+  .lab-work .lab-meta {
+    display: block;
+  }
+  /* 작품마다 위에서 내리는 조명 하나 — 빛 웅덩이 중심 = 작품 윗변, 상자 가장자리에서 0 */
+  .lab-work .lab-spot {
+    position: absolute;
+    left: -42%;
+    right: -42%;
+    top: -190px;
+    bottom: -36px;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(ellipse 50% 190px at 50% 190px, rgba(var(--hall-light), 0.16), rgba(var(--hall-light), 0.06) 55%, rgba(var(--hall-light), 0) 100%);
+  }
+  .lab-frame {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: #000;
+    border: 6px solid #0b0b0d;
+    opacity: 0;
+    transform: translateY(6px);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.07),
+      0 30px 52px -18px rgba(0, 0, 0, 0.92),
+      0 2px 8px rgba(0, 0, 0, 0.6);
+  }
+  .lab-frame img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
+    image-rendering: pixelated;
   }
-  .lab-ph {
+  .lab-frame::after {
+    content: "";
     position: absolute;
     inset: 0;
-    display: grid;
-    place-items: center;
-    background:
-      radial-gradient(120% 90% at 78% 100%, var(--ph-2) 0, rgba(255, 255, 255, 0) 70%),
-      linear-gradient(160deg, #fffaf2 0, var(--ph-1) 100%);
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(var(--hall-light), 0.07), rgba(var(--hall-light), 0) 42%); /* 조명이 화면 위쪽을 스친다 */
   }
-  .lab-ph {
-    align-content: center;
-    gap: 6px;
-    text-align: center;
+  .lab-label {
+    margin-top: 20px;
+    opacity: 0;
   }
-  .lab-ph-cone {
-    width: 64px;
-    height: 64px;
-    justify-self: center;
+  .lab-label .lab-no {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--hall-ink-3);
+    font-variant-numeric: tabular-nums;
   }
-  .lab-ph b {
-    font-size: 22px;
-    line-height: 1.2;
-    font-weight: 900;
-    color: var(--ph-ink);
-    word-break: keep-all;
+  .lab-label .lab-name {
+    margin-top: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
   }
-  .lab-ph small {
-    justify-self: center;
-    padding: 2px 10px;
-    border-radius: 999px;
-    background: var(--lab-card);
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--lab-ink-2);
+  .lab-label .lab-meta {
+    margin-top: 3px;
+    font-size: 12.5px;
+    color: var(--hall-ink-2);
   }
-  /* 아래 띠: 공사장 줄무늬 */
-  .lab-ph-tape {
-    position: absolute;
+  .lab-work a:hover .lab-spot,
+  .lab-work a:focus-visible .lab-spot {
+    filter: brightness(1.6);
+  }
+  .lab-work a:hover .lab-name {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+  }
+  .lab-work a:focus-visible .lab-frame {
+    outline: 2px solid var(--hall-ink);
+    outline-offset: 8px;
+  }
+
+  /* ── 위 막대 — 왼쪽 블로그로, 오른쪽 깨지는 소리. 배경 없이 벽 위, 화면에 고정 ── */
+  .lab-bar {
+    position: fixed;
+    z-index: 3;
     left: 0;
     right: 0;
-    bottom: 0;
-    height: 14px;
-    background: repeating-linear-gradient(-45deg, #3a2228 0 10px, #ffd36b 10px 20px);
-    opacity: 0.85;
-  }
-  .lab-badge {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: var(--lab-ink);
-    color: var(--lab-card);
-    font-size: 12px;
-    font-weight: 800;
-  }
-  .lab-card-body {
+    top: 0;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-    padding: 12px 8px;
-  }
-  .lab-title-row {
-    display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 10px;
-  }
-  .lab-card-title {
-    margin: 0;
-    font-size: 19px;
-    line-height: 1.3;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    color: var(--lab-ink);
-  }
-  .lab-play {
-    flex: none;
-    display: inline-flex;
     align-items: center;
-    gap: 4px;
-    min-height: 44px;
-    padding: 0 16px;
-    border-radius: 999px;
-    background: linear-gradient(180deg, var(--lab-coral-1), var(--lab-coral-2));
-    color: var(--lab-ink);
-    font-size: 15px;
-    font-weight: 800;
-    box-shadow:
-      inset 0 -3px 0 rgba(217, 84, 106, 0.55),
-      0 2px 6px var(--lab-shadow);
+    padding: 14px 18px 26px;
+    opacity: 0;
+    pointer-events: none;
+    /* 폰에서 스크롤하면 고정 막대 글자가 작품 위로 겹친다(tw 리그 캡처) → 상자 대신 벽색이 위에서 옅어지는 그늘만 */
+    background: linear-gradient(180deg, rgba(10, 10, 13, 0.88), rgba(10, 10, 13, 0.6) 55%, rgba(10, 10, 13, 0));
   }
-  .lab-play svg {
-    width: 14px;
-    height: 14px;
-  }
-  .lab-blurb {
-    margin: 0;
-    font-size: 14px;
-    color: var(--lab-ink-2);
-  }
-  .lab-rank {
-    display: flex;
+  .lab-bar a,
+  .lab-bar button {
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: auto;
-    padding-top: 8px;
+    min-height: 32px;
+    padding: 8px 6px;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font: inherit;
     font-size: 13px;
-    color: var(--lab-ink-2);
-    font-variant-numeric: tabular-nums;
+    color: var(--hall-ink-2);
+    text-decoration: none;
   }
-  .lab-rank[hidden] {
-    display: none;
+  .lab-bar a:hover,
+  .lab-bar button:hover,
+  .lab-bar a:focus-visible,
+  .lab-bar button:focus-visible {
+    color: var(--hall-ink);
   }
-  .lab-medal {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #fff0b8, var(--lab-gold) 55%, var(--lab-gold-2));
-    color: var(--lab-ink);
-    font-size: 12px;
-    font-weight: 900;
-    box-shadow: 0 1px 0 #a8742a;
+  .lab-bar a:focus-visible,
+  .lab-bar button:focus-visible {
+    outline: 1.5px solid var(--hall-ink);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
-  .lab-rank-who {
-    /* 이름 9글자(10-28) — 좁은 카드에선 말줄임, 점수는 안 밀린다 */
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: 800;
-    color: var(--lab-ink);
-    letter-spacing: 0.06em;
-  }
-  .lab-rank-pts {
-    flex: none;
-    margin-left: auto;
-    font-weight: 800;
-    color: var(--lab-ink);
-  }
-  .lab-soon {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 0 14px;
-    border-radius: 999px;
-    background: var(--lab-thumb);
-    color: var(--lab-ink-2);
-    font-size: 14px;
-    font-weight: 700;
-  }
-  .lab-card.is-soon .lab-thumb {
-    filter: saturate(0.75);
-  }
-
-  /* ── 줄(오락실·내기 모음): 머리가 있는 줄만 머리를 단다. 맨 위 오락실 줄은 머리 없이 그대로 ── */
-  .lab-row + .lab-row {
-    margin-top: 32px;
-  }
-  .lab-row-head {
-    padding: 0 4px 12px;
-  }
-  .lab-row-title {
-    margin: 0;
-    font-size: 22px;
-    line-height: 1.3;
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    color: var(--lab-title);
-  }
-  .lab-row-lede {
-    margin: 2px 0 0;
-    font-size: 14px;
-    color: var(--lab-ink-2);
-    word-break: keep-all;
-  }
-  /* 몇 명이 하나(내기 모음): 썸네일 왼쪽 위 크림 알약 — 오른쪽 위는 「준비 중」 자리 */
-  .lab-players {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 10px 4px 8px;
-    border-radius: 999px;
-    background: var(--lab-card);
-    color: var(--lab-ink);
-    font-size: 13px;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    box-shadow: 0 2px 6px var(--lab-shadow);
-  }
-  .lab-players svg {
+  .lab-bar svg {
     width: 16px;
     height: 16px;
-    color: var(--lab-teal-ink);
+    flex: none;
+  }
+  .lab-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 
-  /* 조작 한 줄 */
-  .lab-guide {
-    margin: 2px 0 0;
-    font-size: 13px;
-    color: var(--lab-ink-2);
-    word-break: keep-all;
+  /* ── 등장(쇼 끝 = 0). intro.ts 가 html 에 lab-lit 을 단다 ── */
+  html.lab-lit .lab-hall {
+    visibility: visible;
   }
-  .lab-guide-tag {
-    display: inline-block;
-    margin-right: 6px;
-    padding: 1px 8px;
-    border-radius: 999px;
-    background: var(--lab-thumb);
-    color: var(--lab-teal-ink);
-    font-size: 12px;
-    font-weight: 700;
+  html.lab-lit .lab-wall {
+    opacity: 1;
+    transition: opacity var(--t-wall) cubic-bezier(0.4, 0, 0.2, 1);
   }
-
-  .lab-foot {
-    margin: 28px 0 0;
-    text-align: center;
-    font-size: 13px;
-    color: var(--lab-ink-2);
+  html.lab-lit .lab-hall-head {
+    opacity: 1;
+    transition: opacity 700ms ease var(--t-head);
   }
-
-  /* 줄인 동작: 눌림 크기·꺾쇠 회전 없음(같은 선택자로 끈다) */
-  @media (prefers-reduced-motion: reduce) {
-    .lab-card:has(a.lab-card-link:active) {
-      transform: none;
-    }
-    .lab-notes summary svg {
-      transition: none;
-    }
+  html.lab-lit .lab-work .lab-spot {
+    opacity: 1;
+    transition:
+      opacity 450ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--d),
+      filter 0.3s ease;
+  }
+  html.lab-lit .lab-work .lab-frame {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 650ms ease calc(var(--d) + 80ms),
+      transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--d) + 80ms);
+  }
+  html.lab-lit .lab-work .lab-label {
+    opacity: 1;
+    transition: opacity 500ms ease calc(var(--d) + 260ms);
+  }
+  html.lab-lit .lab-bar {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 600ms ease var(--t-bar);
+  }
+  /* 작품에서 돌아옴·움직임 줄이기: 움직임 없이 다 켠 상태 */
+  html.lab-still .lab-root *,
+  html.lab-still .lab-root *::before,
+  html.lab-still .lab-root *::after {
+    transition: none !important;
   }
 </style>
