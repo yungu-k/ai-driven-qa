@@ -14,9 +14,27 @@
      · intro = 같은 불꽃, 이어 쏘기만 INTRO_PULL 초 줄여 마무리의 마지막 큰 한 발이 ≈20 s 에 퍼진다(그때 onIntroEnd). 그 뒤 quiet.
      · quiet = 갤러리 뒤: 한 발씩 1.2–2.5 s 간격, 두세 발 동시·마무리 없음.
    - 원본에서 뺀 것: 로고 꾹 누르기·로고 불빛·덮개·누르면 닫힘(작품 페이지가 맡는다).
+   - 밀도(opts.cols, 11-27 2판): 화면 가로를 cols 칸으로 — 칸 하나 = 기기 픽셀 정수배. cols 가 없으면 1판과 한 글자도 다르지 않게 돈다
+     (검사 A 가 원본과 같은 씨앗으로 맞댄다). cols 가 있으면 kd = 1판 칸 ÷ 새 칸(선 길이 배율), D = kd²(넓이 배율)로:
+     · 크기·속도는 1판 화면과 같게(S = 1판 S × kd) — 불꽃 크기는 그대로, 점만 잘아진다.
+     · 고운 알갱이(국화·버드나무·링 …)와 로켓 꼬리는 D 배 — 칸 넓이당 빛의 양을 1판과 맞춘다(듬성해지지 않게).
+     · 수가 정해진 굵은 별(야자 팔·크로세트)은 kd 칸 덩어리 + 꼬리 D 배, 연기는 1판 수(흐린 안개라 화면 크기만 맞추면 된다).
+     · 별은 kd 배(D 배면 먼지처럼 보인다), 창문은 칸 간격 그대로라 저절로 D 배(층이 촘촘해진다), 경고등은 kd/2 칸.
+     · 알갱이 상한 9000 × D. 품질 낮춤 장치는 1판 그대로(느리면 0.55·번짐 끔).
    - 서버 호출·외부 라이브러리 없음. 움직임 줄이기면 멈춘 한 장면만. */
 
 export type FireworksMode = "loop" | "intro";
+
+/** 소리용 신호(onEvent). x·y = 화면 비율 0–1, type = 불꽃 이름(11종, crackle 묶음은 "crackle") */
+export interface FireworksEvent {
+  kind: "launch" | "burst" | "crackle";
+  x: number;
+  y: number;
+  big: boolean;
+  type: string;
+  /** burst = 그 한 발에서 나온 알갱이 수(상한에 걸리면 줄어든다) · crackle = 이 프레임에 동시에 터진 잔불 수 */
+  n?: number;
+}
 
 export interface MountOptions {
   /** intro = 첫 화면 20초 쇼(끝에 onIntroEnd, 그 뒤 quiet). 기본 loop */
@@ -25,6 +43,11 @@ export interface MountOptions {
   reduce?: boolean;
   /** intro 의 마지막 큰 한 발이 퍼지는 순간 한 번. 움직임 줄이기 + intro 면 mount 직후 한 번. 그 전에 setQuiet 를 부르면 안 온다 */
   onIntroEnd?: () => void;
+  /** 화면 가로 칸 수(밀도). 칸 하나 = max(1, round(innerWidth·dpr / cols)) 기기 픽셀. 없으면 1판(PX = clamp(round(innerWidth/640), 2, 4) CSS px) */
+  cols?: number;
+  /** 로켓이 뜰 때 · 터질 때(onIntroEnd 와 같은 프레임) · 잔불이 터지는 프레임에 한 번. 움직임 줄이기의 멈춘 한 장에선 안 온다.
+   *  rAF 프레임 안에서 곧바로 부른다(소리 시각 맞춤) — 던져도 고리는 이어 가고 오류는 따로 던진다 */
+  onEvent?: (e: FireworksEvent) => void;
 }
 
 export interface FireworksHandle {
@@ -42,6 +65,12 @@ interface Part {
   x: number; y: number; vx: number; vy: number; life: number; max: number; ramp: Ramp; drag: number; g: number;
   trail?: number; glitter?: number; heavy?: boolean; split?: string; strobe?: number;
   shift?: string | null; crackle?: boolean; popped?: boolean;
+  /** cols 판: 굵은 별 덩어리 한 변(칸) */
+  sz?: number;
+  /** cols 판: 꼬리 내는 빠르기 배율(수가 정해진 굵은 별 — 칸이 잘아진 만큼 꼬리를 더 낸다) */
+  tm?: number;
+  /** cols 판: 이 프레임 끝에 한꺼번에 뺀다(splice 를 알갱이마다 하면 수만 개에서 O(n²)) */
+  dead?: boolean;
 }
 type PartOpts = Partial<Omit<Part, "x" | "y" | "vx" | "vy" | "life" | "max" | "ramp">>;
 
@@ -57,6 +86,8 @@ interface Flash { x: number; y: number; c: RGB; life: number }
 export interface SceneHooks {
   mode?: FireworksMode;
   onIntroEnd?: () => void;
+  cols?: number;
+  onEvent?: (e: FireworksEvent) => void;
 }
 
 export interface Scene {
@@ -67,7 +98,11 @@ export interface Scene {
   resize(): boolean;
   setQuiet(on: boolean): void;
   /** 검사용(fireworks-rig.cjs): 살아 있는 상태 그대로 */
-  state(): { parts: Part[]; rockets: Rocket[]; smoke: Smoke[]; flashes: Flash[]; Q: number; mode: SceneMode; shots: number; t: number };
+  state(): {
+    parts: Part[]; rockets: Rocket[]; smoke: Smoke[]; flashes: Flash[]; Q: number; mode: SceneMode; shots: number; t: number;
+    /** 칸 수·칸 하나의 CSS px·크기 배율·밀도 배율(선 kd, 넓이 D)·알갱이 상한 */
+    W: number; H: number; PX: number; S: number; kd: number; D: number; cap: number;
+  };
 }
 
 const CYCLE = 24; // 초 — 여는 세 발 → 큰 한 발 → 이어 쏘기 → 마무리, 그리고 처음부터
@@ -121,15 +156,38 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
   // 원본에 없는 것 — 순서표 고르기
   let mode: SceneMode = hooks.mode === "intro" ? "intro" : "loop";
   let base = 0, qAt = -1, tNow = 0, shots = 0, pendingEnd = false;
+  // cols 판(밀도) — dense 가 아니면 kd = D = 1, cap = 9000 이라 1판 계산과 같은 수가 나온다
+  const cols = hooks.cols, dense = typeof cols === "number" && cols > 0;
+  let kd = 1, D = 1, S0 = 1, cap = 9000, buf32!: Uint32Array;
+  // 소리 신호 — onEvent 가 없으면 아무것도 하지 않는다(난수·순서 그대로). 멈춘 한 장(still)을 만드는 동안은 끈다
+  const onEvent = hooks.onEvent;
+  let mute = false;
+  function emit(e: FireworksEvent) {
+    if (!onEvent || mute) return;
+    try { onEvent(e); } catch (err) { setTimeout(() => { throw err; }); } // 받는 쪽 오류가 rAF 고리를 끊지 않게
+  }
 
   function canvas(w: number, h: number): HTMLCanvasElement { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
 
   function resize(): boolean {
-    const px = Math.max(2, Math.min(4, Math.round(window.innerWidth / 640)));
-    const w = Math.ceil(window.innerWidth / px), h = Math.ceil(window.innerHeight / px);
-    if (W && px === PX && w === W && h === H) return false; // 칸이 그대로면 도시를 다시 뽑지 않는다(원본은 늘 다시 지었다)
-    PX = px; W = w; H = h;
-    S = Math.max(0.6, Math.min(W, H * 1.8) / 320); // 크기·속도 배율(가로 320칸 기준)
+    const iw = window.innerWidth, ih = window.innerHeight;
+    const px = Math.max(2, Math.min(4, Math.round(iw / 640)));
+    let w: number, h: number, scale: number; // scale = 칸 하나의 CSS px
+    if (dense) {
+      const dpr = window.devicePixelRatio || 1, cell = Math.max(1, Math.round(iw * dpr / (cols as number))); // 칸 = 기기 픽셀 정수배
+      w = Math.ceil(iw * dpr / cell); h = Math.ceil(ih * dpr / cell); scale = cell / dpr;
+    } else {
+      w = Math.ceil(iw / px); h = Math.ceil(ih / px); scale = px;
+    }
+    if (W && scale === PX && w === W && h === H) return false; // 칸이 그대로면 도시를 다시 뽑지 않는다(원본은 늘 다시 지었다)
+    PX = scale; W = w; H = h;
+    if (dense) {
+      // 1판이 이 창에서 쓸 칸(px)과 S 를 구해, 화면에서 보이는 크기·속도를 1판과 같게 둔다
+      S0 = Math.max(0.6, Math.min(Math.ceil(iw / px), Math.ceil(ih / px) * 1.8) / 320);
+      kd = px / scale; D = kd * kd; S = S0 * kd; cap = Math.round(9000 * D);
+    } else {
+      S = Math.max(0.6, Math.min(W, H * 1.8) / 320); // 크기·속도 배율(가로 320칸 기준)
+    }
     G = 20 * S;
     cv.width = W; cv.height = H;
     cv.style.width = W * PX + "px"; cv.style.height = H * PX + "px";
@@ -137,7 +195,7 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
     bl.style.width = W * PX + "px"; bl.style.height = H * PX + "px";
     groundY = H - 1;
     trail = canvas(W, H); tctx = trail.getContext("2d") as CanvasRenderingContext2D;
-    img = tctx.createImageData(W, H); buf = img.data;
+    img = tctx.createImageData(W, H); buf = img.data; buf32 = new Uint32Array(buf.buffer);
     for (let i = 3; i < buf.length; i += 4) buf[i] = 255;
     buildSky(); buildCity(); buildStars();
     parts = []; rockets = []; smoke = []; flashes = [];
@@ -198,7 +256,7 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
 
   function buildStars() {
     stars = [];
-    const n = Math.round(W * H / 420);
+    const n = Math.round(W * H / (dense ? 420 * kd : 420)); // cols 판은 kd 배만(D 배면 먼지처럼 보인다)
     for (let i = 0; i < n; i++) {
       const y = Math.pow(Math.random(), 1.4) * H * 0.7;
       stars.push([(Math.random() * W) | 0, y | 0, Math.random() * 6.28, rand(0.5, 2.4), rand(0.25, 0.8)]);
@@ -207,7 +265,7 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
 
   // ---- 알갱이
   function spark(x: number, y: number, vx: number, vy: number, life: number, hex: string, o?: PartOpts | null): Part | null {
-    if (parts.length > 9000) return null;
+    if (parts.length > cap) return null;
     const p: Part = { x: x, y: y, vx: vx, vy: vy, life: life, max: life, ramp: ramp(hex), drag: 1.3, g: 1 };
     if (o) Object.assign(p, o);
     parts.push(p);
@@ -229,16 +287,23 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
       pal: pick(PALETTES), big: !!big, seed: Math.random() * 6 };
     rockets.push(r);
     shots++;
+    if (onEvent) emit({ kind: "launch", x: r.x / W, y: r.y / H, big: r.big, type: r.type });
     return r;
   }
 
   function burst(r: Rocket) {
+    const n0 = parts.length;
+    burstParts(r);
+    if (onEvent) emit({ kind: "burst", x: r.x / W, y: r.y / H, big: r.big, type: r.type, n: parts.length - n0 });
+  }
+
+  function burstParts(r: Rocket) {
     const x = r.x, y = r.y, pal = r.pal, s0 = rand(52, 66) * S * (r.big ? 1.3 : 1);
     let n: number, i: number, v: [number, number];
-    const NQ = Q * Math.min(1.5, Math.max(0.6, S / 2)) * (r.big ? 1.5 : 1); // 개수 배율
+    const NQ = Q * Math.min(1.5, Math.max(0.6, (dense ? S0 : S) / 2)) * (r.big ? 1.5 : 1) * D; // 개수 배율(cols 판은 넓이 D 배)
     if (r.last) endIntro();
     flashes.push({ x: x, y: y, c: rgb(r.type === "willow" || r.type === "palm" ? GOLD[0] : pal[0]), life: 1 });
-    for (i = 0; i < 4 * S * Q; i++) { // 연기 — 번짐 캔버스(CSS 흐림)에 그려 부드러운 안개가 된다
+    for (i = 0; i < 4 * (dense ? S0 : S) * Q; i++) { // 연기 — 번짐 캔버스(CSS 흐림)에 그려 부드러운 안개가 된다(cols 판도 1판 수)
       v = sphere(s0 * 0.6, true);
       smoke.push({ x: x + v[0], y: y + v[1], vx: rand(1, 4) * S, vy: rand(-1.5, 1) * S, r: rand(5, 9) * S, life: rand(4, 7) });
     }
@@ -263,13 +328,17 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
         const arms = (rand(7, 10)) | 0;
         for (i = 0; i < arms; i++) {
           const a2 = i / arms * 6.283 + rand(-0.15, 0.15);
-          spark(x, y, Math.cos(a2) * s0 * 0.95, Math.sin(a2) * s0 * 0.95 - s0 * 0.15, rand(2.2, 2.6), GOLD[0], { drag: 0.95, heavy: true, trail: 55 });
+          spark(x, y, Math.cos(a2) * s0 * 0.95, Math.sin(a2) * s0 * 0.95 - s0 * 0.15, rand(2.2, 2.6), GOLD[0],
+            dense ? { drag: 0.95, heavy: true, trail: 55, sz: Math.max(2, Math.round(2 * kd)), tm: D } : { drag: 0.95, heavy: true, trail: 55 });
         }
         for (i = 0; i < 40 * NQ; i++) { v = sphere(s0 * 0.25, true); spark(x, y, v[0], v[1], rand(0.6, 1), "#fff3c8", { drag: 2 }); }
         return;
       }
       case "crossette":
-        for (i = 0; i < 26; i++) { v = sphere(s0 * 0.7); spark(x, y, v[0], v[1], rand(2.2, 2.6), pal[0], { drag: 1.1, split: pal[1], trail: 8 }); }
+        for (i = 0; i < 26; i++) {
+          v = sphere(s0 * 0.7);
+          spark(x, y, v[0], v[1], rand(2.2, 2.6), pal[0], dense ? { drag: 1.1, split: pal[1], trail: 8, sz: Math.max(1, Math.round(kd)), tm: D } : { drag: 1.1, split: pal[1], trail: 8 });
+        }
         return;
       case "strobe":
         for (i = 0; i < 200 * NQ; i++) { v = sphere(s0 * 0.85, true); spark(x, y, v[0], v[1], rand(2.2, 3), "#f4f6ff", { drag: 1.4, g: 0.7, strobe: Math.random() * 6 }); }
@@ -345,11 +414,17 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
       if (Q === 1 && slowFor > 2) { Q = 0.55; bl.classList.add("q0"); ov.dataset.q = "low"; }
     }
     schedule(t);
-    let i: number, p: Part;
+    let i: number, p: Part, pops = 0, popX = 0, popY = 0, dead = 0;
     for (i = rockets.length - 1; i >= 0; i--) {
       const r = rockets[i];
       r.vy += r.g * dt; r.vx += Math.sin(t * 14 + r.seed) * 2 * S * dt; r.x += r.vx * dt; r.y += r.vy * dt;
-      for (let k = 0; k < 2; k++) spark(r.x + rand(-0.5, 0.5), r.y + 1, rand(-4, 4) * S * 0.4, rand(6, 14) * S * 0.5, rand(0.25, 0.55), pick(GOLD), { drag: 3, g: 0.4 });
+      if (dense) { // 로켓 꼬리: 넓이 D 배를 이번 프레임에 지나온 길에 고루(칸이 잘아 한자리에 모으면 점선이 된다)
+        const rs = 2 * D;
+        for (let k = 0; k < rs; k++) {
+          const back = k / rs;
+          spark(r.x - r.vx * dt * back + rand(-0.5, 0.5), r.y - r.vy * dt * back + 1, rand(-4, 4) * S * 0.4, rand(6, 14) * S * 0.5, rand(0.25, 0.55), pick(GOLD), { drag: 3, g: 0.4 });
+        }
+      } else for (let k = 0; k < 2; k++) spark(r.x + rand(-0.5, 0.5), r.y + 1, rand(-4, 4) * S * 0.4, rand(6, 14) * S * 0.5, rand(0.25, 0.55), pick(GOLD), { drag: 3, g: 0.4 });
       if (r.vy >= -2) { rockets.splice(i, 1); burst(r); }
     }
     for (i = parts.length - 1; i >= 0; i--) {
@@ -360,18 +435,34 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
       p.life -= dt;
       const f = p.life / p.max;
       if (p.shift && f < 0.55) { p.ramp = ramp(p.shift); p.shift = null; }
-      if (p.trail && Math.random() < p.trail * dt) spark(p.x, p.y, rand(-2, 2) * S * 0.3, rand(1, 4) * S * 0.3, rand(0.35, 0.7), pick(GOLD), { drag: 3, g: 0.3 });
+      if (p.trail && p.tm) { // cols 판 굵은 별: 꼬리를 tm 배 — 한 프레임에 여러 개일 수 있다
+        let e = p.trail * dt * p.tm;
+        for (; e >= 1; e--) spark(p.x, p.y, rand(-2, 2) * S * 0.3, rand(1, 4) * S * 0.3, rand(0.35, 0.7), pick(GOLD), { drag: 3, g: 0.3 });
+        if (Math.random() < e) spark(p.x, p.y, rand(-2, 2) * S * 0.3, rand(1, 4) * S * 0.3, rand(0.35, 0.7), pick(GOLD), { drag: 3, g: 0.3 });
+      } else if (p.trail && Math.random() < p.trail * dt) spark(p.x, p.y, rand(-2, 2) * S * 0.3, rand(1, 4) * S * 0.3, rand(0.35, 0.7), pick(GOLD), { drag: 3, g: 0.3 });
       if (p.split && f < 0.6) {
         const sp = Math.hypot(p.vx, p.vy) * 0.9 + 8 * S, base0 = Math.atan2(p.vy, p.vx);
-        for (let q = 0; q < 4; q++) { const a = base0 + 0.785 + q * 1.571; spark(p.x, p.y, Math.cos(a) * sp, Math.sin(a) * sp, rand(0.9, 1.2), p.split, { drag: 1.6, trail: 6 }); }
+        for (let q = 0; q < 4; q++) {
+          const a = base0 + 0.785 + q * 1.571;
+          spark(p.x, p.y, Math.cos(a) * sp, Math.sin(a) * sp, rand(0.9, 1.2), p.split, p.sz ? { drag: 1.6, trail: 6, sz: p.sz, tm: p.tm } : { drag: 1.6, trail: 6 });
+        }
         p.life = 0;
       }
       if (p.crackle && f < 0.22 && !p.popped) {
         p.popped = true;
+        if (onEvent) { pops++; popX += p.x; popY += p.y; }
         for (let c2 = 0; c2 < 4; c2++) spark(p.x, p.y, rand(-16, 16) * S * 0.5, rand(-16, 16) * S * 0.5, rand(0.12, 0.25), "#ffffff", { drag: 5 });
       }
-      if (p.life <= 0 || p.y > groundY + 2 || p.x < -10 || p.x > W + 10) parts.splice(i, 1);
+      if (p.life <= 0 || p.y > groundY + 2 || p.x < -10 || p.x > W + 10) {
+        if (dense) { p.dead = true; dead++; } else parts.splice(i, 1);
+      }
     }
+    if (dead) { // cols 판: 산 것만 순서 그대로 앞으로 모은다(뒤에서부터 splice 한 것과 같은 배열이 된다)
+      let w = 0;
+      for (i = 0; i < parts.length; i++) { const q = parts[i]; if (!q.dead) parts[w++] = q; }
+      parts.length = w;
+    }
+    if (pops) emit({ kind: "crackle", x: popX / pops / W, y: popY / pops / H, big: false, type: "crackle", n: pops });
     for (i = smoke.length - 1; i >= 0; i--) {
       const s = smoke[i]; s.x += s.vx * dt; s.y += s.vy * dt; s.r += 0.8 * S * dt; s.life -= dt;
       if (s.life <= 0) smoke.splice(i, 1);
@@ -387,12 +478,25 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
     buf[o] += c[0] * k; buf[o + 1] += c[1] * k; buf[o + 2] += c[2] * k;
   }
 
+  // cols 판 굵은 별: s×s 칸 덩어리(오른쪽·아래 가장자리는 0.7 — 1판 heavy 2×2 와 같은 결)
+  function blob(x: number, y: number, c: RGB | number[], s: number, w: number) {
+    for (let dy = 0; dy < s; dy++) {
+      for (let dx = 0; dx < s; dx++) add(x + dx, y + dy, c, w * (s > 1 && dx === s - 1 ? 0.7 : 1) * (s > 1 && dy === s - 1 ? 0.7 : 1));
+    }
+  }
+
   function draw(dt: number) {
     let i: number;
     const now = performance.now() / 1000;
     // 1) 잔상 버퍼를 식힌다 — 60fps 기준 프레임마다 18% 어둡게(꼬리 길이)
     const m = (Math.pow(0.82, (dt || 1 / 60) * 60) * 256) | 0;
-    for (i = 0; i < buf.length; i += 4) { buf[i] = (buf[i] * m) >> 8; buf[i + 1] = (buf[i + 1] * m) >> 8; buf[i + 2] = (buf[i + 2] * m) >> 8; }
+    if (dense) { // 칸이 많다 — 빈(검은) 칸은 건너뛰고 한 칸을 32비트로 한 번에(결과는 아래 1판 고리와 같다)
+      for (i = 0; i < buf32.length; i++) {
+        const v = buf32[i];
+        if (v === 0xff000000) continue;
+        buf32[i] = 0xff000000 | ((((v >>> 16) & 255) * m >> 8) << 16) | ((((v >>> 8) & 255) * m >> 8) << 8) | (((v & 255) * m) >> 8);
+      }
+    } else for (i = 0; i < buf.length; i += 4) { buf[i] = (buf[i] * m) >> 8; buf[i + 1] = (buf[i + 1] * m) >> 8; buf[i + 2] = (buf[i + 2] * m) >> 8; }
     // 2) 알갱이
     for (i = 0; i < parts.length; i++) {
       const p = parts[i];
@@ -401,10 +505,12 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
       if (p.strobe != null && ((now * 18 + p.strobe) | 0) % 3) continue;          // 반짝이: 켜졌다 꺼졌다
       if (p.glitter && f < p.glitter && Math.random() < 0.5) c = [255, 240, 200];   // 버드나무 끝 반짝임
       if (f < 0.25 && !p.heavy && Math.random() < 0.3) continue;                     // 꺼져 가며 깜빡
+      if (p.sz) { blob(p.x, p.y, c, p.sz, 1); continue; }
       add(p.x, p.y, c, 1);
       if (p.heavy) { add(p.x + 1, p.y, c, 0.7); add(p.x, p.y + 1, c, 0.7); add(p.x + 1, p.y + 1, c, 0.5); }
     }
-    for (i = 0; i < rockets.length; i++) { add(rockets[i].x, rockets[i].y, [255, 246, 220], 1); add(rockets[i].x, rockets[i].y + 1, [255, 200, 120], 0.6); }
+    if (dense) { const rz = Math.max(1, Math.round(kd)); for (i = 0; i < rockets.length; i++) { blob(rockets[i].x, rockets[i].y, [255, 246, 220], rz, 1); blob(rockets[i].x, rockets[i].y + rz, [255, 200, 120], rz, 0.6); } }
+    else for (i = 0; i < rockets.length; i++) { add(rockets[i].x, rockets[i].y, [255, 246, 220], 1); add(rockets[i].x, rockets[i].y + 1, [255, 200, 120], 0.6); }
     tctx.putImageData(img, 0, 0);
 
     // 3) 화면 = 하늘 + 번쩍임 + 별 + 연기 + 불꽃(더하기) + 도시
@@ -435,7 +541,8 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
     }
     for (i = 0; i < beacons.length; i++) { // 옥상 항공 경고등
       const bc = beacons[i], on = Math.sin(now * 1.6 + bc[2]) > 0.6;
-      ctx.fillStyle = on ? "#ff3b30" : "#3a1210"; ctx.fillRect(bc[0], bc[1], 1, 1);
+      const bs = dense ? Math.max(1, Math.round(kd / 2)) : 1;
+      ctx.fillStyle = on ? "#ff3b30" : "#3a1210"; ctx.fillRect(bc[0], bc[1], bs, bs);
     }
 
     // 4) 번짐: 절반 크기로 줄여 그리고 CSS 가 흐린다
@@ -462,16 +569,18 @@ export function makeScene(cv: HTMLCanvasElement, bl: HTMLCanvasElement, ov: HTML
   }
 
   function still() {
-    // 움직임 줄이기: 몇 발을 시간만 돌려 놓고 한 장으로 멈춘다
+    // 움직임 줄이기: 몇 발을 시간만 돌려 놓고 한 장으로 멈춘다(소리 신호는 내지 않는다)
+    mute = true;
     ([[0.22, 0.3, "peony"], [0.72, 0.24, "ring"], [0.12, 0.42, "willow"], [0.86, 0.4, "double"], [0.5, 0.2, "pistil"]] as [number, number, string][]).forEach(function (b) {
       burst({ x: W * b[0], y: H * b[1], vx: 0, vy: 0, g: 0, type: b[2], pal: pick(PALETTES), big: false, seed: 0 });
     });
     for (let i = 0; i < 14; i++) { step(-1, 1 / 30); draw(1 / 30); }
     flashes = [];
     draw(1 / 60);
+    mute = false;
   }
 
-  function state() { return { parts, rockets, smoke, flashes, Q, mode, shots, t: tNow }; }
+  function state() { return { parts, rockets, smoke, flashes, Q, mode, shots, t: tNow, W, H, PX, S, kd, D, cap }; }
 
   resize();
   return { step, draw, still, resize, setQuiet, state };
@@ -491,7 +600,7 @@ let styleRefs = 0;
 
 /**
  * host 를 꽉 채우는 캔버스 둘(본 그림·번짐)을 만들어 불꽃놀이를 돌린다. host 는 position:fixed inset:0 이라고 본다.
- * root(.fw-root)의 data-* 는 30프레임마다: js(프레임당 계산 ms) · n(알갱이 수) · shots(누적 발사) · t(순서표 초) · mode · q(low = 품질 낮춤)
+ * root(.fw-root)의 data-* 는 30프레임마다: js(프레임당 계산 ms) · n(알갱이 수) · shots(누적 발사) · t(순서표 초) · mode · cells(칸 W×H) · q(low = 품질 낮춤)
  */
 export function mount(host: HTMLElement, opts: MountOptions = {}): FireworksHandle {
   const reduce = opts.reduce ?? (typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -514,7 +623,12 @@ export function mount(host: HTMLElement, opts: MountOptions = {}): FireworksHand
 
   let stopped = false, raf = 0, last = 0, t0 = 0, jsMs = 0, frames = 0, resume = false;
   const userEnd = opts.onIntroEnd;
-  const hooks: SceneHooks = { mode: opts.mode, onIntroEnd: () => { if (!stopped && userEnd) userEnd(); } };
+  const userEvent = opts.onEvent;
+  const hooks: SceneHooks = {
+    mode: opts.mode, cols: opts.cols,
+    onIntroEnd: () => { if (!stopped && userEnd) userEnd(); },
+    onEvent: userEvent ? e => { if (!stopped) userEvent(e); } : undefined,
+  };
   const scene = makeScene(cv, bl, root, hooks);
 
   function show() { cv.classList.add("on"); bl.classList.add("on"); }
@@ -525,6 +639,7 @@ export function mount(host: HTMLElement, opts: MountOptions = {}): FireworksHand
     root.dataset.shots = String(st.shots);
     root.dataset.t = st.t.toFixed(2);
     root.dataset.mode = st.mode;
+    root.dataset.cells = st.W + "x" + st.H;
   }
 
   function frame(now: number) {

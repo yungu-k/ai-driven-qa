@@ -9,6 +9,11 @@
 // 성능: 정적인 것(방·구 안 배경·집·유리·받침)은 크기가 바뀔 때 한 번 그려 두고, 프레임마다 그리는 건 눈·연기·전구뿐이다.
 // 눈 알갱이는 Float32Array 로 상한 NMAX 안에서 돈다. 프레임이 2초 넘게 느리면 알갱이 수를 절반으로 줄이고 번짐을 끈다.
 // 서버 호출·외부 라이브러리 없음. 글자 없음.
+//
+// 밀도 2판(2026-11-27, Dean 「더 촘촘한 도트」·「매끈한 그림 수준의 도트아트」): opts.cols 로 화면 가로 칸 수를 받는다.
+//   cols 없음 = ①(위 그림 그대로, 픽셀까지 같다 — tmp/lab-pixel/snowglobe-check.cjs 가 옛 판과 대조).
+//   cols 있음 = 같은 장면을 그 밀도로 다시 그린다(아래 「밀도 2판」 절). 칸 하나 = 기기 픽셀 정수배.
+//   매끈함은 블러가 아니라 손으로 찍은 중간색(덮임 세 단계)·디더·색상 이동 명암 램프·제한된 팔레트로 낸다(미술 메모 「매끈한 수준 도트」).
 
 /** 작품 페이지 첫 페인트 색(방 벽 위쪽) — 캔버스가 뜨기 전 이음새용 */
 export const paint = "#0c0910";
@@ -37,8 +42,59 @@ const C = {
 const LIGHTS = ["#ff5a52", "#ffd25a", "#5ad1ff", "#8dff7a", "#ff8ad8"];
 const SNOW_COL = ["#8fa3c8", "#d5def0", "#ffffff"]; // 먼 · 가운데 · 가까운 눈
 
+// ---------------------------------------------------------------- 밀도 2판 도구(cols 있을 때만 쓴다)
+const fr = v => v - Math.floor(v);
+const hash = (x, y) => fr(Math.sin(x * 127.1 + y * 311.7) * 43758.5453);
+function vnoise(x, y) { // 값 잡음(질감용) — Math.random 을 안 써서 같은 화면이면 같은 그림
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+  const a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1);
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
+const pal = (...hs) => hs.map(hex);
+/** 램프에서 한 색 — 명암 l(0..1)을 디더로 섞어 고른다. 중간색은 램프에 손으로 넣은 색뿐이다(보간 없음) */
+const rampAt = (rp, l, x, y, j = 0.9) => rp[clamp(Math.floor(clamp(l, 0, 1) * (rp.length - 1) + 0.5 + dith(x, y) * j), 0, rp.length - 1)];
+/** 가장자리 덮임을 세 단계로 — 손으로 찍은 안티에일리어싱 결(매끈한 보간이 아니다) */
+const covq = c => (c >= 0.8 ? 1 : c >= 0.45 ? 0.62 : c >= 0.15 ? 0.3 : 0);
+const sdBox = (x, y, x0, y0, x1, y1) => Math.max(x0 - x, x - x1, y0 - y, y - y1);
+const sdCirc = (x, y, cx, cy, r) => Math.hypot(x - cx, y - cy) - r;
+const sdSeg = (x, y, ax, ay, bx, by, r) => { const px = x - ax, py = y - ay, dx = bx - ax, dy = by - ay, h = clamp((px * dx + py * dy) / (dx * dx + dy * dy), 0, 1); return Math.hypot(px - dx * h, py - dy * h) - r; };
+const sdRBox = (x, y, x0, y0, x1, y1, r) => { const qx = Math.abs(x - (x0 + x1) / 2) - ((x1 - x0) / 2 - r), qy = Math.abs(y - (y0 + y1) / 2) - ((y1 - y0) / 2 - r); return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r; };
+const sdTri = (x, y, cx, top, base, half) => { const hgt = base - top, t = clamp((y - top) / hgt, 0, 1); return Math.max((Math.abs(x - cx) - half * t) * (hgt / Math.hypot(half, hgt)), top - y, y - base); };
+// 명암 램프: 어두운 쪽은 차갑고(보라·청록 쪽) 밝은 쪽은 따뜻하게 색상을 옮긴다 — 명도만 바꾸면 그림이 탁해진다
+const RP = {
+  sky: pal("#050a1e", "#08112b", "#0c1838", "#122246", "#1a2d56", "#243a68", "#2f4878"),
+  hillFar: pal("#141f40", "#1a284e", "#22335c", "#2c3f6c"),
+  hill: pal("#22305a", "#2c3d6a", "#384c7c", "#46608e", "#5874a2", "#6f89b4"),
+  farTree: pal("#0e1631", "#141e3e", "#1a2748"),
+  snow: pal("#3e4c7e", "#566a9c", "#7489b8", "#97abd2", "#bccbe6", "#dce5f4", "#f4f8fd", "#ffffff"),
+  snowWarm: pal("#7a5a6c", "#b08482", "#dcae98", "#f6cfa8", "#ffe4bf", "#fff3dc"),
+  log: pal("#1e0e08", "#33190e", "#4c2716", "#66361e", "#82482a", "#a05e36", "#be7a46"),
+  logEnd: pal("#4a2c18", "#7a5030", "#a8784a", "#cc9c66", "#e8c08a"),
+  frame: pal("#140a05", "#24120a", "#36200f", "#4a2d16"),
+  glass: pal("#b04a1a", "#d8722a", "#f29a3a", "#ffbe55", "#ffd98a", "#fff0c4"),
+  curtain: pal("#4a1414", "#6e1e1c", "#962c26"),
+  door: pal("#1e0f06", "#2e190b", "#422510", "#573216"),
+  roof: pal("#1a0c08", "#2a140d", "#3c1d12", "#4e2717"),
+  brick: pal("#3a1610", "#55221a", "#703022", "#8c402c", "#a8543a"),
+  mortar: pal("#2a1e1e", "#4a3c3a", "#6a5c58"),
+  ice: pal("#5a7ab0", "#8cb0dc", "#c4e0f6", "#f2fbff"),
+  pine: pal("#06171a", "#0b2622", "#12362c", "#1a4836", "#245c40", "#33724a", "#4b8a52", "#6aa05a"),
+  bark: pal("#170c07", "#2a170d", "#3e2414", "#55331d"),
+  carrot: pal("#8a3410", "#c85a1c", "#ee8432", "#ffb060"),
+  coal: pal("#09090e", "#1c1c26", "#34343f"),
+  scarf: pal("#5e0e18", "#8e1a24", "#bc2a30", "#e24a4a"),
+  scarfStripe: pal("#c8b8a8", "#efe4d6"),
+  stick: pal("#2a170c", "#4a2c16", "#6a4422"),
+  gold: pal("#3a2608", "#5e4012", "#86601e", "#b08630", "#d4a845", "#ecca70", "#fbe8a8", "#fffbe8"),
+  wood: pal("#160a05", "#26130a", "#371d0f", "#4a2816", "#5e341d", "#764426", "#8e5632"),
+  wall: pal("#07050a", "#0b080e", "#0f0b13", "#140f18", "#19121c", "#1e1620", "#241a25"),
+  table: pal("#0e0704", "#170d07", "#22140b", "#2e1c10", "#3b2516", "#4b301d", "#5e3d25", "#764d30"),
+  wire: pal("#120d10", "#2a2024"),
+};
+
 export function mount(host, opts = {}) {
   const reduce = opts.reduce ?? (typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const HD = opts.cols > 0; // 밀도 2판
   let quiet = false;
 
   const cv = document.createElement("canvas"), gl = document.createElement("canvas");
@@ -49,6 +105,7 @@ export function mount(host, opts = {}) {
 
   // 화면 · 배치
   let PX, W, H, R, s, D, gx, gy, tableY, bh, baseTop;
+  let cellCss; // 칸 하나의 CSS px(① = PX)
   // 정적 층
   let bgC, backC, midC, glassC, baseC, baseOff;
   // 구 안 좌표(가운데 0,0 · 칸 단위)의 땅·쌓인 눈
@@ -67,23 +124,34 @@ export function mount(host, opts = {}) {
 
   // ---------------------------------------------------------------- 배치
   function layout() {
-    PX = clamp(Math.round(innerWidth / 640), 2, 4);
-    W = Math.ceil(innerWidth / PX); H = Math.ceil(innerHeight / PX);
-    R = Math.floor(Math.min(W * 0.42, H * 0.3, 210));
+    if (HD) { // 칸 하나 = 기기 픽셀 정수배(정수배가 아니면 확대에서 점 크기가 들쭉날쭉해진다) — 브리프 「계약 추가」 식 그대로
+      const dpr = window.devicePixelRatio || 1, cellDev = Math.max(1, Math.round((innerWidth * dpr) / opts.cols));
+      W = Math.ceil((innerWidth * dpr) / cellDev); H = Math.ceil((innerHeight * dpr) / cellDev);
+      PX = cellCss = cellDev / dpr;
+      R = Math.floor(Math.min(W * 0.42, H * 0.3));
+    } else {
+      PX = clamp(Math.round(innerWidth / 640), 2, 4);
+      W = Math.ceil(innerWidth / PX); H = Math.ceil(innerHeight / PX);
+      R = Math.floor(Math.min(W * 0.42, H * 0.3, 210));
+      cellCss = PX;
+    }
     s = R / 100; D = 2 * R + 1;
     bh = Math.round(R * 0.3);
     tableY = Math.round(Math.min(H * 0.86, H * 0.54 + 1.08 * R));
     baseTop = tableY - bh + Math.round(R * 0.05); // 받침 아래가 탁자 면에 조금 들어와 「놓인」 자리
     gy = baseTop - Math.round(R * 0.84);
     gx = Math.round(W / 2);
-    cv.width = W; cv.height = H; cv.style.width = W * PX + "px"; cv.style.height = H * PX + "px";
-    gl.width = Math.ceil(W / 2); gl.height = Math.ceil(H / 2); gl.style.width = W * PX + "px"; gl.style.height = H * PX + "px";
-    NMAX = Math.round(clamp(Math.PI * R * R * 0.034, 260, 2200));
+    cv.width = W; cv.height = H; cv.style.width = W * cellCss + "px"; cv.style.height = H * cellCss + "px";
+    gl.width = Math.ceil(W / 2); gl.height = Math.ceil(H / 2); gl.style.width = W * cellCss + "px"; gl.style.height = H * cellCss + "px";
+    // 밀도 2판은 칸이 늘어난 만큼 눈도 늘린다 — R 에 비례(넓이 그대로면 폰 ③ CPU 4배 느림에서 프레임당 8 ms 를 넘는다. 잰 값은 미술 메모).
+    // 칸이 작아진 만큼 눈송이도 작아져, 같은 수여도 더 고운 눈으로 읽힌다. R 120 에서 ①과 같은 수
+    NMAX = HD ? Math.round(clamp(Math.PI * R * 0.034 * 120, 260, 3600)) : Math.round(clamp(Math.PI * R * R * 0.034, 260, 2200));
     target = Math.round(NMAX * 0.6);
     fx = new Float32Array(NMAX); fy = new Float32Array(NMAX); fvx = new Float32Array(NMAX); fvy = new Float32Array(NMAX);
     fz = new Float32Array(NMAX); fa = new Float32Array(NMAX); n = 0;
     smoke.length = 0;
-    buildRoom(); buildInside(); buildGlass(); buildBase();
+    if (HD) { k = s * SC; q = R / 120; buildRoomHD(); buildInsideHD(); buildGlassHD(); buildBaseHD(); }
+    else { buildRoom(); buildInside(); buildGlass(); buildBase(); }
     seedSnow();
   }
 
@@ -453,6 +521,405 @@ export function mount(host, opts = {}) {
     g.globalCompositeOperation = "source-over";
   }
 
+  // ================================================================ 밀도 2판 — 같은 장면을 촘촘한 칸으로 다시 그린다(cols 있을 때만)
+  // 정적 층은 칸마다 「도형 거리(sdf) → 덮임 세 단계 → 재질 램프(디더)」로 찍는다. 한 번만 그리고 프레임마다는 눈·빛만 그린다.
+  let k = 1, q = 1, bulbSprites = null, glints = []; // k: 구 안 미술 단위 → 칸 · q: 방 배율(① 데스크톱 R 120 = 1)
+  function Paint(w, h) {
+    const img = new ImageData(w, h), d = img.data;
+    return {
+      img, d,
+      put(x, y, c, a = 1) { // 색 c 를 덮임 a 로 찍는다(투명 칸이면 그 덮임이 곧 알파)
+        x |= 0; y |= 0;
+        if (x < 0 || y < 0 || x >= w || y >= h || a <= 0) return;
+        const o = (y * w + x) * 4, A = d[o + 3] / 255;
+        if (a >= 1 || A === 0) { d[o] = c[0]; d[o + 1] = c[1]; d[o + 2] = c[2]; d[o + 3] = a >= 1 ? 255 : Math.round(255 * a); return; }
+        d[o] += (c[0] - d[o]) * a; d[o + 1] += (c[1] - d[o + 1]) * a; d[o + 2] += (c[2] - d[o + 2]) * a;
+        d[o + 3] = Math.round(255 * (A + a * (1 - A)));
+      },
+    };
+  }
+  /** 구 안 도형 하나. sdf(xu, yu) = 미술 단위 거리(안쪽 음수), shade(xu, yu, x, y) = 색(null 이면 비움). 상자는 미술 단위 */
+  function fillU(P, x0, y0, x1, y1, sdf, shade) {
+    const xa = Math.max(0, Math.floor(R + x0 * k) - 1), xb = Math.min(D - 1, Math.ceil(R + x1 * k) + 1);
+    const ya = Math.max(0, Math.floor(R + (y0 + YS) * k) - 1), yb = Math.min(D - 1, Math.ceil(R + (y1 + YS) * k) + 1);
+    for (let y = ya; y <= yb; y++) for (let x = xa; x <= xb; x++) {
+      const xu = (x - R) / k, yu = (y - R) / k - YS, dd = sdf(xu, yu) * k;
+      if (dd >= 0.5) continue;
+      const a = covq(0.5 - dd); if (!a) continue;
+      const c = shade(xu, yu, x, y); if (c) P.put(x, y, c, a);
+    }
+  }
+
+  // ---------------------------------------------------------------- 방(2판): 벽지 결 · 탁자 널 · 부드러운 그림자 · 전구
+  function buildRoomHD() {
+    bgC = canvas(W, H); const P = Paint(W, H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      let c;
+      if (y < tableY) { // 벽: 위가 어둡고 가장자리로 가라앉는다 + 아주 옅은 세로 벽지 줄
+        const vx = x / W - 0.5;
+        let l = Math.pow(y / tableY, 1.3) * 0.9 + 0.05 - vx * vx * 0.5 + (vnoise(x / (5 * q), y / (9 * q)) - 0.5) * 0.05;
+        if (fr(x / (16 * q)) < 0.06) l += 0.05;
+        c = rampAt(RP.wall, l, x, y);
+      } else if (y - tableY < Math.max(1, Math.round(1.6 * q))) c = rampAt(RP.table, 0.98, x, y); // 탁자 앞 모서리 빛
+      else { // 탁자 면: 가로 널, 앞으로 갈수록 이음매가 벌어진다(원근) · 나뭇결 물결
+        const ty = (y - tableY) / Math.max(1, H - tableY), seam = fr(Math.log(1 + (y - tableY) / (6 * q)) * 2.2) < 0.06;
+        const l = 0.78 - ty * 0.75 + Math.sin((x * 0.012 / q + vnoise(x * 0.01 / q, y * 0.12 / q) * 3) * 6.283) * 0.05 + (vnoise(x * 0.04 / q, y * 0.4 / q) - 0.5) * 0.08 - (seam ? 0.3 : 0);
+        c = rampAt(RP.table, l, x, y);
+      }
+      P.put(x, y, c);
+    }
+    const sw = R * 1.08, sh = Math.max(2, R * 0.075), sy = baseTop + bh - 1; // 받침 그림자: 가장자리를 디더로 푼 타원
+    for (let y = Math.floor(sy - sh - 2); y <= Math.ceil(sy + sh + 2); y++) for (let x = Math.floor(gx - sw - 2); x <= Math.ceil(gx + sw + 2); x++) {
+      const e = Math.hypot((x - gx) / sw, (y - sy) / sh); if (e > 1.15) continue;
+      const a = Math.min(0.6, (1.15 - e) * 0.85);
+      if (a + dith(x, y) * 0.25 > 0.12) P.put(x, y, [0, 0, 0], a);
+    }
+    bulbs = []; // 전구 줄: 덮임으로 그린 늘어진 선 + 전구 자리
+    const swags = W > H ? 3 : 2, top = Math.max(3, Math.round(H * 0.035)), sag = Math.max(6, Math.round(H * 0.07)), step = Math.max(9, Math.round(W / (swags * 9)));
+    const wireY = x => { const f = fr((x / W) * swags); return top + sag * 4 * f * (1 - f); };
+    for (let x = 0; x < W; x++) { const yf = wireY(x), yi = Math.floor(yf), f = yf - yi; P.put(x, yi, RP.wire[1], covq(1 - f)); P.put(x, yi + 1, RP.wire[1], covq(f)); }
+    for (let x = 4; x < W; x += step) bulbs.push([x, Math.round(wireY(x)) + 1, LIGHTS[bulbs.length % LIGHTS.length], Math.random() * 6.28]);
+    bgC.getContext("2d").putImageData(P.img, 0, 0);
+    // 전구 그림(켜짐·꺼짐): 소켓 + 물방울 유리 + 반짝 점
+    bulbSprites = {};
+    const bw = Math.max(2, Math.round(1.3 * q)), bv = Math.max(3, Math.round(2.1 * q)), sk = Math.max(1, Math.round(0.8 * q));
+    for (const col of LIGHTS) {
+      bulbSprites[col] = [true, false].map(on => {
+        const sp = canvas(bw * 2 + 1, sk + bv * 2 + 1), P2 = Paint(sp.width, sp.height), cc = hex(col);
+        for (let y = 0; y < sk; y++) for (let x = bw - Math.ceil(bw * 0.6); x <= bw + Math.ceil(bw * 0.6); x++) P2.put(x, y, [52, 44, 48]);
+        for (let y = sk; y < sp.height; y++) for (let x = 0; x < sp.width; x++) {
+          const ny = (y + 0.5 - sk - bv) / bv, rx = (bw + 0.4) * (0.75 + 0.25 * clamp(ny + 0.6, 0, 1)), nx = (x + 0.5 - bw - 0.5) / rx, e = nx * nx + ny * ny;
+          if (e > 1.15) continue;
+          const lit = clamp(0.8 - nx * 0.35 - ny * 0.25, 0, 1);
+          const c = on ? mix(cc, [255, 255, 255], nx < -0.2 && ny < -0.2 ? 0.55 : 0.12 * lit) : mix(cc, [10, 6, 8], 0.72 - lit * 0.1);
+          P2.put(x, y, c, e > 0.85 ? 0.62 : 1);
+        }
+        sp.getContext("2d").putImageData(P2.img, 0, 0);
+        return sp;
+      });
+    }
+  }
+
+  // ---------------------------------------------------------------- 구 안(2판): 하늘·언덕 → 땅 → 나무 → 통나무 집 → 눈사람
+  function buildInsideHD() {
+    backC = canvas(D, D); midC = canvas(D, D);
+    ground = new Float32Array(D); pile = new Float32Array(D); cap = new Float32Array(D);
+    const gU = xu => 34 - 7 * Math.exp(-(((xu + 4) / 40) ** 2)) + 1.2 * Math.sin(xu / 9); // ①과 같은 땅
+    for (let i = 0; i < D; i++) {
+      const xu = (i - R) / k;
+      ground[i] = (gU(xu) + YS) * k;
+      cap[i] = (Math.abs(xu) > 50 ? 7 : 3) * s;
+      pile[i] = cap[i] * rand(0.35, 0.6);
+    }
+    const hillU = xu => 14 + 5 * Math.sin(xu / 17 + 1.3) + 3 * Math.sin(xu / 7);
+    const farU = xu => hillU(xu) - 6 + 2.5 * Math.sin(xu / 11 + 2);
+    // 뒤 층: 하늘(7단 램프) · 별 · 먼 언덕 · 가까운 언덕(능선은 달빛)
+    const B = Paint(D, D);
+    for (let y = 0; y < D; y++) for (let x = 0; x < D; x++) {
+      if (!inside(x, y)) continue;
+      const xu = (x - R) / k, yu = (y - R) / k - YS;
+      let c = rampAt(RP.sky, Math.pow(y / D, 1.15) * 1.05, x, y);
+      const hs = hash(x * 1.3, y * 0.7);
+      if (y < D * 0.5 && hs > 0.9965) c = mix(c, [220, 230, 255], 0.35 + (hs - 0.9965) * 180);
+      const hf = farU(xu), hn = hillU(xu);
+      let cov = covq(clamp((yu - hf) * k + 0.5, 0, 1));
+      if (cov) c = mix(c, rampAt(RP.hillFar, 0.75 - clamp((yu - hf) / 10, 0, 1) * 0.6 + (vnoise(xu * 0.4, yu * 0.4) - 0.5) * 0.2, x, y), cov);
+      cov = covq(clamp((yu - hn) * k + 0.5, 0, 1));
+      if (cov) {
+        const slope = hillU(xu + 0.5) - hillU(xu - 0.5);
+        c = mix(c, rampAt(RP.hill, 0.85 - clamp((yu - hn) / 14, 0, 1) * 0.65 - slope * 0.25 + (vnoise(xu * 0.35, yu * 0.5) - 0.5) * 0.16, x, y), cov);
+      }
+      B.put(x, y, c);
+    }
+    for (const [sx, sy] of [[-40, -60], [25, -72], [55, -40], [-62, -30], [8, -50], [-18, -80]]) { // 십자 별 몇 개
+      const cx = Math.round(R + sx * k), cy = Math.round(R + (sy + YS) * k), arm = Math.max(1, Math.round(0.5 * k));
+      if (!inside(cx, cy, R - 6)) continue;
+      for (let i = 1; i <= arm; i++) for (const [ax, ay] of [[i, 0], [-i, 0], [0, i], [0, -i]]) B.put(cx + ax, cy + ay, [180, 196, 240], i === arm ? 0.3 : 0.62);
+      B.put(cx, cy, [235, 242, 255]);
+    }
+    for (const [xu0, hgt] of [[-70, 6], [-64, 8], [-57, 10], [-36, 7], [44, 9], [53, 11], [60, 7], [66, 8]]) { // 언덕 위 먼 나무
+      const base = hillU(xu0) + 0.8, tp = base - hgt, hw = hgt * 0.36;
+      fillU(B, xu0 - hw, tp, xu0 + hw, base, (x, y) => sdTri(x, y, xu0, tp, base, hw),
+        (x, y, px, py) => rampAt(RP.farTree, 0.6 - ((x - xu0) / hw) * 0.4 + (fr((y - tp) * 1.2 - Math.abs(x - xu0) * 0.8) < 0.3 ? 0.3 : 0), px, py));
+    }
+    backC.getContext("2d").putImageData(B.img, 0, 0);
+
+    // 가운데 층
+    const M = Paint(D, D);
+    // 땅: 표면은 달빛에 희고 유리 바닥 쪽으로 푸르게 · 창 앞은 따뜻하게 · 발자국 · 반짝이
+    const warmAt = (xu, yu) => { let w = 0; for (const wx of [-20, 6]) { const dx = (xu - wx) / 9, dy = (yu - 31) / 3.6; w += Math.exp(-(dx * dx + dy * dy)); } return w; };
+    for (let x = 0; x < D; x++) {
+      const ys = R + ground[x], slope = (ground[Math.min(D - 1, x + 1)] - ground[Math.max(0, x - 1)]) / 2;
+      for (let y = Math.max(0, Math.floor(ys)); y < D; y++) {
+        if (!inside(x, y)) continue;
+        const a = covq(clamp(y + 1 - ys, 0, 1)); if (!a) continue;
+        const xu = (x - R) / k, yu = (y - R) / k - YS, depth = (y - ys) / Math.max(1, R * 0.74 - ground[x]);
+        let l = 0.97 - depth * 0.95 - slope * 0.6 + (vnoise(xu * 0.5, yu * 1.2) - 0.5) * 0.08;
+        const yc = 31 + Math.round((yu - 31) / 2.2) * 2.2, side = Math.round((yc - 31) / 2.2) % 2 ? 0.9 : -0.9;
+        if (yc >= 31 && yc <= 52) { // 문에서 앞으로 난 발자국(왼발·오른발)
+          const pxu = -7.5 - Math.sin(yc / 3) * 1.5 + side, e = Math.hypot((xu - pxu) / 0.72, (yu - yc) / 0.46);
+          if (e < 1) l = e < 0.55 && yu < yc ? 0.38 : yu > yc ? 0.88 : 0.55;
+        }
+        let c = rampAt(RP.snow, l, x, y);
+        const w = warmAt(xu, yu); if (w > 0.2) c = mix(c, rampAt(RP.snowWarm, clamp(l, 0, 1) * 0.7 + w * 0.35, x, y, 0.6), clamp(w * 0.55, 0, 0.45)); // 진하면 주황 웅덩이로 읽힌다
+        if (depth < 0.25 && hash(x * 0.91, y * 1.37) > 0.994) c = [255, 255, 255];
+        M.put(x, y, c, a);
+      }
+    }
+    // 나무(뒤 → 앞): 아랫단부터 그려 윗단 가지 끝이 아랫단 위에 얹힌다. 가지 결·끝의 눈 모자·비탈의 눈 띠
+    lights = [];
+    for (const [cx, by, hu, wu] of [[-48, 35, 34, 14], [33, 32, 48, 18], [49, 35, 24, 9]]) {
+      fillU(M, cx - 1.6, by - 7, cx + 1.6, by - 2.6, (x, y) => sdBox(x, y, cx - 1.4, by - 7, cx + 1.4, by - 2.8),
+        (x, y, px, py) => rampAt(RP.bark, 0.55 - ((x - cx) / 1.4) * 0.35 + (fr(x * 1.7) < 0.3 ? -0.2 : 0), px, py));
+      for (let kk = 2; kk >= 0; kk--) {
+        const tp = by - hu + kk * hu * 0.24, bot = by - 5 - (2 - kk) * hu * 0.16, half = wu * (0.62 + kk * 0.19), hgt = bot - tp;
+        const tipY = x => bot - 0.9 * Math.abs(Math.sin((x - cx) * 1.25)); // 늘어진 가지 끝
+        fillU(M, cx - half - 1, tp - 1, cx + half + 1, bot + 1,
+          (x, y) => Math.max(sdTri(x, y, cx, tp, bot + 2, half * (hgt + 2) / hgt), y - tipY(x)),
+          (x, y, px, py) => {
+            const dx = x - cx, t = (y - tp) / hgt, edge = half * t - Math.abs(dx), stri = fr((y - tp) * 0.8 - Math.abs(dx) * 0.5);
+            // 눈: 가지 단 윗면에 덩이로(왼쪽 빛 받는 쪽이 더 많다) + 늘어진 가지 끝 모자. 비탈 테두리 전체를 두르면 흰 외곽선으로 읽힌다
+            // 덩이는 가지 줄(stri) 윗면 바깥 절반에, 낮은 주파수 잡음으로 굵게 — 잘게 흩으면 떨어지는 눈과 섞여 가지 단이 안 읽힌다
+            const row = Math.floor((y - tp) * 0.8 - Math.abs(dx) * 0.5), outer = Math.abs(dx) > half * t * 0.3;
+            const snowy = (stri > 0.62 && stri < 0.8 && t > 0.08 && outer && vnoise(dx * 0.35 + row * 3.1, row * 1.7 + cx) > (dx < 0 ? 0.38 : 0.6)) || (edge < 0.3 && dx < 0 && t < 0.6) || (y > tipY(x) - 0.8 && Math.abs(Math.sin(dx * 1.25)) < 0.25);
+            if (snowy) return rampAt(RP.snow, 0.94 - (dx / half) * 0.4 - (stri > 0.7 ? 0.15 : 0), px, py, 0.5);
+            return rampAt(RP.pine, 0.64 - (dx / half) * 0.4 - (stri < 0.34 ? 0.3 : stri > 0.5 ? 0.08 : 0) + (vnoise(x * 1.6, y * 1.6) - 0.5) * 0.1 - t * 0.1, px, py, 0.45); // 가지 밑면은 짙게
+          });
+        for (let j = 0; j < 3 + kk; j++) {
+          const dxr = (hash(cx + j * 3.1, kk * 7.7) * 2 - 1) * 0.72 * half * ((j + 1) / (4 + kk)), yr = tp + hgt * (0.45 + 0.4 * hash(j * 5.3, cx + kk));
+          lights.push([Math.round(R + (cx + dxr) * k), Math.round(R + (yr + YS) * k), LIGHTS[(j + kk) % LIGHTS.length], hash(j, kk + cx) * 6.28]);
+        }
+      }
+      const sx = Math.round(R + cx * k), sy = Math.round(R + (by - hu - 1 + YS) * k), arm = Math.max(1, Math.round(k * 0.9)); // 꼭대기 금별
+      for (let i = -arm; i <= arm; i++) { const c = RP.gold[Math.abs(i) === arm ? 4 : 6]; M.put(sx + i, sy, c); M.put(sx, sy + i, c); }
+      M.put(sx, sy, [255, 255, 240]);
+      lights.push([sx, sy, "#fff3b0", 0]);
+    }
+    // 통나무 몸: 줄마다 원통 명암 · 틈 · 결 · 옹이. 땅(눈) 아래는 비운다
+    const gAt = xu => ground[clamp(Math.round(R + xu * k), 0, D - 1)] / k - YS;
+    fillU(M, -28, 6, 12, 29, (x, y) => sdBox(x, y, -28, 6, 12, 29), (x, y, px, py) => {
+      if (y > gAt(x) + 0.4) return null;
+      const row = Math.floor((y - 6) / 2.6), v = fr((y - 6) / 2.6);
+      if (v > 0.88) return rampAt(RP.log, 0.05, px, py);
+      let l = 0.78 - Math.abs(v - 0.3) * 1.25 - ((x + 28) / 40) * 0.12 + Math.sin(x * 0.9 + vnoise(x * 0.15, row * 3.7) * 6) * 0.05;
+      const seg = Math.floor((x + 28) / 7), kx = seg * 7 - 28 + 3.5;
+      if (hash(row * 2.1, seg) > 0.72 && Math.hypot((x - kx) * 0.9, (v - 0.45) * 2.6) < 0.55) l -= 0.3;
+      return rampAt(RP.log, l, px, py);
+    });
+    for (let r = 0; r < 9; r++) for (const ex of [-28.6, 12.6]) { // 모서리 통나무 끝 나이테
+      const cy = 6 + r * 2.6 + 1.3; if (cy > gAt(ex) - 0.2) continue;
+      fillU(M, ex - 1.4, cy - 1.4, ex + 1.4, cy + 1.4, (x, y) => sdCirc(x, y, ex, cy, 1.2), (x, y, px, py) => {
+        const d = Math.hypot(x - ex, y - cy); return rampAt(RP.logEnd, 0.85 - d * 0.35 - (fr(d * 2.4) < 0.3 ? 0.25 : 0) - (x - ex) * 0.12, px, py);
+      });
+    }
+    // 창 둘: 틀 · 따뜻한 유리(가운데가 뜨겁다) · 커튼 · 서리 · 창살 · 창턱 눈
+    winGlow = [];
+    for (const wx of [-24, 2]) {
+      fillU(M, wx - 1, 11, wx + 9, 21, (x, y) => sdBox(x, y, wx - 1, 11, wx + 9, 21), (x, y, px, py) => rampAt(RP.frame, 0.6 - ((x - wx + 1) / 10) * 0.3 - ((y - 11) / 10) * 0.3, px, py));
+      fillU(M, wx, 12, wx + 8, 20, (x, y) => sdBox(x, y, wx, 12, wx + 8, 20), (x, y, px, py) => {
+        if (y - 12 < 3.4 - Math.abs(x - wx) * 1.1 || y - 12 < 3.4 - Math.abs(x - wx - 8) * 1.1) return rampAt(RP.curtain, 0.7 - (y - 12) / 4, px, py);
+        if (Math.hypot(x - wx, y - 20) < 1.3 || Math.hypot(x - wx - 8, y - 20) < 1.3) return rampAt(RP.snow, 0.85, px, py);
+        return rampAt(RP.glass, 1 - Math.hypot(((x - wx - 4) / 4) * 0.9, (y - 16) / 4) * 0.75, px, py);
+      });
+      for (const [x0, y0, x1, y1] of [[wx + 3.55, 12, wx + 4.45, 20], [wx, 15.55, wx + 8, 16.45]]) fillU(M, x0, y0, x1, y1, (x, y) => sdBox(x, y, x0, y0, x1, y1), (x, y, px, py) => rampAt(RP.frame, 0.75, px, py));
+      fillU(M, wx - 1.8, 20, wx + 9.8, 22.2, (x, y) => sdRBox(x, y, wx - 1.8, 20.2, wx + 9.8, 22, 0.9), (x, y, px, py) => rampAt(RP.snow, 0.95 - ((y - 20.2) / 1.8) * 0.5 - ((x - wx) / 12) * 0.15, px, py));
+      winGlow.push([wx + 4, 16]);
+    }
+    // 문: 세로 널 · 경첩 · 손잡이 · 화환(바늘잎·열매) · 리본
+    fillU(M, -12, 13, -3, 29, (x, y) => sdBox(x, y, -12, 13, -3, 29), (x, y, px, py) => (y > gAt(x) + 0.4 ? null : rampAt(RP.frame, 0.5, px, py)));
+    fillU(M, -11.2, 13.8, -3.8, 29, (x, y) => sdBox(x, y, -11.2, 13.8, -3.8, 29), (x, y, px, py) => {
+      if (y > gAt(x) + 0.4) return null;
+      if ((Math.abs(y - 16) < 0.45 || Math.abs(y - 26) < 0.45) && x < -8.5) return rampAt(RP.coal, 0.7, px, py);
+      const pl = fr((x + 11.2) / 1.85);
+      return rampAt(RP.door, 0.62 - (pl > 0.9 ? 0.35 : 0) + (pl < 0.12 ? 0.12 : 0) + (vnoise(x * 1.6, y * 0.35) - 0.5) * 0.3 - ((y - 14) / 15) * 0.15, px, py);
+    });
+    fillU(M, -5.8, 20.8, -4.4, 22.2, (x, y) => sdCirc(x, y, -5.1, 21.5, 0.45), (x, y, px, py) => rampAt(RP.gold, 0.8 - (x + 5.1) * 0.8, px, py));
+    fillU(M, -10.6, 15, -4.4, 21, (x, y) => Math.abs(Math.hypot(x + 7.5, y - 18) - 2.15) - 0.75, (x, y, px, py) =>
+      hash(px * 1.7, py * 2.3) > 0.9 ? [226, 52, 58] : rampAt(RP.pine, 0.55 - Math.sin(Math.atan2(y - 18, x + 7.5) + 0.8) * 0.25 + (vnoise(px * 0.9, py * 0.9) - 0.5) * 0.5, px, py));
+    fillU(M, -9.2, 19.2, -5.8, 23.2, (x, y) => Math.min(sdCirc(x, y, -7.5, 20.4, 0.55), sdSeg(x, y, -7.5, 20.4, -8.6, 19.6, 0.42), sdSeg(x, y, -7.5, 20.4, -6.4, 19.6, 0.42), sdSeg(x, y, -7.5, 20.6, -8.2, 22.8, 0.28), sdSeg(x, y, -7.5, 20.6, -6.8, 22.8, 0.28)),
+      (x, y, px, py) => rampAt(RP.scarf, 0.75 - ((y - 19.6) / 3.5) * 0.45, px, py));
+    // 지붕(처마 판·기와 줄) → 두툼한 지붕 눈(왼쪽 비탈이 빛) → 처마 눈 띠 → 고드름
+    fillU(M, -34, -16, 18, 8.5, (x, y) => sdTri(x, y, -8, -15, 8, 25), (x, y, px, py) => {
+      const edge = 25 * ((y + 15) / 23) - Math.abs(x + 8);
+      return rampAt(RP.roof, edge < 0.8 ? 0.95 : 0.45 - (y > 6.4 ? 0.3 : 0) - (fr((y + 15) / 1.6) < 0.2 ? 0.2 : 0), px, py);
+    });
+    fillU(M, -30, -18, 14, 2.2, (x, y) => sdTri(x, y, -8, -16.6, 1.2, 21) - 0.3, (x, y, px, py) =>
+      rampAt(RP.snow, (x < -8 ? 0.98 : 0.8) - ((y + 16.6) / 17.8) * 0.25 - (y > 0.2 ? 0.25 : 0) + (vnoise(x * 0.8, y * 0.8) - 0.5) * 0.08, px, py, 0.3));
+    fillU(M, -34, 6, 18, 8.6, (x, y) => sdRBox(x, y, -33.4, 6.2, 17.4, 8.2, 0.9), (x, y, px, py) => rampAt(RP.snow, 0.94 - ((y - 6.2) / 2) * 0.45, px, py, 0.5));
+    for (let xu = -31.5; xu <= 15.5; xu += 2.15) {
+      const len = 0.9 + hash(xu * 3.3, 1.7) * 2.2;
+      fillU(M, xu - 0.5, 8, xu + 0.5, 8 + len, (x, y) => Math.max(Math.abs(x - xu) - 0.42 * (1 - (y - 8) / len), 8 - y, y - 8 - len),
+        (x, y, px, py) => rampAt(RP.ice, 0.85 - (x - xu) * 0.9 - ((y - 8) / len) * 0.3, px, py));
+    }
+    // 굴뚝: 엇갈린 벽돌 · 줄눈 · 눈 모자
+    fillU(M, 3, -16, 9, -2, (x, y) => sdBox(x, y, 3, -16, 9, -2), (x, y, px, py) => {
+      const row = Math.floor((y + 16) / 1.3), v = fr((y + 16) / 1.3), bx = (x - 3 + (row % 2) * 1.3) / 2.6;
+      if (v < 0.16 || fr(bx) < 0.08) return rampAt(RP.mortar, 0.5 - ((x - 3) / 6) * 0.4, px, py);
+      return rampAt(RP.brick, 0.75 - ((x - 3) / 6) * 0.55 + (hash(row, Math.floor(bx)) - 0.5) * 0.3 - (v > 0.8 ? 0.15 : 0), px, py);
+    });
+    fillU(M, 2, -18.6, 10, -15.2, (x, y) => sdRBox(x, y, 2.3, -18.2, 9.7, -15.6, 1.1), (x, y, px, py) => rampAt(RP.snow, 0.98 - ((y + 18.2) / 2.6) * 0.4 - ((x - 2.3) / 7.4) * 0.2, px, py));
+    chim = [Math.round(R + 6 * k), Math.round(R + (-18 + YS) * k)];
+    // 집 밑 눈 더미
+    fillU(M, -33, 22, 18, 33, (x, y) => { const yb = gAt(x); return Math.max(yb - 2.4 - Math.abs(Math.sin(x / 3)) * 1.1 - y, y - yb - 0.6, -32 - x, x - 16.6); },
+      (x, y, px, py) => rampAt(RP.snow, 0.95 - (y - gAt(x) + 2.4) / 3 * 0.3 - (x > 0 ? 0.08 : 0), px, py));
+    // 눈사람: 바닥 그림자 → 공 둘(구 명암 + 집 쪽 따뜻한 테) → 단추·눈 · 당근 · 나뭇가지 팔 · 줄무늬 목도리
+    fillU(M, 13, 29.5, 26, 32.5, (x, y) => (Math.hypot((x - 19.5) / 5.8, (y - 31) / 1.3) - 1) * 1.3, (x, y, px, py) => rampAt(RP.snow, 0.42, px, py));
+    const ball = (cx, cy, r) => fillU(M, cx - r - 1, cy - r - 1, cx + r + 1, cy + r + 1, (x, y) => sdCirc(x, y, cx, cy, r), (x, y, px, py) => {
+      const nx = (x - cx) / r, ny = (y - cy) / r, nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
+      const c = rampAt(RP.snow, 0.42 + 0.58 * clamp(-0.55 * nx - 0.6 * ny + 0.58 * nz, 0, 1), px, py);
+      return nx < -0.55 && ny > -0.4 ? mix(c, rampAt(RP.snowWarm, 0.8, px, py), 0.5) : c;
+    });
+    ball(19, 26, 5); ball(19, 18.5, 3.6);
+    for (const [cx, cy, r] of [[19, 23.6, 0.42], [19, 25.6, 0.42], [19, 27.6, 0.42], [17.7, 17.7, 0.45], [20.2, 17.7, 0.45]])
+      fillU(M, cx - 1, cy - 1, cx + 1, cy + 1, (x, y) => sdCirc(x, y, cx, cy, r), (x, y, px, py) => rampAt(RP.coal, 0.4 - (x - cx), px, py));
+    fillU(M, 18.6, 18.2, 23.2, 20.2, (x, y) => { const t = (x - 19.1) / 3.6; return Math.max(Math.abs(y - 19.1 - t * 0.35) - 0.55 * (1 - t), 19.1 - x, x - 22.7); },
+      (x, y, px, py) => rampAt(RP.carrot, 0.8 - ((y - 18.8) / 1.2) * 0.6, px, py));
+    fillU(M, 10.5, 19.5, 15.2, 25, (x, y) => Math.min(sdSeg(x, y, 14.6, 24.2, 11.4, 20.6, 0.32), sdSeg(x, y, 12.4, 21.7, 11.3, 22.2, 0.25)), (x, y, px, py) => rampAt(RP.stick, 0.6, px, py));
+    fillU(M, 23, 19.5, 27.5, 25, (x, y) => Math.min(sdSeg(x, y, 23.4, 24.2, 26.6, 20.8, 0.32), sdSeg(x, y, 25.6, 21.9, 26.8, 22.5, 0.25)), (x, y, px, py) => rampAt(RP.stick, 0.45, px, py));
+    fillU(M, 15, 20.6, 23, 23, (x, y) => sdRBox(x, y, 15.5, 21, 22.5, 22.6, 0.7), (x, y, px, py) =>
+      fr((x - 15.5) / 1.6) < 0.28 ? rampAt(RP.scarfStripe, 0.7, px, py) : rampAt(RP.scarf, 0.8 - ((y - 21) / 1.6) * 0.5 - ((x - 15.5) / 7) * 0.2, px, py));
+    fillU(M, 20, 21.8, 22, 26.2, (x, y) => sdBox(x, y, 20.3, 22, 21.6, 25.6), (x, y, px, py) =>
+      y > 25 && fr(x * 2.2) < 0.4 ? null : fr((y - 22) / 1.6) < 0.28 ? rampAt(RP.scarfStripe, 0.5, px, py) : rampAt(RP.scarf, 0.55, px, py));
+    // 구 밖은 지운다(유리 테가 덮는 자리)
+    for (let y = 0; y < D; y++) for (let x = 0; x < D; x++) if (!inside(x, y)) M.d[(y * D + x) * 4 + 3] = 0;
+    midC.getContext("2d").putImageData(M.img, 0, 0);
+    // 눈 위 반짝이(프레임마다 몇 개가 반짝인다) — 집 앞 땅에만
+    glints = [];
+    for (let i = 0; i < 40 * q; i++) {
+      const x = Math.floor(rand(0.1, 0.9) * D), y = Math.round(R + ground[x] + rand(1, R * 0.3));
+      if (inside(x, y, R - 3) && (y - R) / k - YS > 31) glints.push([x, y, rand(1.5, 3.5), rand(0, 6.28)]);
+    }
+  }
+
+  // ---------------------------------------------------------------- 유리(2판): 덮임 테 · 두께 그늘 · 창 모양 반사 · 긴 호 · 반짝임
+  function buildGlassHD() {
+    glassC = canvas(D, D); const G = Paint(D, D), rim = 1.6 * q, band = 5 * q;
+    for (let y = 0; y < D; y++) for (let x = 0; x < D; x++) {
+      const dx = x - R, dy = y - R, r = Math.hypot(dx, dy); if (r > R + 0.8) continue;
+      const ang = Math.atan2(dy, dx), deg = ang * 57.2958, lit = 0.5 - 0.5 * Math.cos(ang + 2.36), rn = r / R;
+      let c = null, a = 0;
+      if (r > R - rim - 0.5) { c = mix([34, 44, 80], [214, 226, 250], lit); a = (0.5 + 0.4 * lit) * covq(clamp(R + 0.5 - r, 0, 1)); }
+      else if (r > R - rim - band) { const t = (r - (R - rim - band)) / band; if (t + dith(x, y) * 0.4 > 0.2) { c = [6, 10, 26]; a = 0.12 + 0.3 * t; } }
+      else if (rn > 0.8) { c = [170, 190, 230]; a = (0.05 * (rn - 0.8)) / 0.2; } // 가장자리 차가운 빛
+      if (deg > -158 && deg < -116 && rn > 0.62 && rn < 0.86) { // 방 창이 비친 네 칸 반사 — 옅게(진하면 회색 X 로 읽힌다)
+        const onBar = Math.abs(deg + 137) < 2.4 || Math.abs(rn - 0.74) < 0.018;
+        const k2 = Math.min(1, Math.min((Math.min(deg + 158, -116 - deg) / 42) * 2, Math.min(rn - 0.62, 0.86 - rn) / 0.12) * 3);
+        if (!onBar && dith(x, y) + 0.5 < 0.45 * k2 + 0.1) { c = [235, 242, 255]; a = 0.1 * k2 + 0.03; }
+      }
+      if (rn > 0.895 && rn < 0.915 && deg > -175 && deg < -95) { c = [255, 255, 255]; a = 0.5 * Math.sin(((deg + 175) / 80) * Math.PI); }
+      if (rn > 0.89 && rn < 0.91 && deg > 12 && deg < 46 && dith(x, y) > -0.25) { c = [255, 214, 160]; a = 0.24; }
+      if (c && a > 0.01) G.put(x, y, c, a);
+    }
+    for (const [fx0, fy0, arm] of [[-0.62, -0.2, 2], [-0.36, -0.66, 1]]) { // 십자 반짝임
+      const cx = Math.round(R + fx0 * R), cy = Math.round(R + fy0 * R), L = Math.max(1, Math.round(arm * q));
+      for (let i = 1; i <= L; i++) for (const [ax, ay] of [[i, 0], [-i, 0], [0, i], [0, -i]]) G.put(cx + ax, cy + ay, [255, 255, 255], i === L ? 0.3 : 0.62);
+      G.put(cx, cy, [255, 255, 255], 0.95);
+    }
+    glassC.getContext("2d").putImageData(G.img, 0, 0);
+  }
+
+  // ---------------------------------------------------------------- 받침(2판): 원통 금속 고리 · 호두나무 결 · 빗면 · 금 띠 · 명판
+  function buildBaseHD() {
+    const top = Math.round(R * 0.775), h = Math.round(R * 0.84) - top + bh + 1, collarH = Math.round(R * 0.84) - top;
+    baseC = canvas(D, h); baseOff = top; const P = Paint(D, h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < D; x++) {
+      const X = x - R;
+      if (y < collarH) { // 금 고리: 원통이라 왼쪽 가운데에 굵은 빛 띠, 위 모서리 빛·아래 그늘·가운데 새김 줄
+        const yy = top + y, hw = Math.sqrt(Math.max(0, R * R - yy * yy)) + 1.2, cov = covq(clamp(hw + 0.5 - Math.abs(X), 0, 1)); if (!cov) continue;
+        const u = X / hw, v = y / Math.max(1, collarH - 1);
+        const l = 0.5 + 0.45 * Math.exp(-(((u + 0.38) / 0.16) ** 2)) + 0.2 * Math.exp(-(((u - 0.55) / 0.1) ** 2)) - 0.3 * u * u + (v < 0.18 ? 0.25 : v > 0.82 ? -0.3 : 0) - (Math.abs(v - 0.5) < 0.08 ? 0.18 : 0);
+        P.put(x, y, rampAt(RP.gold, l, x, y), cov);
+      } else { // 나무 몸: 사다리꼴 옆면 덮임 · 결 물결 · 위 빗면 빛 · 아래 그늘 · 금 띠 둘
+        const yb = y - collarH, f = yb / Math.max(1, bh - 1), hw = R * (0.76 + 0.12 * f), cov = covq(clamp(hw + 0.5 - Math.abs(X), 0, 1)); if (!cov) continue;
+        const u = X / hw, bandW = Math.max(0.6, q * 0.9);
+        if (Math.abs(yb - bh * 0.18) < bandW || Math.abs(yb - (bh - 3 * q)) < bandW) { P.put(x, y, rampAt(RP.gold, 0.62 - u * 0.35 + 0.25 * Math.exp(-(((u + 0.4) / 0.2) ** 2)), x, y), cov); continue; }
+        let l = 0.55 - u * 0.32 + Math.sin((X * 0.045 / q + vnoise((X * 0.02) / q, (yb * 0.25) / q) * 4) * 6.283) * 0.08 + (vnoise((X * 0.15) / q, (yb * 0.08) / q) - 0.5) * 0.1 - (f > 0.9 ? 0.35 : 0) + (yb < q * 1.2 ? 0.25 : 0);
+        if (Math.abs(u) > 0.93) l += u < 0 ? 0.25 : -0.25;
+        P.put(x, y, rampAt(RP.wood, l, x, y), cov);
+      }
+    }
+    const pw = R * 0.2, ph = Math.max(2, R * 0.07), py0 = collarH + bh * 0.42, bev = 1.2 * q; // 명판(글자 없음)
+    for (let y = Math.floor(py0 - bev - 1); y <= Math.ceil(py0 + ph + bev + 1); y++) for (let x = Math.floor(R - pw - bev - 1); x <= Math.ceil(R + pw + bev + 1); x++) {
+      const d = sdRBox(x, y, R - pw - bev, py0 - bev, R + pw + bev, py0 + ph + bev, bev); if (d >= 0.5) continue;
+      const inner = sdRBox(x, y, R - pw, py0, R + pw, py0 + ph, 0.6 * q);
+      const l = inner > 0 ? ((x - R) / pw + (y - py0 - ph / 2) / (ph / 2) < 0 ? 0.92 : 0.25) : 0.62 - ((y - py0) / ph) * 0.3 + 0.2 * Math.exp(-((((x - R) / pw + 0.4) / 0.25) ** 2));
+      P.put(x, y, rampAt(RP.gold, l, x, y), covq(0.5 - d));
+    }
+    for (const sx of [R - pw + 1.4 * q, R + pw - 1.4 * q]) P.put(Math.round(sx), Math.round(py0 + ph / 2), RP.gold[1]);
+    baseC.getContext("2d").putImageData(P.img, 0, 0);
+  }
+
+  // ---------------------------------------------------------------- 그리기(2판)
+  function drawHD() {
+    const X = gx + Math.round(ox) - R, Y = gy + Math.round(oy) - R;
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+    ctx.drawImage(bgC, 0, 0);
+    for (const [x, y, col, ph] of bulbs) { const sp = bulbSprites[col][Math.sin(t * 1.1 + ph) > -0.35 ? 0 : 1]; ctx.drawImage(sp, x - (sp.width >> 1), y); }
+    const by = Y + R + baseOff + baseC.height; // 탁자 광택: 받침이 거꾸로 옅게 비친다
+    ctx.save(); ctx.globalAlpha = 0.12; ctx.translate(0, 2 * by); ctx.scale(1, -1); ctx.drawImage(baseC, X, Y + R + baseOff); ctx.restore();
+    ctx.drawImage(backC, X, Y);
+    for (const b of bucket) b.length = 0;
+    for (let i = 0; i < n; i++) if (fz[i] < 0.35) bucket[fa[i] < 0.35 ? 3 : 0].push(i);
+    drawFlakesHD(X + R, Y + R);
+    ctx.drawImage(midC, X, Y);
+    for (let i = 0; i < D; i++) { // 쌓인 눈: 윗칸은 흰빛, 몸은 땅 표면 색
+      if (pile[i] < 0.35) continue;
+      const yt = Math.floor(R + ground[i] - pile[i]), yg = Math.ceil(R + ground[i]);
+      if (!inside(i, yt)) continue;
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(X + i, Y + yt, 1, 1);
+      if (yg - yt > 1) { ctx.fillStyle = "#f4f8fd"; ctx.fillRect(X + i, Y + yt + 1, 1, yg - yt - 1); }
+    }
+    const cross = q >= 1.3;
+    for (const [x, y, col, ph] of lights) { // 전구: 켜지면 흰 심 + 제 색 십자
+      if (Math.sin(t * 1.7 + ph * 3) > -0.4) {
+        if (cross) { ctx.fillStyle = col; ctx.fillRect(X + x - 1, Y + y, 3, 1); ctx.fillRect(X + x, Y + y - 1, 1, 3); }
+        ctx.fillStyle = cross ? "#fffbe8" : col; ctx.fillRect(X + x, Y + y, 1, 1);
+      } else { ctx.fillStyle = "#1c3328"; ctx.fillRect(X + x, Y + y, 1, 1); }
+    }
+    ctx.fillStyle = "#ffffff";
+    for (const [x, y, f, ph] of glints) if (Math.sin(t * f + ph) > 0.93) { ctx.fillRect(X + x, Y + y, 1, 1); if (cross) { ctx.globalAlpha = 0.5; ctx.fillRect(X + x - 1, Y + y, 3, 1); ctx.fillRect(X + x, Y + y - 1, 1, 3); ctx.globalAlpha = 1; } }
+    ctx.fillStyle = css(C.smoke); // 연기: 디더 둥근 뭉치가 커지며 옅어진다
+    for (const p of smoke) {
+      const a = Math.min(1, p[4] * 2) * (1 - p[4] / p[5]), rr = Math.round((0.6 + p[4] * 0.9) * q), cx = X + R + Math.round(p[0]), cy = Y + R + Math.round(p[1]);
+      ctx.globalAlpha = 0.3 * a;
+      for (let dy = -rr; dy <= rr; dy++) { const hw = Math.round(Math.sqrt(rr * rr - dy * dy)); ctx.fillRect(cx - hw, cy + dy, hw * 2 + 1, 1); }
+    }
+    ctx.globalAlpha = 1;
+    for (const b of bucket) b.length = 0;
+    for (let i = 0; i < n; i++) { const z = fz[i]; if (z >= 0.35) bucket[fa[i] < 0.35 ? 3 : z > 0.82 ? 2 : 1].push(i); }
+    drawFlakesHD(X + R, Y + R);
+    ctx.drawImage(glassC, X, Y);
+    ctx.drawImage(baseC, X, Y + R + baseOff);
+    drawGlowHD(X, Y);
+  }
+  const SNOW_HD = ["#7d90ba", "#dbe4f3", "#ffffff", "#7d90ba"]; // 먼 · 가운데 · 가까운 · 막 생김
+  function drawFlakesHD(cx, cy) {
+    const plus = q >= 1.3;
+    for (let b = 0; b < 4; b++) {
+      const list = bucket[b]; if (!list.length) continue;
+      if (b === 2) { // 가까운 눈: 십자(팔은 중간색, 가운데 흰빛) — 둥근 눈송이를 칸으로 찍은 꼴
+        if (plus) { ctx.fillStyle = "#b9c8e4"; for (const i of list) { const x = Math.round(cx + fx[i]), y = Math.round(cy + fy[i]); ctx.fillRect(x - 1, y, 3, 1); ctx.fillRect(x, y - 1, 1, 3); } }
+        ctx.fillStyle = "#ffffff"; const sz = plus ? 1 : 2;
+        for (const i of list) ctx.fillRect(Math.round(cx + fx[i]), Math.round(cy + fy[i]), sz, sz);
+        continue;
+      }
+      ctx.fillStyle = SNOW_HD[b];
+      for (const i of list) ctx.fillRect(Math.round(cx + fx[i]), Math.round(cy + fy[i]), 1, 1);
+    }
+  }
+  function drawGlowHD(X, Y) {
+    if (Q < 1) return;
+    const g = gctx; g.clearRect(0, 0, gl.width, gl.height);
+    g.globalCompositeOperation = "lighter";
+    const blob = (x, y, r, rgb, a) => { const gd = g.createRadialGradient(x / 2, y / 2, 0, x / 2, y / 2, r / 2); gd.addColorStop(0, `rgba(${rgb},${a})`); gd.addColorStop(1, `rgba(${rgb},0)`); g.fillStyle = gd; g.fillRect(x / 2 - r / 2, y / 2 - r / 2, r, r); };
+    blob(X + R, Y + R, R * 2.3, "120,150,220", 0.1);
+    blob(X + R, gy + R * 1.2, R * 2.2, "255,190,120", 0.08);
+    for (const [wx, wy] of winGlow) blob(X + R + wx * k, Y + R + (wy + YS) * k, 20 * s, "255,196,110", 0.42 + 0.06 * Math.sin(t * 5.3 + wx));
+    for (const [x, y, col, ph] of lights) if (Math.sin(t * 1.7 + ph * 3) > -0.4) blob(X + x, Y + y, 4 * s + 4 * q, hex(col).join(","), 0.28);
+    for (const [x, y, col, ph] of bulbs) if (Math.sin(t * 1.1 + ph) > -0.35) blob(x, y + 3 * q, 16 * q, hex(col).join(","), 0.45);
+    g.globalCompositeOperation = "source-over";
+  }
+
   // ---------------------------------------------------------------- 돌리기
   function frame(now) {
     const real = last ? (now - last) / 1000 : 1 / 60; last = now;
@@ -461,18 +928,19 @@ export function mount(host, opts = {}) {
     slowFor = ema > 24 ? slowFor + real : 0;
     if (Q === 1 && slowFor > 2) { Q = 0.5; gl.style.display = "none"; host.dataset.q = "low"; }
     const a = performance.now();
-    step(dt); draw();
+    step(dt); render();
     jsMs = jsMs * 0.95 + (performance.now() - a) * 0.05; // 프레임당 계산 시간(ms) — 검사가 host.dataset.js 로 읽는다(불꽃놀이 원본과 같은 자리)
     if (++frames % 30 === 0) host.dataset.js = jsMs.toFixed(2);
     raf = requestAnimationFrame(frame);
   }
   function still() { // 움직임 줄이기: 내리는 중인 한 장면
     for (let i = 0; i < 30; i++) step(1 / 30);
-    draw();
+    render();
   }
+  function render() { if (HD) drawHD(); else draw(); }
 
   // 누르기·끌기 = 흔들기. 키보드는 Space·Enter
-  const cell = e => [e.clientX / PX, e.clientY / PX];
+  const cell = e => [e.clientX / cellCss, e.clientY / cellCss];
   function onDown(e) {
     if (reduce) return;
     cv.setPointerCapture?.(e.pointerId); cv.style.cursor = "grabbing";
@@ -528,7 +996,7 @@ export function mount(host, opts = {}) {
     },
     setQuiet(on) { quiet = !!on; },
     // 검사용(계약 밖): 알갱이 수·품질·흔들기
-    _probe: () => ({ n, NMAX, Q, R, W, H, PX, gx, gy, tableY, pile: pile.reduce((a, b) => a + b, 0) / D, swirl }),
+    _probe: () => ({ n, NMAX, Q, R, W, H, PX, gx, gy, tableY, cols: opts.cols || 0, k: HD ? k : 0, pile: pile.reduce((a, b) => a + b, 0) / D, swirl }),
     _shake: (k = 0.8) => { ovx += 70 * s; stir(k, 1, -1); },
   };
 }

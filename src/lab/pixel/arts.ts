@@ -29,7 +29,18 @@ export const ARTS: Art[] = [
     year: 2026,
     paint: "#0c0910", // 방 벽 꼭대기 색 = snowglobe.js 의 export paint(검사가 맞댄다)
   },
+  {
+    // Dean 11-27: 집 푸들 코코 사진 1 구도(메밀꽃 들판·그루터기). 사진은 참고만 — 저장소엔 그림만 있다
+    slug: "coco",
+    title: "코코",
+    caption: "메밀꽃 들판, 그루터기 위에 앉은 살구색 푸들",
+    year: 2026,
+    paint: "#8f9aab",
+  },
 ];
+
+/** 미술관 이름(Dean 11-27: 「실험실」 빼고 「Kong의 도트 아트 미술관」, 미술관은 영어로) — 탭 제목·전시 제목이 이 하나를 쓴다 */
+export const MUSEUM = "Kong's Pixel Art Museum";
 
 export const thumbOf = (slug: string) => `/lab/pixel/${slug}.webp`;
 /** 명판 번호 01, 02 … (목록 순서) */

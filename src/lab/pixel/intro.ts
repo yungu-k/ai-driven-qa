@@ -7,6 +7,7 @@
 // 쇼를 여는 때: 와장창으로 왔을 때(sessionStorage "lab-boot" = "1") 또는 이 탭에서 처음 연 /lab/.
 // 쇼 중 누르기(click)·Esc·Enter·Space → 바로 전시실. 갤러리가 열린 뒤 불꽃놀이는 뒤에서 조용히(setQuiet) 이어 간다.
 import { mount } from "@/lab/pixel/fireworks";
+import { fireworksAudio } from "@/lab/pixel/sound-bridge";
 
 const SEEN = "lab.intro.seen";
 /** onIntroEnd 가 안 오는 경우(탭이 숨어 rAF 가 멈췄다 등) 대비 — 쇼는 이보다 길어지지 않는다 */
@@ -41,7 +42,10 @@ export function startLabIntro(host: HTMLElement): Intro {
 
   let isOpen = false;
   let timer = 0;
-  const art = mount(host, { mode: show ? "intro" : "loop", reduce, onIntroEnd: () => open() });
+  // 불꽃 소리(11-27 Dean 「터지는 소리만」): 쇼 동안은 그대로, 전시실이 켜지면 벽 너머처럼 먹먹하게.
+  // 브라우저가 누름 전 소리를 막으므로 쇼를 건너뛰는 누름이 소리를 깨운다(안 누르면 조용한 쇼)
+  const snd = fireworksAudio();
+  const art = mount(host, { mode: show ? "intro" : "loop", reduce, onIntroEnd: () => open(), onEvent: snd.onEvent });
 
   function open(how: "show" | "fast" | "still" = "show") {
     if (isOpen) return;
@@ -50,6 +54,7 @@ export function startLabIntro(host: HTMLElement): Intro {
     document.removeEventListener("click", skip, true);
     document.removeEventListener("keydown", skip, true);
     art.setQuiet(true);
+    snd.setMuffled(true);
     if (how !== "show") root.classList.add(`lab-${how}`);
     void root.offsetWidth; // 빠르기 클래스를 먼저 계산시켜야 전환 시간이 그 값으로 돈다
     root.classList.remove("lab-show");
@@ -79,6 +84,7 @@ export function startLabIntro(host: HTMLElement): Intro {
       document.removeEventListener("click", skip, true);
       document.removeEventListener("keydown", skip, true);
       art.stop();
+      snd.stop();
     },
     opened: () => isOpen,
   };

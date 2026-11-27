@@ -4,7 +4,8 @@
 export const paint: string;
 export function mount(
   host: HTMLElement,
-  opts?: { mode?: "loop" | "intro"; reduce?: boolean; onIntroEnd?: () => void }
+  /** cols: 화면 가로 칸 수(밀도 2판, 칸 = 기기 px 정수배). 없으면 ① 그림 그대로 */
+  opts?: { mode?: "loop" | "intro"; reduce?: boolean; onIntroEnd?: () => void; cols?: number }
 ): {
   stop(): void;
   setQuiet(on: boolean): void;

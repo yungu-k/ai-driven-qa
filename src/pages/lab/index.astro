@@ -3,29 +3,29 @@
 // 흐름: docs/lab-pixel-brief.md · 모양·시간표: design 규격 docs/lab-pixel-spec.md 2–4절, 시안 docs/lab-pixel-gallery-mock.html.
 // 쇼·건너뛰기·다시 왔을 때는 src/lab/pixel/intro.ts(html 에 lab-show / lab-lit / lab-fast / lab-still), 작품 목록은 src/lab/pixel/arts.ts.
 import LabLayout from "@/lab/LabLayout.astro";
-import { ARTS, metaOf, numberOf, thumbOf } from "@/lab/pixel/arts";
+import { ARTS, MUSEUM, metaOf, numberOf, thumbOf } from "@/lab/pixel/arts";
 ---
 
-<LabLayout title="실험실" description="도트 아트 전시실" isIndex>
+<LabLayout title={MUSEUM} description="도트 애니메이션 작품을 거는 작은 미술관" isIndex>
   <div class="lab-sky" id="lab-sky" aria-hidden="true"></div>
   <div class="lab-wall" aria-hidden="true"></div>
 
-  <nav class="lab-bar" aria-label="실험실">
+  <nav class="lab-bar" aria-label="미술관 막대">
     <a href="/" data-astro-reload
       ><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10 3 5 8l5 5"></path></svg>블로그</a
     >
-    <button type="button" data-lab-sound aria-pressed="true" title="깨지는 소리 끄기"
+    <button type="button" data-lab-sound aria-pressed="true" title="소리 끄기"
       ><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"
         ><path d="M2.5 6h2.5L8.5 3v10L5 10H2.5z" fill="currentColor" stroke="none"></path><path class="on" d="M10.5 5.5a3.5 3.5 0 0 1 0 5M12.5 3.5a6.3 6.3 0 0 1 0 9"></path><path class="off" d="m10.5 6 4 4m0-4-4 4" style="display:none"></path></svg
-      ><span class="lab-sr">깨지는 소리</span></button
+      ><span class="lab-sr">소리</span></button
     >
   </nav>
 
   <main id="main-content" class="lab-hall">
     <div class="lab-hall-in">
     <header class="lab-hall-head">
-      <p class="lab-eyebrow">실험실</p>
-      <h1>도트 아트</h1>
+      <p class="lab-eyebrow">Kong's</p>
+      <h1>Pixel Art Museum</h1>
     </header>
     <ul class="lab-works">
       {
@@ -253,7 +253,7 @@ import { ARTS, metaOf, numberOf, thumbOf } from "@/lab/pixel/arts";
     outline-offset: 8px;
   }
 
-  /* ── 위 막대 — 왼쪽 블로그로, 오른쪽 깨지는 소리. 배경 없이 벽 위, 화면에 고정 ── */
+  /* ── 위 막대 — 왼쪽 블로그로, 오른쪽 소리(깨지는 소리·작품 소리). 배경 없이 벽 위, 화면에 고정 ── */
   .lab-bar {
     position: fixed;
     z-index: 3;

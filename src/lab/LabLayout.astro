@@ -7,11 +7,12 @@
 // 사이트맵 제외는 astro.config.ts 의 sitemap filter 가 맡는다.
 import Layout from "@/layouts/Layout.astro";
 import "@/lab/lab-tokens.css";
+import { MUSEUM } from "@/lab/pixel/arts";
 
 type Props = {
   title: string;
   description?: string;
-  /** 갤러리(첫 화면)면 true — 탭 제목에 「| 실험실」을 안 붙인다 */
+  /** 전시실(첫 화면)이면 true — 탭 제목에 「| 미술관 이름」을 안 붙인다 */
   isIndex?: boolean;
   /** 첫 페인트 바탕색. 안 주면 밤하늘(와장창 뒷면과 같은 그림 → 이동이 안 보인다) */
   paint?: string;
@@ -27,7 +28,7 @@ const firstPaint = paint
   : `html{background:#030510 ${NIGHT} no-repeat fixed;color-scheme:dark}body{background:transparent}`;
 ---
 
-<Layout title={isIndex ? title : `${title} | 실험실`} description={description}>
+<Layout title={isIndex ? title : `${title} | ${MUSEUM}`} description={description}>
   <meta slot="head" name="robots" content="noindex, nofollow" />
   <style slot="head" is:inline set:html={firstPaint} />
   <div class="lab-root" data-pagefind-ignore="all">
@@ -36,8 +37,8 @@ const firstPaint = paint
 </Layout>
 
 <script>
-  // 깨지는 소리 켬/끔(와장창 소리 하나뿐 — design 규격 4절). 값은 src/lab/sound.ts 가 localStorage "lab.sound" 로 읽는다.
-  // 단추는 [data-lab-sound] 가 있는 페이지(전시실)만. 아이콘의 .on/.off 두 획을 바꿔 그린다
+  // 실험실 소리 켬/끔(와장창 깨지는 소리·작품 소리 — 오르골·불꽃). 값은 src/lab/sound.ts 가 localStorage "lab.sound" 로 읽는다.
+  // 단추는 [data-lab-sound] 가 있는 페이지(전시실·작품)만. 아이콘의 .on/.off 두 획을 바꿔 그린다
   import { isSoundOn, setSoundOn, unlock } from "@/lab/sound";
 
   function initSoundToggle() {
@@ -47,7 +48,7 @@ const firstPaint = paint
     const render = () => {
       const on = isSoundOn();
       btn.setAttribute("aria-pressed", String(on));
-      btn.title = on ? "깨지는 소리 끄기" : "깨지는 소리 켜기";
+      btn.title = on ? "소리 끄기" : "소리 켜기";
       btn.querySelector<SVGElement>(".on")?.style.setProperty("display", on ? "" : "none");
       btn.querySelector<SVGElement>(".off")?.style.setProperty("display", on ? "none" : "");
     };

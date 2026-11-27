@@ -21,6 +21,15 @@ export function setSoundOn(on: boolean) {
   }
   memo = on;
   if (on) unlock();
+  // 작품 소리(오르골·불꽃)가 듣고 끄거나 다시 켠다 — 같은 페이지 안 알림
+  window.dispatchEvent(new CustomEvent("lab-sound", { detail: on }));
+}
+
+/** 소리 켬/끔이 바뀔 때 부른다. 떼는 함수를 돌려준다 */
+export function onSoundChange(cb: (on: boolean) => void): () => void {
+  const h = (e: Event) => cb((e as CustomEvent<boolean>).detail);
+  window.addEventListener("lab-sound", h);
+  return () => window.removeEventListener("lab-sound", h);
 }
 
 let memo: boolean | null = null;
@@ -37,6 +46,11 @@ export function unlock() {
   } catch {
     ctx = null;
   }
+}
+
+/** 작품 소리(오르골·불꽃)가 같이 쓰는 AudioContext. unlock() 전이거나 소리를 껐으면 null — 받은 쪽은 그때 소리를 안 낸다 */
+export function audio(): AudioContext | null {
+  return on() && ctx && ctx.state !== "closed" ? ctx : null;
 }
 
 type Wave = OscillatorType;

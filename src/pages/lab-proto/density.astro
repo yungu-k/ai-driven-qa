@@ -1,0 +1,136 @@
+---
+// 도트 밀도 비교 — 숨은 주소(noindex·링크 없음). Dean 11-27 「더 촘촘한 도트」: 단계를 폰·PC 로 보고 고른다. docs/lab-pixel-brief.md 「밀도 2판」
+// ?art=fireworks|snowglobe&lv=1|2|3  · ① 지금(cols 없음) ② 데스크톱 960 / 폰 390 ③ 1280 / 585 (폭 700 기준)
+// 고른 뒤엔 /lab/ 작품에 그 cols 를 걸고 이 페이지는 지운다.
+import LabLayout from "@/lab/LabLayout.astro";
+---
+
+<LabLayout title="도트 밀도 비교" description="숨은 비교 페이지">
+  <div class="dp-host" id="dp-host" aria-hidden="true"></div>
+  <nav class="dp-bar" aria-label="밀도 비교">
+    <div class="dp-row" data-group="art">
+      <a data-art="fireworks">불꽃놀이</a>
+      <a data-art="snowglobe">스노우볼</a>
+    </div>
+    <div class="dp-row" data-group="lv">
+      <a data-lv="1">① 지금</a>
+      <a data-lv="2">② 제안</a>
+      <a data-lv="3">③ 촘촘</a>
+    </div>
+    <p class="dp-info" id="dp-info">…</p>
+  </nav>
+</LabLayout>
+
+<script>
+  import { mount as mountFireworks } from "@/lab/pixel/fireworks";
+  import { mount as mountSnow } from "@/lab/pixel/snowglobe";
+
+  type Handle = { stop(): void };
+  const LEVELS: Record<string, { desk?: number; phone?: number }> = { "1": {}, "2": { desk: 960, phone: 390 }, "3": { desk: 1280, phone: 585 } };
+
+  function init() {
+    const host = document.getElementById("dp-host");
+    const info = document.getElementById("dp-info");
+    if (!host || !info || host.dataset.ready) return;
+    host.dataset.ready = "1";
+    const q = new URLSearchParams(location.search);
+    const art = q.get("art") === "snowglobe" ? "snowglobe" : "fireworks";
+    const lv = LEVELS[q.get("lv") || ""] ? (q.get("lv") as string) : "1";
+    const phone = window.innerWidth < 700;
+    const cols = phone ? LEVELS[lv].phone : LEVELS[lv].desk;
+
+    // 단추: 같은 페이지를 다른 꼬리표로 다시 연다(작품을 깨끗이 다시 mount)
+    document.querySelectorAll<HTMLAnchorElement>(".dp-bar a").forEach(a => {
+      const nq = new URLSearchParams({ art, lv });
+      if (a.dataset.art) nq.set("art", a.dataset.art);
+      if (a.dataset.lv) nq.set("lv", a.dataset.lv);
+      a.href = `?${nq}`;
+      a.setAttribute("data-astro-reload", "");
+      const on = a.dataset.art ? a.dataset.art === art : a.dataset.lv === lv;
+      a.classList.toggle("on", on);
+      if (on) a.setAttribute("aria-current", "true");
+    });
+    document.documentElement.style.background = art === "snowglobe" ? "#0c0910" : "";
+
+    const opts = cols ? { mode: "loop" as const, cols } : { mode: "loop" as const };
+    // cols 는 밀도 2판 계약(dev·design 이 단다) — 아직 안 단 모듈은 무시하고 ① 과 같게 그린다
+    const h: Handle = art === "snowglobe" ? mountSnow(host, opts as never) : mountFireworks(host, opts as never);
+
+    // 읽은 값: 실제 칸 수(캔버스 버퍼), 점 하나 = 기기 픽셀 몇 개, 초당 프레임
+    let frames = 0;
+    let t0 = performance.now();
+    let fps = 0;
+    const tick = (now: number) => {
+      frames++;
+      if (now - t0 >= 1000) {
+        fps = Math.round((frames * 1000) / (now - t0));
+        frames = 0;
+        t0 = now;
+        const cv = host.querySelector("canvas");
+        const dpr = window.devicePixelRatio || 1;
+        const cell = cv ? (cv.getBoundingClientRect().width * dpr) / cv.width : 0;
+        info.textContent = cv
+          ? `${cv.width}×${cv.height}칸 · 점 ${cell.toFixed(cell % 1 ? 2 : 0)} 기기px · ${fps} fps · ${phone ? "폰" : "PC"} ${cols ? `cols ${cols}` : "cols 없음"}${host.dataset.q === "low" || host.querySelector("[data-q='low']") ? " · 품질 낮춤" : ""}`
+          : "캔버스 없음";
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    window.addEventListener("pagehide", () => h.stop(), { once: true });
+  }
+  document.addEventListener("astro:page-load", init);
+</script>
+
+<style is:global>
+  html:has(.dp-host) body {
+    overflow: hidden;
+  }
+  .dp-host {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    touch-action: none;
+  }
+  .dp-bar {
+    position: fixed;
+    z-index: 3;
+    right: 12px;
+    top: 12px;
+    display: grid;
+    gap: 6px;
+    justify-items: end;
+    font-size: 13px;
+  }
+  .dp-row {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(12, 12, 16, 0.6);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .dp-row a {
+    padding: 6px 11px;
+    border-radius: 999px;
+    color: rgba(236, 232, 224, 0.7);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .dp-row a.on {
+    background: rgba(236, 232, 224, 0.92);
+    color: #0b0b0d;
+    font-weight: 600;
+  }
+  .dp-info {
+    margin: 0;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(12, 12, 16, 0.6);
+    color: rgba(236, 232, 224, 0.8);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

@@ -1,24 +1,31 @@
 ---
-// 실험실 작품 01 — 불꽃놀이(전체 화면, 한 바퀴 24초를 끝없이). 그림은 src/lab/pixel/fireworks.ts(dev 이식, 원본과 같은 씨앗 대조).
-// 틀(돌아가기 알약·명판·Esc·첫 페인트 밤하늘)은 src/lab/pixel/ArtPage.astro. 아무 곳이나 누르면 전시실(원본 동작, tapClose).
+// 작품 01 — 불꽃놀이(전체 화면, 한 바퀴 24초를 끝없이). 그림은 src/lab/pixel/fireworks.ts(dev 이식, 원본과 같은 씨앗 대조).
+// 틀(돌아가기 알약·소리 단추·명판·Esc·첫 페인트 밤하늘)은 src/lab/pixel/ArtPage.astro.
+// 11-27: 터지는 소리(src/lab/pixel/fireworks-sound.ts). 브라우저는 누르기 전 소리를 막는다 → 누르면 닫히던 원본 동작을 빼고
+// 첫 누름이 소리를 깨운다. 닫기는 알약·Esc.
 import ArtPage from "@/lab/pixel/ArtPage.astro";
 ---
 
-<ArtPage slug="fireworks" tapClose />
+<ArtPage slug="fireworks" />
 
 <script>
   import { mount, type FireworksHandle } from "@/lab/pixel/fireworks";
+  import { fireworksAudio } from "@/lab/pixel/sound-bridge";
 
   // ClientRouter 가 페이지를 바꿔 끼워도 모듈은 한 번만 돈다 → 들어올 때마다 붙이고, 나갈 때 떼어 낸다
   let show: FireworksHandle | null = null;
+  let snd: ReturnType<typeof fireworksAudio> | null = null;
   function init() {
     const host = document.getElementById("lab-art");
     if (!host || show) return;
-    show = mount(host, { mode: "loop" });
+    snd = fireworksAudio();
+    show = mount(host, { mode: "loop", onEvent: snd.onEvent });
   }
   document.addEventListener("astro:page-load", init);
   document.addEventListener("astro:before-swap", () => {
     show?.stop();
+    snd?.stop();
     show = null;
+    snd = null;
   });
 </script>

@@ -1,0 +1,24 @@
+---
+// 작품 03 — 코코(Dean 11-27: 「코코 사진 세장… 최대한 정밀하고 세밀하게 강아지 위주로」, 사진 1 구도 확정).
+// 그림은 src/lab/pixel/coco.js(design 시안 docs/lab-pixel-coco.js 글자 그대로). 사진은 참고만 — 저장소엔 그림만 있다.
+// 누르기·Space 가 「갸웃」이라 「아무 데나 누르면 닫힘」은 끈다. 소리 없는 작품이라 소리 단추도 없다.
+import ArtPage from "@/lab/pixel/ArtPage.astro";
+---
+
+<ArtPage slug="coco" sound={false} />
+
+<script>
+  import { mount } from "@/lab/pixel/coco";
+
+  let art: ReturnType<typeof mount> | null = null;
+  function init() {
+    const host = document.getElementById("lab-art");
+    if (!host || art) return;
+    art = mount(host, { mode: "loop" });
+  }
+  document.addEventListener("astro:page-load", init);
+  document.addEventListener("astro:before-swap", () => {
+    art?.stop();
+    art = null;
+  });
+</script>

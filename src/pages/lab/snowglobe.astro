@@ -1,6 +1,7 @@
 ---
 // 실험실 작품 02 — 스노우볼(눈이 펑펑 오는 아늑한 집, 2026-11-27 Dean 「크리스마스니까」). 그림은 src/lab/pixel/snowglobe.ts
 // (design 시안 docs/lab-pixel-snowglobe.js 이식). 누르기·끌기가 흔들기라 「아무 데나 누르면 닫힘」은 끈다 — 알약·Esc 로만 닫는다(design 규격 5절).
+// 11-27: 오르골 캐롤(src/lab/pixel/musicbox.ts — 저작권 끝난 전통 캐롤을 파일 없이 합성). 첫 누름(흔들기)에 울리기 시작한다.
 import ArtPage from "@/lab/pixel/ArtPage.astro";
 ---
 
@@ -8,16 +9,21 @@ import ArtPage from "@/lab/pixel/ArtPage.astro";
 
 <script>
   import { mount } from "@/lab/pixel/snowglobe";
+  import { musicBoxAudio } from "@/lab/pixel/sound-bridge";
 
   let art: ReturnType<typeof mount> | null = null;
+  let music: ReturnType<typeof musicBoxAudio> | null = null;
   function init() {
     const host = document.getElementById("lab-art");
     if (!host || art) return;
     art = mount(host, { mode: "loop" });
+    music = musicBoxAudio();
   }
   document.addEventListener("astro:page-load", init);
   document.addEventListener("astro:before-swap", () => {
     art?.stop();
+    music?.stop();
     art = null;
+    music = null;
   });
 </script>

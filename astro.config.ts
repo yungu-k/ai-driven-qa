@@ -28,8 +28,9 @@ export default defineConfig({
     mdx(),
     sitemap({
       filter: page =>
-        // 실험실은 이스터에그로만 들어온다 — 사이트맵에 실으면 숨긴 의미가 없다
+        // 실험실은 이스터에그로만 들어온다 — 사이트맵에 실으면 숨긴 의미가 없다(비교용 숨은 주소 /lab-proto/ 도)
         !new URL(page).pathname.startsWith("/lab/") &&
+        !new URL(page).pathname.startsWith("/lab-proto/") &&
         (config.features?.showArchives !== false ||
           !page.endsWith("/archives/")),
     }),
